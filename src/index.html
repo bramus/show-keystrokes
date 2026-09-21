@@ -66,7 +66,7 @@
             <li><a href="#installation">Installation</a></li>
             <li><a href="#attributes">Attributes &amp; API</a></li>
             <li class="sidenav-divider">Examples</li>
-            <li><a href="#configuration">Filter Modes</a></li>
+            <li><a href="#configuration">Show Modes</a></li>
             <li><a href="#themes">Built-In Themes</a></li>
             <li><a href="#platforms">macOS vs. Windows</a></li>
             <li><a href="#parts-styling">Custom Styling (::part)</a></li>
@@ -112,12 +112,13 @@
 
             <div class="controls-grid">
               <div class="control-group">
-                <label for="select-filter">Filter (<code>filter</code>)</label>
-                <select id="select-filter">
-                  <option value="shortcuts, navigation" selected>Shortcuts &amp; Navigational (Default)</option>
+                <label for="select-show">Show (<code>show</code>)</label>
+                <select id="select-show">
+                  <option value="" selected>Shortcuts &amp; Navigational (Default)</option>
                   <option value="all">All Keystrokes (all)</option>
                   <option value="shortcuts">Shortcuts Only (shortcuts)</option>
-                  <option value="navigation">Navigational Keys Only (navigation)</option>
+                  <option value="navigational">Navigational Keys Only (navigational)</option>
+                  <option value="none">Nothing (none)</option>
                 </select>
               </div>
 
@@ -229,8 +230,8 @@
               <pre><code>&lt;!-- Live listener (defaults to showing shortcuts &amp; navigational keys) --&gt;
 &lt;show-keystrokes&gt;&lt;/show-keystrokes&gt;
 
-&lt;!-- Listen to all keystrokes --&gt;
-&lt;show-keystrokes filter="all"&gt;&lt;/show-keystrokes&gt;
+&lt;!-- Show all keystrokes --&gt;
+&lt;show-keystrokes show="all"&gt;&lt;/show-keystrokes&gt;
 
 &lt;!-- Static keycap display --&gt;
 &lt;show-keystrokes keys="SHIFT + TAB" static&gt;&lt;/show-keystrokes&gt;</code></pre>
@@ -243,8 +244,8 @@
           <h2>Features</h2>
           <div class="features-grid">
             <div class="feature-card">
-              <h3>Configurable Keystroke Filters</h3>
-              <p>Choose between <code>shortcuts, navigation</code> (default), <code>all</code> keystrokes, <code>shortcuts</code> only, or <code>navigation</code> keys only.</p>
+              <h3>Configurable Keystroke Display</h3>
+              <p>Choose what to show via <code>show</code>: Shortcuts &amp; Navigational (default when omitted), <code>all</code> keystrokes, <code>shortcuts</code> only, <code>navigational</code> keys only, or <code>none</code>.</p>
             </div>
             <div class="feature-card">
               <h3>macOS &amp; Windows Aware</h3>
@@ -292,9 +293,9 @@
               </thead>
               <tbody>
                 <tr>
-                  <td><code>filter</code></td>
-                  <td><code>"shortcuts, navigation"</code></td>
-                  <td><code>"shortcuts, navigation"</code>, <code>"all"</code>, <code>"shortcuts"</code>, or <code>"navigation"</code></td>
+                  <td><code>show</code></td>
+                  <td><em>(no value)</em></td>
+                  <td><em>(no value)</em> (Shortcuts &amp; Navigational), <code>"all"</code> (All keystrokes), <code>"shortcuts"</code> (Shortcuts only), <code>"navigational"</code> (Navigational Keys only), or <code>"none"</code> (Nothing)</td>
                 </tr>
                 <tr>
                   <td><code>theme</code></td>
@@ -336,60 +337,60 @@
           </div>
         </section>
 
-        <!-- Configuration / Filter Modes -->
+        <!-- Configuration / Show Modes -->
         <section id="configuration">
-          <h2>Filter Modes</h2>
+          <h2>Show Modes</h2>
           <p class="section-desc">
-            Control which keystrokes are visualized using the <code>filter</code> attribute (defaults to <code>"shortcuts, navigation"</code>).
+            Control which keystrokes are visualized using the <code>show</code> attribute (defaults to Shortcuts &amp; Navigational when omitted).
           </p>
 
           <div class="card">
-            <div class="filter-demo-grid">
-              <div class="filter-demo-box">
-                <div class="filter-demo-header">
-                  <strong>Default: Shortcuts + Navigational</strong>
-                  <code>filter="shortcuts, navigation"</code>
+            <div class="show-demo-grid">
+              <div class="show-demo-box">
+                <div class="show-demo-header">
+                  <strong>Default: Shortcuts &amp; Navigational</strong>
+                  <code>(no value)</code>
                 </div>
-                <p class="filter-demo-desc">Responds to shortcuts (<code>CMD + A</code>, <code>SHIFT + ENTER</code>) and navigation (<code>→</code>, <code>TAB</code>, <code>SPACE</code>, <code>BACKSPACE</code>, <code>DELETE</code>, <code>F1–F15</code>), ignoring plain typing.</p>
-                <div class="filter-demo-stage">
-                  <span class="filter-demo-hint">Waiting for shortcut or arrow key…</span>
-                  <show-keystrokes filter="shortcuts, navigation"></show-keystrokes>
+                <p class="show-demo-desc">Responds to shortcuts (<code>CMD + A</code>, <code>SHIFT + ENTER</code>) and navigational keys (<code>→</code>, <code>TAB</code>, <code>SPACE</code>, <code>BACKSPACE</code>, <code>DELETE</code>, <code>F1–F15</code>), ignoring plain typing.</p>
+                <div class="show-demo-stage">
+                  <span class="show-demo-hint">Waiting for shortcut or arrow key…</span>
+                  <show-keystrokes></show-keystrokes>
                 </div>
               </div>
 
-              <div class="filter-demo-box">
-                <div class="filter-demo-header">
+              <div class="show-demo-box">
+                <div class="show-demo-header">
                   <strong>All Keystrokes</strong>
-                  <code>filter="all"</code>
+                  <code>show="all"</code>
                 </div>
-                <p class="filter-demo-desc">Visualizes every single key press including letters, numbers, symbols, shortcuts, and navigation.</p>
-                <div class="filter-demo-stage">
-                  <span class="filter-demo-hint">Waiting for any key (A, 1, SPACE, →)…</span>
-                  <show-keystrokes filter="all"></show-keystrokes>
+                <p class="show-demo-desc">Visualizes every single key press including letters, numbers, symbols, shortcuts, and navigational keys.</p>
+                <div class="show-demo-stage">
+                  <span class="show-demo-hint">Waiting for any key (A, 1, SPACE, →)…</span>
+                  <show-keystrokes show="all"></show-keystrokes>
                 </div>
               </div>
 
-              <div class="filter-demo-box">
-                <div class="filter-demo-header">
+              <div class="show-demo-box">
+                <div class="show-demo-header">
                   <strong>Shortcuts Only</strong>
-                  <code>filter="shortcuts"</code>
+                  <code>show="shortcuts"</code>
                 </div>
-                <p class="filter-demo-desc">Only responds to modifier combinations (<code>CMD + A</code>, <code>SHIFT + CMD + T</code>, <code>SHIFT + TAB</code>, <code>SHIFT + ENTER</code>).</p>
-                <div class="filter-demo-stage">
-                  <span class="filter-demo-hint">Waiting for a shortcut (CMD + A)…</span>
-                  <show-keystrokes filter="shortcuts"></show-keystrokes>
+                <p class="show-demo-desc">Only responds to modifier combinations (<code>CMD + A</code>, <code>SHIFT + CMD + T</code>, <code>SHIFT + TAB</code>, <code>SHIFT + ENTER</code>).</p>
+                <div class="show-demo-stage">
+                  <span class="show-demo-hint">Waiting for a shortcut (CMD + A)…</span>
+                  <show-keystrokes show="shortcuts"></show-keystrokes>
                 </div>
               </div>
 
-              <div class="filter-demo-box">
-                <div class="filter-demo-header">
-                  <strong>Navigational &amp; Special Keys Only</strong>
-                  <code>filter="navigation"</code>
+              <div class="show-demo-box">
+                <div class="show-demo-header">
+                  <strong>Navigational Keys Only</strong>
+                  <code>show="navigational"</code>
                 </div>
-                <p class="filter-demo-desc">Only responds to navigation and special keys (<code>←</code>, <code>↑</code>, <code>→</code>, <code>↓</code>, <code>TAB</code>, <code>SPACE</code>, <code>BACKSPACE</code>, <code>DELETE</code>, <code>F1–F15</code>, <code>ENTER</code>, <code>ESC</code>).</p>
-                <div class="filter-demo-stage">
-                  <span class="filter-demo-hint">Waiting for TAB, SPACE, or arrows (→)…</span>
-                  <show-keystrokes filter="navigation"></show-keystrokes>
+                <p class="show-demo-desc">Only responds to navigational and special keys (<code>←</code>, <code>↑</code>, <code>→</code>, <code>↓</code>, <code>TAB</code>, <code>SPACE</code>, <code>BACKSPACE</code>, <code>DELETE</code>, <code>F1–F15</code>, <code>ENTER</code>, <code>ESC</code>).</p>
+                <div class="show-demo-stage">
+                  <span class="show-demo-hint">Waiting for TAB, SPACE, or arrows (→)…</span>
+                  <show-keystrokes show="navigational"></show-keystrokes>
                 </div>
               </div>
             </div>

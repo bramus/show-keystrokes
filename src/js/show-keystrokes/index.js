@@ -5,7 +5,7 @@
 
 import { ShowKeystrokes } from './components/show-keystrokes.js';
 import {
-  DEFAULT_FILTERS,
+  DEFAULT_SHOW,
   DEFAULT_TIMEOUT,
   DEFAULT_FADE_DURATION,
   DEFAULT_SIZE,
@@ -13,7 +13,7 @@ import {
   VALID_VERTICAL_POSITIONS,
   VALID_HORIZONTAL_POSITIONS,
   detectPlatform,
-  parseFilters,
+  parseShow,
   parsePosition,
   parseDurationMs,
   parseSize,
@@ -31,7 +31,7 @@ if (typeof customElements !== 'undefined' && !customElements.get('show-keystroke
 
 export {
   ShowKeystrokes,
-  DEFAULT_FILTERS,
+  DEFAULT_SHOW,
   DEFAULT_TIMEOUT,
   DEFAULT_FADE_DURATION,
   DEFAULT_SIZE,
@@ -39,7 +39,7 @@ export {
   VALID_VERTICAL_POSITIONS,
   VALID_HORIZONTAL_POSITIONS,
   detectPlatform,
-  parseFilters,
+  parseShow,
   parsePosition,
   parseDurationMs,
   parseSize,

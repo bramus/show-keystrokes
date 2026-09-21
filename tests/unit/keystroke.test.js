@@ -1,12 +1,12 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  DEFAULT_FILTERS,
+  DEFAULT_SHOW,
   DEFAULT_TIMEOUT,
   DEFAULT_FADE_DURATION,
   DEFAULT_SIZE,
   detectPlatform,
-  parseFilters,
+  parseShow,
   parsePosition,
   parseDurationMs,
   parseSize,
@@ -35,27 +35,29 @@ describe('keystroke utilities unit tests', () => {
     });
   });
 
-  describe('parseFilters()', () => {
-    it('defaults to shortcuts and navigation when omitted or empty', () => {
-      const filters = parseFilters(undefined);
-      assert.deepEqual(Array.from(filters), DEFAULT_FILTERS);
-      assert.equal(filters.has('shortcuts'), true);
-      assert.equal(filters.has('navigation'), true);
-      assert.equal(filters.has('all'), false);
+  describe('parseShow()', () => {
+    it('defaults to shortcuts and navigational when omitted or empty (no value)', () => {
+      const showSet = parseShow(undefined);
+      assert.deepEqual(Array.from(showSet), DEFAULT_SHOW);
+      assert.deepEqual(Array.from(parseShow('')), DEFAULT_SHOW);
+      assert.equal(showSet.has('shortcuts'), true);
+      assert.equal(showSet.has('navigational'), true);
+      assert.equal(showSet.has('all'), false);
     });
 
-    it('parses "all", "shortcuts", and "navigation" configurations', () => {
-      assert.equal(parseFilters('all').has('all'), true);
-      assert.deepEqual(Array.from(parseFilters('shortcuts')), ['shortcuts']);
-      assert.deepEqual(Array.from(parseFilters('navigation')), ['navigation']);
-      assert.deepEqual(Array.from(parseFilters('navigational')), ['navigation']);
-      assert.deepEqual(Array.from(parseFilters('shortcuts, navigation')), ['shortcuts', 'navigation']);
+    it('parses "all", "shortcuts", "navigational", and "none" configurations', () => {
+      assert.equal(parseShow('all').has('all'), true);
+      assert.deepEqual(Array.from(parseShow('shortcuts')), ['shortcuts']);
+      assert.deepEqual(Array.from(parseShow('navigational')), ['navigational']);
+      assert.deepEqual(Array.from(parseShow('navigation')), ['navigational']);
+      assert.deepEqual(Array.from(parseShow('shortcuts, navigational')), ['shortcuts', 'navigational']);
+      assert.deepEqual(Array.from(parseShow('none')), []);
     });
 
     it('supports boolean attribute flags', () => {
-      assert.equal(parseFilters(null, { all: true }).has('all'), true);
-      assert.deepEqual(Array.from(parseFilters(null, { shortcuts: true })), ['shortcuts']);
-      assert.deepEqual(Array.from(parseFilters(null, { navigation: true })), ['navigation']);
+      assert.equal(parseShow(null, { all: true }).has('all'), true);
+      assert.deepEqual(Array.from(parseShow(null, { shortcuts: true })), ['shortcuts']);
+      assert.deepEqual(Array.from(parseShow(null, { navigational: true })), ['navigational']);
     });
   });
 
@@ -63,7 +65,7 @@ describe('keystroke utilities unit tests', () => {
     it('shows "→" when hitting the right arrow key', () => {
       const res = formatKeystrokeEvent(
         { key: 'ArrowRight', code: 'ArrowRight' },
-        { platform: 'mac', filters: parseFilters('shortcuts, navigation') }
+        { platform: 'mac', show: parseShow('') }
       );
       assert.equal(res.shouldShow, true);
       assert.equal(res.isNavigation, true);
@@ -74,7 +76,7 @@ describe('keystroke utilities unit tests', () => {
     it('shows "SHIFT + TAB" when hitting TAB while holding SHIFT', () => {
       const res = formatKeystrokeEvent(
         { key: 'Tab', code: 'Tab', shiftKey: true },
-        { platform: 'mac', filters: parseFilters('shortcuts, navigation') }
+        { platform: 'mac', show: parseShow('') }
       );
       assert.equal(res.shouldShow, true);
       assert.equal(res.isShortcut, true);
@@ -89,7 +91,7 @@ describe('keystroke utilities unit tests', () => {
     it('shows "CMD + A" when hitting A while holding CMD on macOS', () => {
       const res = formatKeystrokeEvent(
         { key: 'a', code: 'KeyA', metaKey: true },
-        { platform: 'mac', filters: parseFilters('shortcuts, navigation') }
+        { platform: 'mac', show: parseShow('') }
       );
       assert.equal(res.shouldShow, true);
       assert.equal(res.isShortcut, true);
@@ -103,7 +105,7 @@ describe('keystroke utilities unit tests', () => {
     it('shows "CTRL + A" when hitting A while holding CTRL on Windows', () => {
       const res = formatKeystrokeEvent(
         { key: 'a', code: 'KeyA', ctrlKey: true },
-        { platform: 'windows', filters: parseFilters('shortcuts, navigation') }
+        { platform: 'windows', show: parseShow('') }
       );
       assert.equal(res.shouldShow, true);
       assert.equal(res.isShortcut, true);
@@ -117,7 +119,7 @@ describe('keystroke utilities unit tests', () => {
     it('shows "SHIFT + CMD + T" when hitting T while holding SHIFT and CMD on macOS', () => {
       const res = formatKeystrokeEvent(
         { key: 'T', code: 'KeyT', shiftKey: true, metaKey: true },
-        { platform: 'mac', filters: parseFilters('shortcuts') }
+        { platform: 'mac', show: parseShow('shortcuts') }
       );
       assert.equal(res.shouldShow, true);
       assert.equal(res.isShortcut, true);
@@ -127,38 +129,44 @@ describe('keystroke utilities unit tests', () => {
     it('shows "SHIFT + ENTER" as a shortcut', () => {
       const res = formatKeystrokeEvent(
         { key: 'Enter', code: 'Enter', shiftKey: true },
-        { platform: 'mac', filters: parseFilters('shortcuts') }
+        { platform: 'mac', show: parseShow('shortcuts') }
       );
       assert.equal(res.shouldShow, true);
       assert.equal(res.isShortcut, true);
       assert.equal(res.label, 'SHIFT + ENTER');
     });
 
-    it('filters out plain character typing by default ("shortcuts, navigation"), but allows it in "all" mode', () => {
+    it('ignores plain character typing by default (no value), allows it in "all", and shows nothing in "none"', () => {
       const defaultRes = formatKeystrokeEvent(
         { key: 'a', code: 'KeyA' },
-        { platform: 'mac', filters: parseFilters('shortcuts, navigation') }
+        { platform: 'mac', show: parseShow('') }
       );
       assert.equal(defaultRes.shouldShow, false);
 
       const allRes = formatKeystrokeEvent(
         { key: 'a', code: 'KeyA' },
-        { platform: 'mac', filters: parseFilters('all') }
+        { platform: 'mac', show: parseShow('all') }
       );
       assert.equal(allRes.shouldShow, true);
       assert.equal(allRes.label, 'A');
+
+      const noneRes = formatKeystrokeEvent(
+        { key: 'a', code: 'KeyA', metaKey: true },
+        { platform: 'mac', show: parseShow('none') }
+      );
+      assert.equal(noneRes.shouldShow, false);
     });
 
-    it('filters out navigation keys when filter="shortcuts" only, and filters out shortcuts when filter="navigation" only', () => {
+    it('shows only shortcuts when show="shortcuts" and only navigational keys when show="navigational"', () => {
       const arrowInShortcutsOnly = formatKeystrokeEvent(
         { key: 'ArrowRight', code: 'ArrowRight' },
-        { platform: 'mac', filters: parseFilters('shortcuts') }
+        { platform: 'mac', show: parseShow('shortcuts') }
       );
       assert.equal(arrowInShortcutsOnly.shouldShow, false);
 
       const cmdAInNavOnly = formatKeystrokeEvent(
         { key: 'a', code: 'KeyA', metaKey: true },
-        { platform: 'mac', filters: parseFilters('navigation') }
+        { platform: 'mac', show: parseShow('navigational') }
       );
       assert.equal(cmdAInNavOnly.shouldShow, false);
     });
@@ -166,39 +174,39 @@ describe('keystroke utilities unit tests', () => {
     it('ignores lone modifier presses', () => {
       const modRes = formatKeystrokeEvent(
         { key: 'Meta', code: 'MetaLeft', metaKey: true },
-        { platform: 'mac', filters: parseFilters('all') }
+        { platform: 'mac', show: parseShow('all') }
       );
       assert.equal(modRes.shouldShow, false);
       assert.equal(modRes.isModifierOnly, true);
     });
 
-    it('captures BACKSPACE, SPACE, DELETE, and F1–F15 in default ("shortcuts, navigation") mode and labels SPACE as "SPACE"', () => {
-      const defaultFilters = parseFilters('shortcuts, navigation');
+    it('captures BACKSPACE, SPACE, DELETE, and F1–F15 in default (no value) mode and labels SPACE as "SPACE"', () => {
+      const defaultShow = parseShow('');
 
       const backspaceRes = formatKeystrokeEvent(
         { key: 'Backspace', code: 'Backspace' },
-        { platform: 'mac', filters: defaultFilters }
+        { platform: 'mac', show: defaultShow }
       );
       assert.equal(backspaceRes.shouldShow, true);
       assert.equal(backspaceRes.label, 'BACKSPACE');
 
       const spaceRes = formatKeystrokeEvent(
         { key: ' ', code: 'Space' },
-        { platform: 'mac', filters: defaultFilters }
+        { platform: 'mac', show: defaultShow }
       );
       assert.equal(spaceRes.shouldShow, true);
       assert.equal(spaceRes.label, 'SPACE');
 
       const nbspSpaceRes = formatKeystrokeEvent(
         { key: '\u00A0', code: 'Space' },
-        { platform: 'mac', filters: defaultFilters }
+        { platform: 'mac', show: defaultShow }
       );
       assert.equal(nbspSpaceRes.shouldShow, true);
       assert.equal(nbspSpaceRes.label, 'SPACE');
 
       const deleteRes = formatKeystrokeEvent(
         { key: 'Delete', code: 'Delete' },
-        { platform: 'mac', filters: defaultFilters }
+        { platform: 'mac', show: defaultShow }
       );
       assert.equal(deleteRes.shouldShow, true);
       assert.equal(deleteRes.label, 'DELETE');
@@ -207,11 +215,36 @@ describe('keystroke utilities unit tests', () => {
         const fnKey = `F${i}`;
         const fnRes = formatKeystrokeEvent(
           { key: fnKey, code: fnKey },
-          { platform: 'mac', filters: defaultFilters }
+          { platform: 'mac', show: defaultShow }
         );
         assert.equal(fnRes.shouldShow, true, `${fnKey} should be captured`);
         assert.equal(fnRes.label, fnKey);
       }
+    });
+
+    it('supports Fn modifier via getModifierState("Fn") or fnKey and ignores lone Fn presses', () => {
+      const loneFn = formatKeystrokeEvent(
+        { key: 'Fn', code: 'Fn' },
+        { platform: 'mac', show: parseShow('all') }
+      );
+      assert.equal(loneFn.shouldShow, false);
+      assert.equal(loneFn.isModifierOnly, true);
+
+      const fnF1 = formatKeystrokeEvent(
+        {
+          key: 'F1',
+          code: 'F1',
+          getModifierState: (mod) => mod === 'Fn',
+        },
+        { platform: 'mac', show: parseShow('') }
+      );
+      assert.equal(fnF1.shouldShow, true);
+      assert.equal(fnF1.isShortcut, true);
+      assert.equal(fnF1.label, 'FN + F1');
+      assert.deepEqual(fnF1.keys, [
+        { label: 'FN', type: 'modifier' },
+        { label: 'F1', type: 'primary' },
+      ]);
     });
   });
 
@@ -223,6 +256,14 @@ describe('keystroke utilities unit tests', () => {
           { label: 'TAB', type: 'primary' },
         ],
         label: 'SHIFT + TAB',
+      });
+
+      assert.deepEqual(parseKeystrokeString('FN + F1'), {
+        keys: [
+          { label: 'FN', type: 'modifier' },
+          { label: 'F1', type: 'primary' },
+        ],
+        label: 'FN + F1',
       });
 
       assert.deepEqual(parseKeystrokeString('→'), {
@@ -342,6 +383,3 @@ describe('keystroke utilities unit tests', () => {
     });
   });
 });
-
-
-

@@ -3,7 +3,7 @@
  * for the <show-keystrokes> custom element.
  */
 
-export const DEFAULT_FILTERS = ['shortcuts', 'navigation'];
+export const DEFAULT_SHOW = ['shortcuts', 'navigational'];
 export const DEFAULT_TIMEOUT = 1500;
 export const DEFAULT_FADE_DURATION = 300;
 export const DEFAULT_SIZE = 'large';
@@ -19,6 +19,8 @@ export const MODIFIER_EVENT_KEYS = new Set([
   'Shift',
   'Alt',
   'AltGraph',
+  'Fn',
+  'FnLock',
   'OS',
   'Super',
   'Hyper',
@@ -110,6 +112,8 @@ const KEY_LABELS_SYMBOLS = {
 };
 
 export const ALL_MODIFIER_LABELS = new Set([
+  'FN',
+  '🌐',
   'CMD',
   'COMMAND',
   'META',
@@ -163,57 +167,61 @@ export function detectPlatform(overridePlatform = 'auto', nav = typeof navigator
 }
 
 /**
- * Parses a filter string (or boolean flags) into a normalized Set of active filter categories:
- * 'all', 'shortcuts', 'navigation'.
+ * Parses a `show` attribute string (or boolean flags) into a normalized Set of active categories:
+ * - (no value / empty): Set(['shortcuts', 'navigational']) (default)
+ * - 'all': Set(['all', 'shortcuts', 'navigational'])
+ * - 'shortcuts': Set(['shortcuts'])
+ * - 'navigational': Set(['navigational'])
+ * - 'none': Set() (empty set — shows nothing)
  *
- * @param {string | null | undefined} filterAttr
- * @param {{ all?: boolean, shortcuts?: boolean, navigation?: boolean }} [booleanFlags={}]
- * @returns {Set<'all' | 'shortcuts' | 'navigation'>}
+ * @param {string | null | undefined} showAttr
+ * @param {{ all?: boolean, shortcuts?: boolean, navigational?: boolean, navigation?: boolean }} [booleanFlags={}]
+ * @returns {Set<'all' | 'shortcuts' | 'navigational'>}
  */
-export function parseFilters(filterAttr, booleanFlags = {}) {
+export function parseShow(showAttr, booleanFlags = {}) {
   const result = new Set();
 
-  if (typeof filterAttr === 'string' && filterAttr.trim().length > 0) {
-    const tokens = filterAttr
+  if (typeof showAttr === 'string' && showAttr.trim().length > 0) {
+    const tokens = showAttr
       .toLowerCase()
       .split(/[\s,|+/]+/)
       .map((t) => t.trim())
       .filter(Boolean);
 
     for (const token of tokens) {
-      if (token === 'all' || token === '*' || token === 'any' || token === 'keystrokes') {
+      if (token === 'none' || token === 'off' || token === 'nothing') {
+        return new Set();
+      } else if (token === 'all' || token === '*' || token === 'any' || token === 'keystrokes') {
         result.add('all');
         result.add('shortcuts');
-        result.add('navigation');
+        result.add('navigational');
       } else if (token === 'shortcut' || token === 'shortcuts' || token === 'hotkeys' || token === 'combos') {
         result.add('shortcuts');
       } else if (
-        token === 'navigation' ||
         token === 'navigational' ||
+        token === 'navigation' ||
         token === 'nav' ||
         token === 'arrows'
       ) {
-        result.add('navigation');
-      } else if (token === 'none' || token === 'off') {
-        return new Set();
+        result.add('navigational');
       }
     }
   } else {
     if (booleanFlags.all) {
       result.add('all');
       result.add('shortcuts');
-      result.add('navigation');
+      result.add('navigational');
     }
     if (booleanFlags.shortcuts) {
       result.add('shortcuts');
     }
-    if (booleanFlags.navigation) {
-      result.add('navigation');
+    if (booleanFlags.navigational || booleanFlags.navigation) {
+      result.add('navigational');
     }
   }
 
   if (result.size === 0) {
-    return new Set(DEFAULT_FILTERS);
+    return new Set(DEFAULT_SHOW);
   }
 
   return result;
@@ -314,10 +322,10 @@ export function normalizeKeyLabel(event, options = {}) {
  * Extracts ordered modifier labels from a KeyboardEvent according to platform conventions.
  *
  * Ordering:
- * - macOS:   CTRL -> ALT -> SHIFT -> CMD   (e.g. `SHIFT + CMD + T`, `CMD + A`, `SHIFT + TAB`)
- * - Windows: WIN  -> ALT -> SHIFT -> CTRL  (e.g. `SHIFT + CTRL + T`, `CTRL + A`, `SHIFT + TAB`)
+ * - macOS:   FN -> CTRL -> ALT -> SHIFT -> CMD   (e.g. `SHIFT + CMD + T`, `CMD + A`, `SHIFT + TAB`)
+ * - Windows: FN -> WIN  -> ALT -> SHIFT -> CTRL  (e.g. `SHIFT + CTRL + T`, `CTRL + A`, `SHIFT + TAB`)
  *
- * @param {KeyboardEvent | { ctrlKey?: boolean, altKey?: boolean, shiftKey?: boolean, metaKey?: boolean, key?: string }} event
+ * @param {KeyboardEvent | { ctrlKey?: boolean, altKey?: boolean, shiftKey?: boolean, metaKey?: boolean, fnKey?: boolean, getModifierState?: Function, key?: string }} event
  * @param {{ platform?: 'mac' | 'windows', notation?: 'text' | 'symbols', mapMetaToCtrlOnWindows?: boolean }} [options={}]
  * @returns {string[]}
  */
@@ -326,6 +334,9 @@ export function getModifierLabels(event, options = {}) {
   const notation = options.notation === 'symbols' ? 'symbols' : 'text';
   const mapMetaToCtrlOnWindows = Boolean(options.mapMetaToCtrlOnWindows);
 
+  const fn =
+    Boolean(event?.fnKey) ||
+    (typeof event?.getModifierState === 'function' && Boolean(event.getModifierState('Fn')));
   const ctrl = Boolean(event?.ctrlKey) || (platform === 'windows' && mapMetaToCtrlOnWindows && Boolean(event?.metaKey));
   const alt = Boolean(event?.altKey);
   const shift = Boolean(event?.shiftKey);
@@ -334,11 +345,13 @@ export function getModifierLabels(event, options = {}) {
   const modifiers = [];
 
   if (platform === 'mac') {
+    if (fn) modifiers.push(notation === 'symbols' ? '🌐' : 'FN');
     if (ctrl) modifiers.push(notation === 'symbols' ? '⌃' : 'CTRL');
     if (alt) modifiers.push(notation === 'symbols' ? '⌥' : 'ALT');
     if (shift) modifiers.push(notation === 'symbols' ? '⇧' : 'SHIFT');
     if (meta) modifiers.push(notation === 'symbols' ? '⌘' : 'CMD');
   } else {
+    if (fn) modifiers.push('FN');
     if (meta) modifiers.push(notation === 'symbols' ? '⊞' : 'WIN');
     if (alt) modifiers.push('ALT');
     if (shift) modifiers.push(notation === 'symbols' ? '⇧' : 'SHIFT');
@@ -350,18 +363,18 @@ export function getModifierLabels(event, options = {}) {
 
 /**
  * Classifies a KeyboardEvent into its categories (`isShortcut`, `isNavigation`, `isModifierOnly`)
- * and determines whether it should be displayed under the given filter Set.
+ * and determines whether it should be displayed under the given `show` Set.
  *
  * @param {KeyboardEvent | object} event
  * @param {{
- *   filters?: Set<string>,
+ *   show?: Set<string> | string,
  *   platform?: 'mac' | 'windows',
  *   notation?: 'text' | 'symbols',
  *   mapMetaToCtrlOnWindows?: boolean
  * }} [options={}]
  * @returns {{
  *   shouldShow: boolean,
- *   category: 'shortcut' | 'navigation' | 'keystroke' | 'modifier' | 'ignored',
+ *   category: 'shortcut' | 'navigational' | 'keystroke' | 'modifier' | 'ignored',
  *   isShortcut: boolean,
  *   isNavigation: boolean,
  *   isModifierOnly: boolean,
@@ -372,7 +385,7 @@ export function getModifierLabels(event, options = {}) {
  * }}
  */
 export function formatKeystrokeEvent(event, options = {}) {
-  const filters = options.filters instanceof Set ? options.filters : parseFilters(options.filters);
+  const showSet = options.show instanceof Set ? options.show : parseShow(options.show);
   const platform = detectPlatform(options.platform);
   const notation = options.notation === 'symbols' ? 'symbols' : 'text';
 
@@ -409,7 +422,10 @@ export function formatKeystrokeEvent(event, options = {}) {
     };
   }
 
-  const hasPrimaryModifier = Boolean(event?.metaKey || event?.ctrlKey || event?.altKey);
+  const hasFn =
+    Boolean(event?.fnKey) ||
+    (typeof event?.getModifierState === 'function' && Boolean(event.getModifierState('Fn')));
+  const hasPrimaryModifier = Boolean(event?.metaKey || event?.ctrlKey || event?.altKey || hasFn);
   const hasShift = Boolean(event?.shiftKey);
   const isSpace =
     rawCode === 'Space' ||
@@ -429,7 +445,7 @@ export function formatKeystrokeEvent(event, options = {}) {
   const isFnKey = isFunctionKey(rawKey) || isFunctionKey(rawCode);
 
   // A keystroke is a shortcut when:
-  // 1. Any primary modifier (CMD / CTRL / ALT / WIN) is held with a key (e.g. CMD+A, SHIFT+CMD+T, CTRL+C)
+  // 1. Any primary modifier (CMD / CTRL / ALT / WIN / FN) is held with a key (e.g. CMD+A, SHIFT+CMD+T, CTRL+C)
   // 2. SHIFT is held with a navigation/special/function key (e.g. SHIFT+TAB, SHIFT+ENTER, SHIFT+ESC)
   // 3. A function key (F1-F24) is pressed
   const isShortcut = hasPrimaryModifier || (hasShift && (isSpecialActionKey || isFnKey)) || isFnKey;
@@ -453,13 +469,13 @@ export function formatKeystrokeEvent(event, options = {}) {
   const label = keys.map((k) => k.label).join(' + ');
 
   let shouldShow = false;
-  if (filters.has('all')) {
+  if (showSet.has('all')) {
     shouldShow = true;
   } else {
-    if (filters.has('shortcuts') && isShortcut) {
+    if (showSet.has('shortcuts') && isShortcut) {
       shouldShow = true;
     }
-    if (filters.has('navigation') && isNavigation) {
+    if ((showSet.has('navigational') || showSet.has('navigation')) && isNavigation) {
       shouldShow = true;
     }
   }
@@ -468,7 +484,7 @@ export function formatKeystrokeEvent(event, options = {}) {
   if (isShortcut) {
     category = 'shortcut';
   } else if (isNavigation) {
-    category = 'navigation';
+    category = 'navigational';
   }
 
   return {

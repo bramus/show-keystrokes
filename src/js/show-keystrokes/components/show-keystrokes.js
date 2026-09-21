@@ -1,7 +1,7 @@
 /**
  * <show-keystrokes> Custom Element
  * Visualizes keystrokes, keyboard shortcuts, and navigational keys with
- * configurable filters, macOS/Windows support, and customizable themes.
+ * configurable show modes, macOS/Windows support, and customizable themes.
  */
 
 import {
@@ -9,7 +9,7 @@ import {
   DEFAULT_FADE_DURATION,
   DEFAULT_SIZE,
   detectPlatform,
-  parseFilters,
+  parseShow,
   parsePosition,
   parseDurationMs,
   parseSize,
@@ -595,8 +595,6 @@ function ensureKeystrokeAnchor() {
 export class ShowKeystrokes extends HTMLElement {
   static get observedAttributes() {
     return [
-      'filter',
-      'mode',
       'show',
       'all',
       'shortcuts',
@@ -731,6 +729,13 @@ export class ShowKeystrokes extends HTMLElement {
       if (newValue) {
         this.showKeys(newValue);
       } else {
+        this.clear();
+      }
+      return;
+    }
+
+    if (name === 'show') {
+      if (this.activeShow.size === 0 && this.#currentKeys.length > 0) {
         this.clear();
       }
       return;
@@ -874,37 +879,34 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   /**
-   * Returns the active filter Set ('all', 'shortcuts', 'navigation').
-   * @returns {Set<'all' | 'shortcuts' | 'navigation'>}
+   * Returns the active show Set ('all', 'shortcuts', 'navigational'), or an empty Set for 'none'.
+   * @returns {Set<'all' | 'shortcuts' | 'navigational'>}
    */
-  get activeFilters() {
-    const filterAttr =
-      this.getAttribute('filter') ??
-      this.getAttribute('mode') ??
-      this.getAttribute('show');
-
-    return parseFilters(filterAttr, {
+  get activeShow() {
+    return parseShow(this.getAttribute('show'), {
       all: this.hasAttribute('all'),
       shortcuts: this.hasAttribute('shortcuts'),
-      navigation: this.hasAttribute('navigation') || this.hasAttribute('navigational'),
+      navigational: this.hasAttribute('navigational') || this.hasAttribute('navigation'),
     });
   }
 
   /**
-   * Gets or sets the filter attribute.
+   * Gets or sets the `show` attribute:
+   * - '' (no value): Shortcuts & Navigational (default)
+   * - 'all': All keystrokes
+   * - 'shortcuts': Shortcuts only
+   * - 'navigational': Navigational Keys only
+   * - 'none': Nothing
    */
-  get filter() {
-    return (
-      this.getAttribute('filter') ||
-      Array.from(this.activeFilters).join(', ')
-    );
+  get show() {
+    return this.getAttribute('show') || '';
   }
 
-  set filter(val) {
-    if (val === null || val === undefined) {
-      this.removeAttribute('filter');
+  set show(val) {
+    if (val === null || val === undefined || val === '') {
+      this.removeAttribute('show');
     } else {
-      this.setAttribute('filter', String(val));
+      this.setAttribute('show', String(val));
     }
   }
 
@@ -968,10 +970,10 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   /**
-   * Processes a KeyboardEvent directly and updates the display if it matches the active filters.
+   * Processes a KeyboardEvent directly and updates the display if it matches the active `show` mode.
    *
    * @param {KeyboardEvent | object} event
-   * @returns {boolean} True if the keystroke matched the filter and was displayed
+   * @returns {boolean} True if the keystroke matched the active `show` mode and was displayed
    */
   handleKeyEvent(event) {
     const effectivePlatform = this.platform;
@@ -981,7 +983,7 @@ export class ShowKeystrokes extends HTMLElement {
       Boolean(this.getAttribute('platform'));
 
     const result = formatKeystrokeEvent(event, {
-      filters: this.activeFilters,
+      show: this.activeShow,
       platform: effectivePlatform,
       notation: this.getAttribute('notation') || 'text',
       mapMetaToCtrlOnWindows: explicitWindowsOnMac,

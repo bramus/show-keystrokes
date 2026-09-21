@@ -577,19 +577,19 @@ micro-lighter::part(copy-button):hover {
   display: none;
 }
 
-.filter-demo-stage {
+.show-demo-stage {
   display: flex;
   align-items: center;
   min-height: 2.75rem;
 }
 
-.filter-demo-hint {
+.show-demo-hint {
   font-size: 0.85rem;
   font-style: italic;
   color: var(--text-muted);
 }
 
-.filter-demo-stage:has(show-keystrokes[active]) .filter-demo-hint {
+.show-demo-stage:has(show-keystrokes[active]) .show-demo-hint {
   display: none;
 }
 
@@ -689,13 +689,13 @@ micro-lighter::part(copy-button):hover {
   color: #52525b;
 }
 
-.filter-demo-grid {
+.show-demo-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.25rem;
 }
 
-.filter-demo-box {
+.show-demo-box {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -705,7 +705,7 @@ micro-lighter::part(copy-button):hover {
   border: 1px solid var(--border-color);
 }
 
-.filter-demo-header {
+.show-demo-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -713,7 +713,7 @@ micro-lighter::part(copy-button):hover {
   gap: 0.35rem;
 }
 
-.filter-demo-desc {
+.show-demo-desc {
   font-size: 0.85rem;
   color: var(--text-muted);
 }

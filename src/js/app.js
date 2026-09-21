@@ -6,7 +6,7 @@ const visualizer = document.getElementById('playground-visualizer');
 const stage = document.getElementById('visualizer-stage');
 const markupPreview = document.getElementById('active-markup-preview');
 
-const selectFilter = document.getElementById('select-filter');
+const selectShow = document.getElementById('select-show');
 const selectTheme = document.getElementById('select-theme');
 const selectScheme = document.getElementById('select-scheme');
 const selectPlatform = document.getElementById('select-platform');
@@ -20,7 +20,7 @@ const btnClear = document.getElementById('btn-clear-visualizer');
 function updatePlaygroundAttributes() {
   if (!visualizer) return;
 
-  const filterVal = selectFilter.value;
+  const showVal = selectShow ? selectShow.value : '';
   const themeVal = selectTheme.value;
   const schemeVal = selectScheme.value;
   const platformVal = selectPlatform.value;
@@ -41,7 +41,11 @@ function updatePlaygroundAttributes() {
     positionVal = `pointer ${positionAreaVal}`;
   }
 
-  visualizer.setAttribute('filter', filterVal);
+  if (!showVal) {
+    visualizer.removeAttribute('show');
+  } else {
+    visualizer.setAttribute('show', showVal);
+  }
   visualizer.setAttribute('theme', themeVal);
 
   if (schemeVal === 'auto') {
@@ -85,7 +89,7 @@ function updatePlaygroundAttributes() {
   const attrs = [
     `theme="${themeVal}"`,
     schemeVal !== 'auto' ? `color-scheme="${schemeVal}"` : '',
-    filterVal !== 'shortcuts, navigation' ? `filter="${filterVal}"` : '',
+    showVal ? `show="${showVal}"` : '',
     platformVal !== 'auto' ? `platform="${platformVal}"` : '',
     sizeVal && sizeVal !== 'large' ? `size="${sizeVal}"` : '',
     positionVal ? `position="${positionVal}"` : '',
@@ -100,7 +104,7 @@ function updatePlaygroundAttributes() {
   }
 }
 
-selectFilter?.addEventListener('change', updatePlaygroundAttributes);
+selectShow?.addEventListener('change', updatePlaygroundAttributes);
 selectTheme?.addEventListener('change', updatePlaygroundAttributes);
 selectScheme?.addEventListener('change', updatePlaygroundAttributes);
 selectPlatform?.addEventListener('change', updatePlaygroundAttributes);
@@ -121,8 +125,8 @@ document.querySelectorAll('.preset-btn[data-sim-key]').forEach((btn) => {
     const primaryMod = btn.getAttribute('data-sim-primary-mod') === 'true';
     const allOnly = btn.getAttribute('data-sim-all-only') === 'true';
 
-    if (allOnly && selectFilter && selectFilter.value !== 'all') {
-      selectFilter.value = 'all';
+    if (allOnly && selectShow && selectShow.value !== 'all') {
+      selectShow.value = 'all';
       updatePlaygroundAttributes();
     }
 
