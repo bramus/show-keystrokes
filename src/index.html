@@ -87,16 +87,16 @@
           <div class="card playground-card">
             <div class="card-header">
               <span class="card-title">Live Keystroke Visualizer</span>
-              <span class="card-meta" id="active-markup-preview">&lt;show-keystrokes theme="modern" color-scheme="light"&gt;&lt;/show-keystrokes&gt;</span>
+              <span class="card-meta" id="active-markup-preview">&lt;show-keystrokes theme="modern" color-scheme="light" position="normal"&gt;&lt;/show-keystrokes&gt;</span>
             </div>
 
             <div class="visualizer-stage" id="visualizer-stage" data-stage-scheme="light" tabindex="0" role="region" aria-label="Interactive Keystroke Stage — Click to focus and capture keystrokes">
               <span class="stage-capture-badge" id="stage-capture-badge">Click to capture keys</span>
               <div class="stage-prompt" id="stage-prompt">
-                <span class="stage-prompt-main">Press a shortcut or arrow key (e.g. <code>→</code>, <code>SHIFT + TAB</code>, <code>CMD + A</code>)…</span>
+                <span class="stage-prompt-main" id="stage-prompt-main">Press a shortcut or arrow key (e.g. <code>→</code>, <code>SHIFT + TAB</code>, <code>CMD + A</code>)…</span>
                 <span class="stage-prompt-sub" id="stage-capture-hint">Click this area to focus &amp; capture keys (prevents <code>SPACE</code> or arrows from scrolling the page)</span>
               </div>
-              <show-keystrokes id="playground-visualizer" theme="modern" color-scheme="light"></show-keystrokes>
+              <show-keystrokes id="playground-visualizer" theme="modern" color-scheme="light" position="normal"></show-keystrokes>
             </div>
 
             <div class="preset-bar">
@@ -162,9 +162,9 @@
               <div class="control-group">
                 <label for="select-position-anchor">Position Anchor (<code>position</code>)</label>
                 <select id="select-position-anchor">
-                  <option value="" selected>Inline (Default)</option>
-                  <option value="viewport">Viewport</option>
+                  <option value="viewport">Viewport (Default)</option>
                   <option value="pointer">Pointer (pointer)</option>
+                  <option value="normal" selected>Normal (normal)</option>
                 </select>
               </div>
 
@@ -173,13 +173,13 @@
                 <select id="select-position-area" disabled>
                   <option value="top left">top left</option>
                   <option value="top center">top center</option>
-                  <option value="top right">top right</option>
+                  <option value="top right" selected>top right (Default)</option>
                   <option value="center left">center left</option>
                   <option value="center center">center center</option>
                   <option value="center right">center right</option>
                   <option value="bottom left">bottom left</option>
                   <option value="bottom center">bottom center</option>
-                  <option value="bottom right" selected>bottom right</option>
+                  <option value="bottom right">bottom right</option>
                 </select>
               </div>
 
@@ -322,8 +322,8 @@
                 </tr>
                 <tr>
                   <td><code>position</code></td>
-                  <td><em>Inline</em></td>
-                  <td><code>top</code>/<code>center</code>/<code>bottom</code> combined with <code>left</code>/<code>center</code>/<code>right</code> (e.g. <code>"top right"</code>), optionally prefixed with <code>pointer</code> (e.g. <code>"pointer top right"</code>, or <code>"pointer"</code> which defaults to <code>pointer bottom right</code>)</td>
+                  <td><code>"viewport top right"</code></td>
+                  <td><code>"viewport"</code> (or <code>"viewport &lt;top|center|bottom&gt; &lt;left|center|right&gt;"</code>, defaults to <code>viewport top right</code>), <code>"pointer"</code> (or <code>"pointer &lt;top|center|bottom&gt; &lt;left|center|right&gt;"</code>), or <code>"normal"</code></td>
                 </tr>
                 <tr>
                   <td><code>timeout</code></td>
@@ -339,6 +339,11 @@
                   <td><code>platform</code></td>
                   <td><code>"auto"</code></td>
                   <td><code>"mac"</code> (uses <code>CMD</code>), <code>"windows"</code> (uses <code>CTRL</code>), or <code>"auto"</code></td>
+                </tr>
+                <tr>
+                  <td><code>disabled</code></td>
+                  <td><code>false</code></td>
+                  <td>Boolean attribute (and reflected <code>el.disabled</code> property) that disables the component and detaches all event listeners</td>
                 </tr>
               </tbody>
             </table>
@@ -362,7 +367,7 @@
                 <p class="show-demo-desc">Responds to shortcuts (<code>CMD + A</code>, <code>SHIFT + ENTER</code>) and navigational keys (<code>→</code>, <code>TAB</code>, <code>SPACE</code>, <code>BACKSPACE</code>, <code>DELETE</code>, <code>F1–F15</code>), ignoring plain typing.</p>
                 <div class="show-demo-stage">
                   <span class="show-demo-hint">Waiting for shortcut or arrow key…</span>
-                  <show-keystrokes></show-keystrokes>
+                  <show-keystrokes position="normal"></show-keystrokes>
                 </div>
               </div>
 
@@ -374,7 +379,7 @@
                 <p class="show-demo-desc">Visualizes every single key press including letters, numbers, symbols, shortcuts, and navigational keys.</p>
                 <div class="show-demo-stage">
                   <span class="show-demo-hint">Waiting for any key (A, 1, SPACE, →)…</span>
-                  <show-keystrokes show="all"></show-keystrokes>
+                  <show-keystrokes show="all" position="normal"></show-keystrokes>
                 </div>
               </div>
 
@@ -386,7 +391,7 @@
                 <p class="show-demo-desc">Only responds to modifier combinations (<code>CMD + A</code>, <code>SHIFT + CMD + T</code>, <code>SHIFT + TAB</code>, <code>SHIFT + ENTER</code>).</p>
                 <div class="show-demo-stage">
                   <span class="show-demo-hint">Waiting for a shortcut (CMD + A)…</span>
-                  <show-keystrokes show="shortcuts"></show-keystrokes>
+                  <show-keystrokes show="shortcuts" position="normal"></show-keystrokes>
                 </div>
               </div>
 
@@ -398,7 +403,7 @@
                 <p class="show-demo-desc">Only responds to navigational and special keys (<code>←</code>, <code>↑</code>, <code>→</code>, <code>↓</code>, <code>TAB</code>, <code>SPACE</code>, <code>BACKSPACE</code>, <code>DELETE</code>, <code>F1–F15</code>, <code>ENTER</code>, <code>ESC</code>).</p>
                 <div class="show-demo-stage">
                   <span class="show-demo-hint">Waiting for TAB, SPACE, or arrows (→)…</span>
-                  <show-keystrokes show="navigational"></show-keystrokes>
+                  <show-keystrokes show="navigational" position="normal"></show-keystrokes>
                 </div>
               </div>
             </div>

@@ -572,8 +572,8 @@ micro-lighter::part(copy-button):hover {
   color: #e4e4e7;
 }
 
-/* Hide the stage prompt when the inline <show-keystrokes> is actively displaying keys */
-.visualizer-stage:has(show-keystrokes[active]:not([position])) .stage-prompt {
+/* Hide the stage prompt when the normal-flow <show-keystrokes> is actively displaying keys */
+.visualizer-stage:has(show-keystrokes[active][position="normal" i]) .stage-prompt {
   display: none;
 }
 

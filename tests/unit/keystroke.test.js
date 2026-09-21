@@ -274,6 +274,14 @@ describe('keystroke utilities unit tests', () => {
   });
 
   describe('parsePosition()', () => {
+    it('parses "normal" position', () => {
+      assert.deepEqual(parsePosition('normal'), {
+        anchor: 'normal',
+        normal: true,
+        value: 'normal',
+      });
+    });
+
     it('parses all 9 valid combinations of top/center/bottom and left/center/right', () => {
       const verticals = ['top', 'center', 'bottom'];
       const horizontals = ['left', 'center', 'right'];
@@ -281,8 +289,10 @@ describe('keystroke utilities unit tests', () => {
       for (const v of verticals) {
         for (const h of horizontals) {
           assert.deepEqual(parsePosition(`${v} ${h}`), {
+            anchor: 'viewport',
             vertical: v,
             horizontal: h,
+            positionArea: `${v} ${h}`,
             value: `${v} ${h}`,
           });
         }
@@ -291,40 +301,46 @@ describe('keystroke utilities unit tests', () => {
 
     it('normalizes reversed token order (e.g. "right top" -> "top right") and case/whitespace', () => {
       assert.deepEqual(parsePosition('right top'), {
+        anchor: 'viewport',
         vertical: 'top',
         horizontal: 'right',
+        positionArea: 'top right',
         value: 'top right',
       });
       assert.deepEqual(parsePosition('  LEFT   BOTTOM '), {
+        anchor: 'viewport',
         vertical: 'bottom',
         horizontal: 'left',
+        positionArea: 'bottom left',
         value: 'bottom left',
       });
     });
 
-    it('supports leading pointer and mouse keywords and defaults to bottom right when omitted', () => {
+    it('supports leading viewport and pointer keywords and defaults to top right for viewport / bottom right for pointer when area is omitted', () => {
+      assert.deepEqual(parsePosition('viewport'), {
+        anchor: 'viewport',
+        vertical: 'top',
+        horizontal: 'right',
+        positionArea: 'top right',
+        value: 'viewport top right',
+      });
+      assert.deepEqual(parsePosition('viewport top right'), {
+        anchor: 'viewport',
+        vertical: 'top',
+        horizontal: 'right',
+        positionArea: 'top right',
+        value: 'viewport top right',
+      });
       assert.deepEqual(parsePosition('pointer'), {
+        anchor: 'pointer',
         vertical: 'bottom',
         horizontal: 'right',
         pointer: true,
         positionArea: 'bottom right',
         value: 'pointer bottom right',
       });
-      assert.deepEqual(parsePosition('mouse'), {
-        vertical: 'bottom',
-        horizontal: 'right',
-        pointer: true,
-        positionArea: 'bottom right',
-        value: 'mouse bottom right',
-      });
-      assert.deepEqual(parsePosition('mouse top right'), {
-        vertical: 'top',
-        horizontal: 'right',
-        pointer: true,
-        positionArea: 'top right',
-        value: 'mouse top right',
-      });
       assert.deepEqual(parsePosition('pointer right top'), {
+        anchor: 'pointer',
         vertical: 'top',
         horizontal: 'right',
         pointer: true,
@@ -337,7 +353,7 @@ describe('keystroke utilities unit tests', () => {
       assert.equal(parsePosition(null), null);
       assert.equal(parsePosition(''), null);
       assert.equal(parsePosition('top'), null);
-      assert.equal(parsePosition('mouse top'), null);
+      assert.equal(parsePosition('pointer top'), null);
       assert.equal(parsePosition('top bottom'), null);
       assert.equal(parsePosition('left right'), null);
       assert.equal(parsePosition('top right extra'), null);

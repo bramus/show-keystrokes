@@ -8,6 +8,7 @@ import {
   DEFAULT_TIMEOUT,
   DEFAULT_FADE_DURATION,
   DEFAULT_SIZE,
+  DEFAULT_POSITION,
   detectPlatform,
   parseShow,
   parsePosition,
@@ -96,10 +97,17 @@ const COMPONENT_STYLES = `
   }
 
   /* ==========================================================================
-   * VIEWPORT POSITIONING (position="<top|center|bottom> <left|center|right>")
-   * Fixes the component in the viewport with a 1rem gap (--show-keystrokes-position-offset)
+   * VIEWPORT POSITIONING (Default, or position="viewport [<top|center|bottom> <left|center|right>]")
+   * Fixes the component in the viewport with a 1rem gap (--show-keystrokes-position-offset).
+   * Set position="normal" (or static) for normal document flow.
    * ========================================================================== */
-  :host([position~="top" i][position~="left" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
+  :host([position="normal" i]) {
+    position: static;
+    inset: auto;
+    translate: none;
+  }
+
+  :host([position~="top" i][position~="left" i]:not([position~="pointer" i])) {
     position: fixed;
     top: var(--_position-offset);
     bottom: auto;
@@ -110,7 +118,7 @@ const COMPONENT_STYLES = `
     pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
-  :host([position~="top" i][position~="center" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
+  :host([position~="top" i][position~="center" i]:not([position~="pointer" i])) {
     position: fixed;
     top: var(--_position-offset);
     bottom: auto;
@@ -121,7 +129,9 @@ const COMPONENT_STYLES = `
     pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
-  :host([position~="top" i][position~="right" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
+  :host(:not([position]):not([static])),
+  :host([position="viewport" i]),
+  :host([position~="top" i][position~="right" i]:not([position~="pointer" i])) {
     position: fixed;
     top: var(--_position-offset);
     bottom: auto;
@@ -132,7 +142,7 @@ const COMPONENT_STYLES = `
     pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
-  :host([position~="center" i][position~="left" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
+  :host([position~="center" i][position~="left" i]:not([position~="pointer" i])) {
     position: fixed;
     top: 50%;
     bottom: auto;
@@ -143,7 +153,8 @@ const COMPONENT_STYLES = `
     pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
-  :host([position="center center" i]) {
+  :host([position="center center" i]),
+  :host([position="viewport center center" i]) {
     position: fixed;
     top: 50%;
     bottom: auto;
@@ -154,7 +165,7 @@ const COMPONENT_STYLES = `
     pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
-  :host([position~="center" i][position~="right" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
+  :host([position~="center" i][position~="right" i]:not([position~="pointer" i])) {
     position: fixed;
     top: 50%;
     bottom: auto;
@@ -165,7 +176,7 @@ const COMPONENT_STYLES = `
     pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
-  :host([position~="bottom" i][position~="left" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
+  :host([position~="bottom" i][position~="left" i]:not([position~="pointer" i])) {
     position: fixed;
     top: auto;
     bottom: var(--_position-offset);
@@ -176,7 +187,7 @@ const COMPONENT_STYLES = `
     pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
-  :host([position~="bottom" i][position~="center" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
+  :host([position~="bottom" i][position~="center" i]:not([position~="pointer" i])) {
     position: fixed;
     top: auto;
     bottom: var(--_position-offset);
@@ -187,7 +198,7 @@ const COMPONENT_STYLES = `
     pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
-  :host([position~="bottom" i][position~="right" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
+  :host([position~="bottom" i][position~="right" i]:not([position~="pointer" i])) {
     position: fixed;
     top: auto;
     bottom: var(--_position-offset);
@@ -199,13 +210,12 @@ const COMPONENT_STYLES = `
   }
 
   /* ==========================================================================
-   * POINTER / MOUSE ANCHOR POSITIONING
-   * (position="pointer|mouse [<top|center|bottom> <left|center|right>]")
+   * POINTER ANCHOR POSITIONING
+   * (position="pointer [<top|center|bottom> <left|center|right>]")
    * Anchors <show-keystrokes> to the invisible #show-keystrokes-anchor tracking the pointer
    * using CSS Anchor Positioning (position-area & position-try-fallbacks).
    * ========================================================================== */
-  :host([position~="pointer" i]),
-  :host([position~="mouse" i]) {
+  :host([position~="pointer" i]) {
     position: fixed;
     inset: auto;
     translate: none;
@@ -218,53 +228,43 @@ const COMPONENT_STYLES = `
     pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
-  :host([position~="pointer" i][active]),
-  :host([position~="mouse" i][active]) {
+  :host([position~="pointer" i][active]) {
     position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block;
   }
 
-  :host([position~="pointer" i][position~="top" i][position~="left" i]),
-  :host([position~="mouse" i][position~="top" i][position~="left" i]) {
+  :host([position~="pointer" i][position~="top" i][position~="left" i]) {
     position-area: top left;
   }
 
-  :host([position~="pointer" i][position~="top" i][position~="center" i]),
-  :host([position~="mouse" i][position~="top" i][position~="center" i]) {
+  :host([position~="pointer" i][position~="top" i][position~="center" i]) {
     position-area: top center;
   }
 
-  :host([position~="pointer" i][position~="top" i][position~="right" i]),
-  :host([position~="mouse" i][position~="top" i][position~="right" i]) {
+  :host([position~="pointer" i][position~="top" i][position~="right" i]) {
     position-area: top right;
   }
 
-  :host([position~="pointer" i][position~="center" i][position~="left" i]),
-  :host([position~="mouse" i][position~="center" i][position~="left" i]) {
+  :host([position~="pointer" i][position~="center" i][position~="left" i]) {
     position-area: center left;
   }
 
-  :host([position="pointer center center" i]),
-  :host([position="mouse center center" i]) {
+  :host([position="pointer center center" i]) {
     position-area: center center;
   }
 
-  :host([position~="pointer" i][position~="center" i][position~="right" i]),
-  :host([position~="mouse" i][position~="center" i][position~="right" i]) {
+  :host([position~="pointer" i][position~="center" i][position~="right" i]) {
     position-area: center right;
   }
 
-  :host([position~="pointer" i][position~="bottom" i][position~="left" i]),
-  :host([position~="mouse" i][position~="bottom" i][position~="left" i]) {
+  :host([position~="pointer" i][position~="bottom" i][position~="left" i]) {
     position-area: bottom left;
   }
 
-  :host([position~="pointer" i][position~="bottom" i][position~="center" i]),
-  :host([position~="mouse" i][position~="bottom" i][position~="center" i]) {
+  :host([position~="pointer" i][position~="bottom" i][position~="center" i]) {
     position-area: bottom center;
   }
 
-  :host([position~="pointer" i][position~="bottom" i][position~="right" i]),
-  :host([position~="mouse" i][position~="bottom" i][position~="right" i]) {
+  :host([position~="pointer" i][position~="bottom" i][position~="right" i]) {
     position-area: bottom right;
   }
 
@@ -479,8 +479,7 @@ const KEYSTROKE_ANCHOR_STYLES = `
     anchor-name: --show-keystrokes-anchor;
   }
 
-  show-keystrokes[position~="pointer" i],
-  show-keystrokes[position~="mouse" i] {
+  show-keystrokes[position~="pointer" i] {
     position: fixed;
     inset: auto;
     translate: none;
@@ -495,53 +494,43 @@ const KEYSTROKE_ANCHOR_STYLES = `
     pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
-  show-keystrokes[position~="pointer" i][active],
-  show-keystrokes[position~="mouse" i][active] {
+  show-keystrokes[position~="pointer" i][active] {
     position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block;
   }
 
-  show-keystrokes[position~="pointer" i][position~="top" i][position~="left" i],
-  show-keystrokes[position~="mouse" i][position~="top" i][position~="left" i] {
+  show-keystrokes[position~="pointer" i][position~="top" i][position~="left" i] {
     position-area: top left;
   }
 
-  show-keystrokes[position~="pointer" i][position~="top" i][position~="center" i],
-  show-keystrokes[position~="mouse" i][position~="top" i][position~="center" i] {
+  show-keystrokes[position~="pointer" i][position~="top" i][position~="center" i] {
     position-area: top center;
   }
 
-  show-keystrokes[position~="pointer" i][position~="top" i][position~="right" i],
-  show-keystrokes[position~="mouse" i][position~="top" i][position~="right" i] {
+  show-keystrokes[position~="pointer" i][position~="top" i][position~="right" i] {
     position-area: top right;
   }
 
-  show-keystrokes[position~="pointer" i][position~="center" i][position~="left" i],
-  show-keystrokes[position~="mouse" i][position~="center" i][position~="left" i] {
+  show-keystrokes[position~="pointer" i][position~="center" i][position~="left" i] {
     position-area: center left;
   }
 
-  show-keystrokes[position="pointer center center" i],
-  show-keystrokes[position="mouse center center" i] {
+  show-keystrokes[position="pointer center center" i] {
     position-area: center center;
   }
 
-  show-keystrokes[position~="pointer" i][position~="center" i][position~="right" i],
-  show-keystrokes[position~="mouse" i][position~="center" i][position~="right" i] {
+  show-keystrokes[position~="pointer" i][position~="center" i][position~="right" i] {
     position-area: center right;
   }
 
-  show-keystrokes[position~="pointer" i][position~="bottom" i][position~="left" i],
-  show-keystrokes[position~="mouse" i][position~="bottom" i][position~="left" i] {
+  show-keystrokes[position~="pointer" i][position~="bottom" i][position~="left" i] {
     position-area: bottom left;
   }
 
-  show-keystrokes[position~="pointer" i][position~="bottom" i][position~="center" i],
-  show-keystrokes[position~="mouse" i][position~="bottom" i][position~="center" i] {
+  show-keystrokes[position~="pointer" i][position~="bottom" i][position~="center" i] {
     position-area: bottom center;
   }
 
-  show-keystrokes[position~="pointer" i][position~="bottom" i][position~="right" i],
-  show-keystrokes[position~="mouse" i][position~="bottom" i][position~="right" i] {
+  show-keystrokes[position~="pointer" i][position~="bottom" i][position~="right" i] {
     position-area: bottom right;
   }
 `;
@@ -912,13 +901,16 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   /**
-   * Gets or sets the fixed viewport or pointer position (e.g. "top right", "pointer bottom right").
-   * Returns null if not set or invalid.
-   * @returns {string | null}
+   * Gets or sets the position (e.g. "viewport top right", "pointer bottom right", "normal").
+   * Defaults to "viewport top right" (or "normal" when `static` is set).
+   * @returns {string}
    */
   get position() {
+    if (this.hasAttribute('static') && !this.hasAttribute('position')) {
+      return 'normal';
+    }
     const parsed = parsePosition(this.getAttribute('position'));
-    return parsed ? parsed.value : null;
+    return parsed ? parsed.value : DEFAULT_POSITION;
   }
 
   set position(val) {

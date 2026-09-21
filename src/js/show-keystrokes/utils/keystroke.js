@@ -7,11 +7,12 @@ export const DEFAULT_SHOW = ['shortcuts', 'navigational'];
 export const DEFAULT_TIMEOUT = 1500;
 export const DEFAULT_FADE_DURATION = 300;
 export const DEFAULT_SIZE = 'large';
+export const DEFAULT_POSITION = 'viewport top right';
 
 export const VALID_SIZES = new Set(['small', 'medium', 'large', 'x-large', 'xx-large']);
 export const VALID_VERTICAL_POSITIONS = new Set(['top', 'center', 'bottom']);
 export const VALID_HORIZONTAL_POSITIONS = new Set(['left', 'center', 'right']);
-export const VALID_POINTER_KEYWORDS = new Set(['pointer', 'mouse']);
+export const VALID_ANCHOR_KEYWORDS = new Set(['viewport', 'pointer']);
 
 export const MODIFIER_EVENT_KEYS = new Set([
   'Meta',
@@ -578,17 +579,19 @@ export function parseKeystrokeString(input, options = {}) {
 /**
  * Parses and validates a `position` attribute value.
  * Accepts:
- * - Viewport positioning: two tokens combining vertical ('top' | 'center' | 'bottom')
- *   and horizontal ('left' | 'center' | 'right'), e.g. "top right", "bottom center".
- * - Pointer/mouse positioning: optional leading 'pointer' (or alias 'mouse') keyword
- *   followed by optional vertical and horizontal tokens (e.g. "mouse top right", "pointer bottom left").
- *   When only "pointer" or "mouse" is specified, defaults to bottom right ("pointer bottom right" / "mouse bottom right").
+ * - Normal positioning: "normal"
+ * - Viewport positioning: "viewport", "viewport <top|center|bottom> <left|center|right>",
+ *   or "<top|center|bottom> <left|center|right>". When only "viewport" is specified, defaults to "viewport top right".
+ * - Pointer positioning: "pointer" or "pointer <top|center|bottom> <left|center|right>".
+ *   When only "pointer" is specified, defaults to "pointer bottom right".
  *
  * @param {string | null | undefined} positionAttr
  * @returns {{
- *   vertical: 'top' | 'center' | 'bottom',
- *   horizontal: 'left' | 'center' | 'right',
+ *   anchor: 'viewport' | 'pointer' | 'normal',
+ *   vertical?: 'top' | 'center' | 'bottom',
+ *   horizontal?: 'left' | 'center' | 'right',
  *   pointer?: boolean,
+ *   normal?: boolean,
  *   positionArea?: string,
  *   value: string
  * } | null}
@@ -608,17 +611,30 @@ export function parsePosition(positionAttr) {
     return null;
   }
 
-  // Case 1: Leading 'pointer' or 'mouse' keyword
-  if (VALID_POINTER_KEYWORDS.has(tokens[0])) {
-    const prefix = tokens[0];
+  // Case 1: "normal"
+  if (tokens.length === 1 && tokens[0] === 'normal') {
+    return {
+      anchor: 'normal',
+      normal: true,
+      value: 'normal',
+    };
+  }
+
+  // Case 2: Leading 'viewport' or 'pointer' keyword
+  if (VALID_ANCHOR_KEYWORDS.has(tokens[0])) {
+    const anchor = tokens[0];
+    const isPointer = anchor === 'pointer';
 
     if (tokens.length === 1) {
+      const defaultVertical = isPointer ? 'bottom' : 'top';
+      const defaultHorizontal = 'right';
       return {
-        vertical: 'bottom',
-        horizontal: 'right',
-        pointer: true,
-        positionArea: 'bottom right',
-        value: `${prefix} bottom right`,
+        anchor,
+        vertical: defaultVertical,
+        horizontal: defaultHorizontal,
+        ...(isPointer ? { pointer: true } : {}),
+        positionArea: `${defaultVertical} ${defaultHorizontal}`,
+        value: `${anchor} ${defaultVertical} ${defaultHorizontal}`,
       };
     }
 
@@ -626,20 +642,22 @@ export function parsePosition(positionAttr) {
       const [, second, third] = tokens;
       if (VALID_VERTICAL_POSITIONS.has(second) && VALID_HORIZONTAL_POSITIONS.has(third)) {
         return {
+          anchor,
           vertical: second,
           horizontal: third,
-          pointer: true,
+          ...(isPointer ? { pointer: true } : {}),
           positionArea: `${second} ${third}`,
-          value: `${prefix} ${second} ${third}`,
+          value: `${anchor} ${second} ${third}`,
         };
       }
       if (VALID_HORIZONTAL_POSITIONS.has(second) && VALID_VERTICAL_POSITIONS.has(third)) {
         return {
+          anchor,
           vertical: third,
           horizontal: second,
-          pointer: true,
+          ...(isPointer ? { pointer: true } : {}),
           positionArea: `${third} ${second}`,
-          value: `${prefix} ${third} ${second}`,
+          value: `${anchor} ${third} ${second}`,
         };
       }
     }
@@ -647,7 +665,7 @@ export function parsePosition(positionAttr) {
     return null;
   }
 
-  // Case 2: Standard 2-token viewport positioning
+  // Case 3: Standard 2-token viewport positioning (e.g. "top right")
   if (tokens.length !== 2) {
     return null;
   }
@@ -656,16 +674,20 @@ export function parsePosition(positionAttr) {
 
   if (VALID_VERTICAL_POSITIONS.has(first) && VALID_HORIZONTAL_POSITIONS.has(second)) {
     return {
+      anchor: 'viewport',
       vertical: first,
       horizontal: second,
+      positionArea: `${first} ${second}`,
       value: `${first} ${second}`,
     };
   }
 
   if (VALID_HORIZONTAL_POSITIONS.has(first) && VALID_VERTICAL_POSITIONS.has(second)) {
     return {
+      anchor: 'viewport',
       vertical: second,
       horizontal: first,
+      positionArea: `${second} ${first}`,
       value: `${second} ${first}`,
     };
   }

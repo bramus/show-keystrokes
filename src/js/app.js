@@ -4,6 +4,7 @@
 
 const visualizer = document.getElementById('playground-visualizer');
 const stage = document.getElementById('visualizer-stage');
+const stagePromptMain = document.getElementById('stage-prompt-main');
 const markupPreview = document.getElementById('active-markup-preview');
 
 const selectShow = document.getElementById('select-show');
@@ -18,6 +19,53 @@ const inputFadeDuration = document.getElementById('input-fade-duration');
 const selectDisabled = document.getElementById('select-disabled');
 const btnClear = document.getElementById('btn-clear-visualizer');
 
+function renderDefaultStagePromptMain() {
+  if (!stagePromptMain) return;
+  const codeArrow = document.createElement('code');
+  codeArrow.textContent = '→';
+  const codeShiftTab = document.createElement('code');
+  codeShiftTab.textContent = 'SHIFT + TAB';
+  const codeCmdA = document.createElement('code');
+  codeCmdA.textContent = 'CMD + A';
+  stagePromptMain.replaceChildren(
+    document.createTextNode('Press a shortcut or arrow key (e.g. '),
+    codeArrow,
+    document.createTextNode(', '),
+    codeShiftTab,
+    document.createTextNode(', '),
+    codeCmdA,
+    document.createTextNode(')…')
+  );
+}
+
+function syncStagePrompt() {
+  if (!stagePromptMain || !visualizer) return;
+
+  const isActive = visualizer.hasAttribute('active');
+  const currentPosition = visualizer.position || 'viewport top right';
+
+  if (isActive && currentPosition !== 'normal') {
+    const codePos = document.createElement('code');
+    codePos.textContent = currentPosition;
+    stagePromptMain.replaceChildren(
+      document.createTextNode('Keystroke is being shown at '),
+      codePos
+    );
+  } else {
+    renderDefaultStagePromptMain();
+  }
+}
+
+if (visualizer && typeof MutationObserver === 'function') {
+  const observer = new MutationObserver(() => {
+    syncStagePrompt();
+  });
+  observer.observe(visualizer, {
+    attributes: true,
+    attributeFilter: ['active', 'position'],
+  });
+}
+
 function updatePlaygroundAttributes() {
   if (!visualizer) return;
 
@@ -26,21 +74,23 @@ function updatePlaygroundAttributes() {
   const schemeVal = selectScheme.value;
   const platformVal = selectPlatform.value;
   const sizeVal = selectSize ? selectSize.value : 'large';
-  const positionAnchorVal = selectPositionAnchor ? selectPositionAnchor.value : '';
-  const positionAreaVal = selectPositionArea ? selectPositionArea.value : 'bottom right';
+  const positionAnchorVal = selectPositionAnchor ? selectPositionAnchor.value : 'normal';
+  const positionAreaVal = selectPositionArea ? selectPositionArea.value : 'top right';
   const timeoutVal = inputTimeout ? inputTimeout.value.trim() : '1500';
   const fadeDurationVal = inputFadeDuration ? inputFadeDuration.value.trim() : '300';
   const isDisabled = selectDisabled ? selectDisabled.value === 'true' : false;
 
   if (selectPositionArea) {
-    selectPositionArea.disabled = !positionAnchorVal;
+    selectPositionArea.disabled = positionAnchorVal === 'normal';
   }
 
   let positionVal = '';
-  if (positionAnchorVal === 'viewport') {
-    positionVal = positionAreaVal;
+  if (positionAnchorVal === 'normal') {
+    positionVal = 'normal';
   } else if (positionAnchorVal === 'pointer') {
-    positionVal = `pointer ${positionAreaVal}`;
+    positionVal = positionAreaVal === 'bottom right' ? 'pointer' : `pointer ${positionAreaVal}`;
+  } else if (positionAnchorVal === 'viewport') {
+    positionVal = positionAreaVal === 'top right' ? '' : `viewport ${positionAreaVal}`;
   }
 
   if (!showVal) {
@@ -107,6 +157,8 @@ function updatePlaygroundAttributes() {
   if (markupPreview) {
     markupPreview.textContent = `<show-keystrokes ${attrs}></show-keystrokes>`;
   }
+
+  syncStagePrompt();
 }
 
 selectShow?.addEventListener('change', updatePlaygroundAttributes);

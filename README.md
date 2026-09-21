@@ -106,17 +106,21 @@ show-keystrokes {
 }
 ```
 
-### Viewport & Pointer Positioning (`position`)
+### Positioning (`position`)
 
-Set the `position` attribute using any combination of `top` / `center` / `bottom` and `left` / `center` / `right`:
+By default, `<show-keystrokes>` is positioned in the **`viewport`** (`top right` corner (`viewport top right`) with a `1rem` gap, customizable via `--show-keystrokes-position-offset`).
 
-1. **Fixed Viewport Positioning**: Applies `position: fixed` at that viewport location with a `1rem` gap (customizable via `--show-keystrokes-position-offset`):
+1. **Viewport Positioning (Default)**: Use `viewport` (defaults to `viewport top right`) or combine with any of `top` / `center` / `bottom` and `left` / `center` / `right`:
    ```html
-   <!-- Fixed in the top-right corner of the viewport -->
-   <show-keystrokes position="top right"></show-keystrokes>
+   <!-- Default: fixed in the top-right corner of the viewport -->
+   <show-keystrokes></show-keystrokes>
+   <show-keystrokes position="viewport"></show-keystrokes>
+
+   <!-- Fixed in the bottom-right corner of the viewport -->
+   <show-keystrokes position="viewport bottom right"></show-keystrokes>
 
    <!-- Fixed at the bottom-center of the viewport -->
-   <show-keystrokes position="bottom center"></show-keystrokes>
+   <show-keystrokes position="viewport bottom center"></show-keystrokes>
    ```
 2. **Pointer Positioning (CSS Anchor Positioning)**: Prefix `position` with `pointer` to anchor `<show-keystrokes>` to an invisible `#show-keystrokes-anchor` tracking the pointer via CSS Anchor Positioning (`position-area` + `position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block`). When setting only `pointer`, it defaults to `pointer bottom right`:
    ```html
@@ -126,10 +130,15 @@ Set the `position` attribute using any combination of `top` / `center` / `bottom
    <!-- Positioned to the top right of the pointer -->
    <show-keystrokes position="pointer top right"></show-keystrokes>
    ```
+3. **Normal Flow (`position="normal"`)**: Render `<show-keystrokes>` in normal document flow instead of fixed to the viewport or pointer:
+   ```html
+   <show-keystrokes position="normal"></show-keystrokes>
+   ```
 
 Accepted values:
-- Viewport: `top left`, `top center`, `top right`, `center left`, `center center`, `center right`, `bottom left`, `bottom center`, `bottom right`
+- Viewport (Default): `viewport` (defaults to `viewport top right`), `viewport <top|center|bottom> <left|center|right>`, or `<top|center|bottom> <left|center|right>`
 - Pointer: `pointer`, `pointer <top|center|bottom> <left|center|right>`
+- Normal: `normal`
 
 ### Auto-Hide Timeout & Fade-Out Duration (`timeout` & `fade-duration`)
 
