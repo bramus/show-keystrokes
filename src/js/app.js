@@ -15,7 +15,7 @@ const selectSize = document.getElementById('select-size');
 const selectPositionAnchor = document.getElementById('select-position-anchor');
 const selectPositionArea = document.getElementById('select-position-area');
 const inputHideDelay = document.getElementById('input-hide-delay');
-const inputFadeDuration = document.getElementById('input-fade-duration');
+const inputHideDuration = document.getElementById('input-hide-duration');
 const selectDisabled = document.getElementById('select-disabled');
 
 function renderDefaultStagePromptMain() {
@@ -76,7 +76,7 @@ function updatePlaygroundAttributes() {
   const positionAnchorVal = selectPositionAnchor ? selectPositionAnchor.value : 'normal';
   const positionAreaVal = selectPositionArea ? selectPositionArea.value : 'top right';
   const hideDelayVal = inputHideDelay ? inputHideDelay.value.trim() : '1250';
-  const fadeDurationVal = inputFadeDuration ? inputFadeDuration.value.trim() : '300';
+  const hideDurationVal = inputHideDuration ? inputHideDuration.value.trim() : '200';
   const isDisabled = selectDisabled ? selectDisabled.value === 'true' : false;
 
   if (selectPositionArea) {
@@ -131,10 +131,10 @@ function updatePlaygroundAttributes() {
     visualizer.setAttribute('hide-delay', hideDelayVal);
   }
 
-  if (fadeDurationVal === '' || fadeDurationVal === '300') {
-    visualizer.removeAttribute('fade-duration');
+  if (hideDurationVal === '' || hideDurationVal === '200') {
+    visualizer.removeAttribute('hide-duration');
   } else {
-    visualizer.setAttribute('fade-duration', fadeDurationVal);
+    visualizer.setAttribute('hide-duration', hideDurationVal);
   }
 
   visualizer.disabled = isDisabled;
@@ -146,7 +146,7 @@ function updatePlaygroundAttributes() {
     schemeVal !== 'auto' ? `color-scheme="${schemeVal}"` : '',
     sizeVal && sizeVal !== 'large' ? `size="${sizeVal}"` : '',
     hideDelayVal && hideDelayVal !== '1250' ? `hide-delay="${hideDelayVal}"` : '',
-    fadeDurationVal && fadeDurationVal !== '300' ? `fade-duration="${fadeDurationVal}"` : '',
+    hideDurationVal && hideDurationVal !== '200' ? `hide-duration="${hideDurationVal}"` : '',
     platformVal !== 'auto' ? `platform="${platformVal}"` : '',
     isDisabled ? 'disabled' : '',
   ]
@@ -178,7 +178,7 @@ selectSize?.addEventListener('change', updatePlaygroundAttributes);
 selectPositionAnchor?.addEventListener('change', updatePlaygroundAttributes);
 selectPositionArea?.addEventListener('change', updatePlaygroundAttributes);
 inputHideDelay?.addEventListener('input', updatePlaygroundAttributes);
-inputFadeDuration?.addEventListener('input', updatePlaygroundAttributes);
+inputHideDuration?.addEventListener('input', updatePlaygroundAttributes);
 selectDisabled?.addEventListener('change', updatePlaygroundAttributes);
 
 // Click-to-capture keystrokes on the playground stage:

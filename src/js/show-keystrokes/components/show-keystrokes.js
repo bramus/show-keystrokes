@@ -6,7 +6,7 @@
 
 import {
   DEFAULT_HIDE_DELAY,
-  DEFAULT_FADE_DURATION,
+  DEFAULT_HIDE_DURATION,
   DEFAULT_SIZE,
   DEFAULT_POSITION,
   detectPlatform,
@@ -30,7 +30,7 @@ const COMPONENT_STYLES = `
     --_key-font-weight: var(--show-keystrokes-key-font-weight, 600);
     --_gap: var(--show-keystrokes-gap, 0.375em);
     --_position-offset: var(--show-keystrokes-position-offset, 1rem);
-    --_fade-duration: var(--show-keystrokes-fade-duration, ${DEFAULT_FADE_DURATION}ms);
+    --_hide-duration: var(--show-keystrokes-hide-duration, ${DEFAULT_HIDE_DURATION}ms);
 
     /* Default Theme: Modern Keyboard (Light & Dark via light-dark()) */
     color-scheme: light dark;
@@ -409,7 +409,7 @@ const COMPONENT_STYLES = `
     gap: var(--_gap);
     box-sizing: border-box;
     min-height: var(--_key-min-size);
-    transition: opacity var(--_fade-duration) ease, transform var(--_fade-duration) ease;
+    transition: opacity var(--_hide-duration) ease, transform var(--_hide-duration) ease;
   }
 
   .container.is-empty {
@@ -638,10 +638,7 @@ export class ShowKeystrokes extends HTMLElement {
       'notation',
       'keys',
       'hide-delay',
-      'fade-duration',
-      'fade-out',
-      'fadeout-duration',
-      'duration',
+      'hide-duration',
       'static',
       'disabled',
       'target',
@@ -704,7 +701,7 @@ export class ShowKeystrokes extends HTMLElement {
       this.#syncSizeAttribute(this.getAttribute('size'));
     }
 
-    this.#syncFadeDurationStyle();
+    this.#syncHideDurationStyle();
     this.#attachListeners();
 
     // Check if declarative keys attribute or child text content was provided
@@ -737,13 +734,8 @@ export class ShowKeystrokes extends HTMLElement {
       return;
     }
 
-    if (
-      name === 'fade-duration' ||
-      name === 'fade-out' ||
-      name === 'fadeout-duration' ||
-      name === 'duration'
-    ) {
-      this.#syncFadeDurationStyle();
+    if (name === 'hide-duration') {
+      this.#syncHideDurationStyle();
       if (this.#currentKeys.length > 0) {
         this.#scheduleAutoClear();
       }
@@ -920,11 +912,11 @@ export class ShowKeystrokes extends HTMLElement {
     }
   }
 
-  #syncFadeDurationStyle() {
+  #syncHideDurationStyle() {
     if (!this.#container) {
       return;
     }
-    this.#container.style.setProperty('--_fade-duration', `${this.fadeDuration}ms`);
+    this.#container.style.setProperty('--_hide-duration', `${this.hideDuration}ms`);
   }
 
   /**
@@ -947,41 +939,21 @@ export class ShowKeystrokes extends HTMLElement {
 
   /**
    * Gets or sets the duration of the fade-out transition in milliseconds.
-   * Defaults to 300 (ms).
+   * Defaults to 200 (ms).
    * @returns {number}
    */
-  get fadeDuration() {
-    const raw =
-      this.getAttribute('fade-duration') ??
-      this.getAttribute('fade-out') ??
-      this.getAttribute('fadeout-duration') ??
-      this.getAttribute('duration');
-    return parseDurationMs(raw, DEFAULT_FADE_DURATION);
+  get hideDuration() {
+    const raw = this.getAttribute('hide-duration');
+    return parseDurationMs(raw, DEFAULT_HIDE_DURATION);
   }
 
-  set fadeDuration(val) {
+  set hideDuration(val) {
     if (val === null || val === undefined || val === '') {
-      this.removeAttribute('fade-duration');
+      this.removeAttribute('hide-duration');
     } else {
-      this.setAttribute('fade-duration', String(parseDurationMs(val, DEFAULT_FADE_DURATION)));
+      this.setAttribute('hide-duration', String(parseDurationMs(val, DEFAULT_HIDE_DURATION)));
     }
-    this.#syncFadeDurationStyle();
-  }
-
-  get fadeOut() {
-    return this.fadeDuration;
-  }
-
-  set fadeOut(val) {
-    this.fadeDuration = val;
-  }
-
-  get duration() {
-    return this.fadeDuration;
-  }
-
-  set duration(val) {
-    this.fadeDuration = val;
+    this.#syncHideDurationStyle();
   }
 
   /**
@@ -1298,12 +1270,12 @@ export class ShowKeystrokes extends HTMLElement {
       return;
     }
 
-    const fadeDurationMs = this.fadeDuration;
-    this.#syncFadeDurationStyle();
+    const hideDurationMs = this.hideDuration;
+    this.#syncHideDurationStyle();
     this.#clearTimer();
 
     this.#fadeTimer = setTimeout(() => {
-      if (fadeDurationMs <= 0) {
+      if (hideDurationMs <= 0) {
         this.clear();
         return;
       }
@@ -1312,7 +1284,7 @@ export class ShowKeystrokes extends HTMLElement {
       this.#container.classList.add('is-fading');
       this.#fadeTimer = setTimeout(() => {
         this.clear();
-      }, fadeDurationMs);
+      }, hideDurationMs);
     }, hideDelayMs);
   }
 
