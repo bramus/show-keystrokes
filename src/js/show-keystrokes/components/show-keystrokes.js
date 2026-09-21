@@ -31,29 +31,29 @@ const COMPONENT_STYLES = `
     --_position-offset: var(--show-keystrokes-position-offset, 1rem);
     --_fade-duration: var(--show-keystrokes-fade-duration, ${DEFAULT_FADE_DURATION}ms);
 
-    /* Default Theme: Apple Keyboard (Light & Dark via light-dark()) */
+    /* Default Theme: Modern Keyboard (Light & Dark via light-dark()) */
     color-scheme: light dark;
 
-    --_apple-bg-light: linear-gradient(180deg, #ffffff 0%, #f7f7fa 100%);
-    --_apple-bg-dark: linear-gradient(180deg, #262629 0%, #161618 100%);
-    --_apple-color-light: #515154;
-    --_apple-color-dark: #d1d1d6;
-    --_apple-border-light: #d2d2d7;
-    --_apple-border-dark: #3a3a3c;
-    --_apple-shadow-light: 0 2px 0 0 #c7c7cc, 0 3px 6px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff;
-    --_apple-shadow-dark: 0 2px 0 0 #000000, 0 4px 10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    --_apple-sep-light: #86868b;
-    --_apple-sep-dark: #98989d;
+    --_modern-bg-light: linear-gradient(180deg, #ffffff 0%, #f7f7fa 100%);
+    --_modern-bg-dark: linear-gradient(180deg, #262629 0%, #161618 100%);
+    --_modern-color-light: #515154;
+    --_modern-color-dark: #d1d1d6;
+    --_modern-border-light: #d2d2d7;
+    --_modern-border-dark: #3a3a3c;
+    --_modern-shadow-light: 0 2px 0 0 #c7c7cc, 0 3px 6px rgba(0, 0, 0, 0.08), inset 0 1px 0 #ffffff;
+    --_modern-shadow-dark: 0 2px 0 0 #000000, 0 4px 10px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    --_modern-sep-light: #86868b;
+    --_modern-sep-dark: #98989d;
 
     --_key-bg: var(--show-keystrokes-key-bg, light-dark(#ffffff, #1c1c1e));
-    --_key-bg-image: var(--show-keystrokes-key-bg-image, var(--_apple-bg-light));
-    --_key-color: var(--show-keystrokes-key-color, light-dark(var(--_apple-color-light), var(--_apple-color-dark)));
-    --_key-border: var(--show-keystrokes-key-border, 1px solid light-dark(var(--_apple-border-light), var(--_apple-border-dark)));
-    --_key-shadow: var(--show-keystrokes-key-shadow, var(--_apple-shadow-light));
+    --_key-bg-image: var(--show-keystrokes-key-bg-image, var(--_modern-bg-light));
+    --_key-color: var(--show-keystrokes-key-color, light-dark(var(--_modern-color-light), var(--_modern-color-dark)));
+    --_key-border: var(--show-keystrokes-key-border, 1px solid light-dark(var(--_modern-border-light), var(--_modern-border-dark)));
+    --_key-shadow: var(--show-keystrokes-key-shadow, var(--_modern-shadow-light));
     --_modifier-bg: var(--show-keystrokes-modifier-bg, var(--_key-bg));
     --_modifier-bg-image: var(--show-keystrokes-modifier-bg-image, var(--_key-bg-image));
     --_modifier-color: var(--show-keystrokes-modifier-color, var(--_key-color));
-    --_separator-color: var(--show-keystrokes-separator-color, light-dark(var(--_apple-sep-light), var(--_apple-sep-dark)));
+    --_separator-color: var(--show-keystrokes-separator-color, light-dark(var(--_modern-sep-light), var(--_modern-sep-dark)));
 
     display: inline-flex;
     flex-wrap: nowrap;
@@ -273,11 +273,11 @@ const COMPONENT_STYLES = `
   :host([theme$="-light"]) {
     color-scheme: light;
     --_key-bg: var(--show-keystrokes-key-bg, #ffffff);
-    --_key-bg-image: var(--show-keystrokes-key-bg-image, var(--_apple-bg-light));
-    --_key-color: var(--show-keystrokes-key-color, var(--_apple-color-light));
-    --_key-border: var(--show-keystrokes-key-border, 1px solid var(--_apple-border-light));
-    --_key-shadow: var(--show-keystrokes-key-shadow, var(--_apple-shadow-light));
-    --_separator-color: var(--show-keystrokes-separator-color, var(--_apple-sep-light));
+    --_key-bg-image: var(--show-keystrokes-key-bg-image, var(--_modern-bg-light));
+    --_key-color: var(--show-keystrokes-key-color, var(--_modern-color-light));
+    --_key-border: var(--show-keystrokes-key-border, 1px solid var(--_modern-border-light));
+    --_key-shadow: var(--show-keystrokes-key-shadow, var(--_modern-shadow-light));
+    --_separator-color: var(--show-keystrokes-separator-color, var(--_modern-sep-light));
   }
 
   :host([color-scheme="dark"]),
@@ -285,17 +285,17 @@ const COMPONENT_STYLES = `
   :host([theme$="-dark"]) {
     color-scheme: dark;
     --_key-bg: var(--show-keystrokes-key-bg, #1c1c1e);
-    --_key-bg-image: var(--show-keystrokes-key-bg-image, var(--_apple-bg-dark));
-    --_key-color: var(--show-keystrokes-key-color, var(--_apple-color-dark));
-    --_key-border: var(--show-keystrokes-key-border, 1px solid var(--_apple-border-dark));
-    --_key-shadow: var(--show-keystrokes-key-shadow, var(--_apple-shadow-dark));
-    --_separator-color: var(--show-keystrokes-separator-color, var(--_apple-sep-dark));
+    --_key-bg-image: var(--show-keystrokes-key-bg-image, var(--_modern-bg-dark));
+    --_key-color: var(--show-keystrokes-key-color, var(--_modern-color-dark));
+    --_key-border: var(--show-keystrokes-key-border, 1px solid var(--_modern-border-dark));
+    --_key-shadow: var(--show-keystrokes-key-shadow, var(--_modern-shadow-dark));
+    --_separator-color: var(--show-keystrokes-separator-color, var(--_modern-sep-dark));
   }
 
   @media (prefers-color-scheme: dark) {
     :host(:not([color-scheme="light"]):not([variant="light"]):not([theme$="-light"])) {
-      --_key-bg-image: var(--show-keystrokes-key-bg-image, var(--_apple-bg-dark));
-      --_key-shadow: var(--show-keystrokes-key-shadow, var(--_apple-shadow-dark));
+      --_key-bg-image: var(--show-keystrokes-key-bg-image, var(--_modern-bg-dark));
+      --_key-shadow: var(--show-keystrokes-key-shadow, var(--_modern-shadow-dark));
     }
   }
 
@@ -659,7 +659,7 @@ export class ShowKeystrokes extends HTMLElement {
     ensureKeystrokeAnchor();
 
     if (!this.hasAttribute('theme')) {
-      this.setAttribute('theme', 'apple');
+      this.setAttribute('theme', 'modern');
     }
 
     if (this.hasAttribute('position')) {
@@ -909,15 +909,15 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   /**
-   * Gets or sets the theme ('apple' or 'mechanical').
+   * Gets or sets the theme ('modern' or 'mechanical').
    */
   get theme() {
-    return this.getAttribute('theme') || 'apple';
+    return this.getAttribute('theme') || 'modern';
   }
 
   set theme(val) {
     if (val === null || val === undefined) {
-      this.setAttribute('theme', 'apple');
+      this.setAttribute('theme', 'modern');
     } else {
       this.setAttribute('theme', String(val));
     }

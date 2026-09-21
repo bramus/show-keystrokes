@@ -23,7 +23,7 @@
   - Automatically detects macOS (`CMD`, `ALT`, `SHIFT`, `CTRL`) vs. Windows/Linux (`CTRL`, `ALT`, `SHIFT`, `WIN`).
   - Override explicitly with `platform="mac"` or `platform="windows"`.
 - **Two Built-In Themes with Light & Dark Variants**:
-  - **Apple Keyboard (`theme="apple"`)**: Mimics the physical keys of an Apple Keyboard—white rounded squares with grey text in light mode; black rounded squares with lightgrey text in dark mode.
+  - **Modern (`theme="modern"`)**: Clean, low-profile keycaps—white rounded squares with grey text in light mode; black rounded squares with lightgrey text in dark mode.
   - **Mechanical Keyboard (`theme="mechanical"`)**: Sculpted 3D keycap dish with monospace legends and accented modifier keys in both light and dark modes.
   - Supports automatic `light-dark()` adaptation or explicit `color-scheme="light"` / `color-scheme="dark"`.
 - **Highly Stylable**:
@@ -74,9 +74,9 @@ import 'show-keystrokes';
 ### Themes & Light/Dark Variants
 
 ```html
-<!-- Apple Keyboard (Light & Dark) -->
-<show-keystrokes theme="apple" color-scheme="light"></show-keystrokes>
-<show-keystrokes theme="apple" color-scheme="dark"></show-keystrokes>
+<!-- Modern (Light & Dark) -->
+<show-keystrokes theme="modern" color-scheme="light"></show-keystrokes>
+<show-keystrokes theme="modern" color-scheme="dark"></show-keystrokes>
 
 <!-- Mechanical Keyboard (Light & Dark) -->
 <show-keystrokes theme="mechanical" color-scheme="light"></show-keystrokes>
@@ -144,9 +144,9 @@ By default, a pressed keystroke stays visible for **`1500` ms** (`timeout`) and 
 Use `keys` and `static` to render static keycaps in documentation:
 
 ```html
-<show-keystrokes keys="→" theme="apple" static></show-keystrokes>
-<show-keystrokes keys="SHIFT + TAB" theme="apple" static></show-keystrokes>
-<show-keystrokes keys="CMD + A" theme="apple" static></show-keystrokes>
+<show-keystrokes keys="→" theme="modern" static></show-keystrokes>
+<show-keystrokes keys="SHIFT + TAB" theme="modern" static></show-keystrokes>
+<show-keystrokes keys="CMD + A" theme="modern" static></show-keystrokes>
 ```
 
 ---
@@ -170,7 +170,7 @@ Use `keys` and `static` to render static keycaps in documentation:
 | `--show-keystrokes-key-bg` | Keycap background color |
 | `--show-keystrokes-key-color` | Keycap text color |
 | `--show-keystrokes-key-border` | Keycap border shorthand |
-| `--show-keystrokes-key-radius` | Keycap border radius (default `8px` for `apple`) |
+| `--show-keystrokes-key-radius` | Keycap border radius (default `8px` for `modern`) |
 | `--show-keystrokes-key-shadow` | Keycap box shadow |
 | `--show-keystrokes-key-min-size` | Minimum width and height of square keycaps (default `2.75rem`) |
 | `--show-keystrokes-modifier-bg` | Background override for modifier keys |
