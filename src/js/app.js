@@ -11,6 +11,7 @@ const selectKeystrokes = document.getElementById('select-keystrokes');
 const selectTheme = document.getElementById('select-theme');
 const selectScheme = document.getElementById('select-scheme');
 const selectPlatform = document.getElementById('select-platform');
+const selectNotation = document.getElementById('select-notation');
 const selectSize = document.getElementById('select-size');
 const selectPositionAnchor = document.getElementById('select-position-anchor');
 const selectPositionArea = document.getElementById('select-position-area');
@@ -72,6 +73,7 @@ function updatePlaygroundAttributes() {
   const themeVal = selectTheme.value;
   const schemeVal = selectScheme.value;
   const platformVal = selectPlatform.value;
+  const notationVal = selectNotation ? selectNotation.value : 'symbols';
   const sizeVal = selectSize ? selectSize.value : 'large';
   const positionAnchorVal = selectPositionAnchor ? selectPositionAnchor.value : 'normal';
   const positionAreaVal = selectPositionArea ? selectPositionArea.value : 'top right';
@@ -113,6 +115,12 @@ function updatePlaygroundAttributes() {
     visualizer.setAttribute('platform', platformVal);
   }
 
+  if (!notationVal || notationVal === 'symbols') {
+    visualizer.removeAttribute('notation');
+  } else {
+    visualizer.setAttribute('notation', notationVal);
+  }
+
   if (!sizeVal || sizeVal === 'large') {
     visualizer.removeAttribute('size');
   } else {
@@ -148,6 +156,7 @@ function updatePlaygroundAttributes() {
     hideDelayVal && hideDelayVal !== '1250' ? `hide-delay="${hideDelayVal}"` : '',
     hideDurationVal && hideDurationVal !== '200' ? `hide-duration="${hideDurationVal}"` : '',
     platformVal !== 'auto' ? `platform="${platformVal}"` : '',
+    notationVal && notationVal !== 'symbols' ? `notation="${notationVal}"` : '',
     isDisabled ? 'disabled' : '',
   ]
     .filter(Boolean)
@@ -174,6 +183,7 @@ selectKeystrokes?.addEventListener('change', updatePlaygroundAttributes);
 selectTheme?.addEventListener('change', updatePlaygroundAttributes);
 selectScheme?.addEventListener('change', updatePlaygroundAttributes);
 selectPlatform?.addEventListener('change', updatePlaygroundAttributes);
+selectNotation?.addEventListener('change', updatePlaygroundAttributes);
 selectSize?.addEventListener('change', updatePlaygroundAttributes);
 selectPositionAnchor?.addEventListener('change', updatePlaygroundAttributes);
 selectPositionArea?.addEventListener('change', updatePlaygroundAttributes);

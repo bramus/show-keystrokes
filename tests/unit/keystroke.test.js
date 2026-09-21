@@ -73,7 +73,7 @@ describe('keystroke utilities unit tests', () => {
       assert.deepEqual(res.keys, [{ label: '→', type: 'primary' }]);
     });
 
-    it('shows "SHIFT + TAB" when hitting TAB while holding SHIFT', () => {
+    it('shows "⇧ + ⇥" by default (symbols) and "SHIFT + TAB" with notation="text" when hitting TAB while holding SHIFT', () => {
       const res = formatKeystrokeEvent(
         { key: 'Tab', code: 'Tab', shiftKey: true },
         { platform: 'mac', keystrokes: parseKeystrokes('') }
@@ -81,25 +81,37 @@ describe('keystroke utilities unit tests', () => {
       assert.equal(res.shouldShow, true);
       assert.equal(res.isShortcut, true);
       assert.equal(res.isNavigation, true);
-      assert.equal(res.label, 'SHIFT + TAB');
+      assert.equal(res.label, '⇧ + ⇥');
       assert.deepEqual(res.keys, [
-        { label: 'SHIFT', type: 'modifier' },
-        { label: 'TAB', type: 'primary' },
+        { label: '⇧', type: 'modifier' },
+        { label: '⇥', type: 'primary' },
       ]);
+
+      const textRes = formatKeystrokeEvent(
+        { key: 'Tab', code: 'Tab', shiftKey: true },
+        { platform: 'mac', notation: 'text', keystrokes: parseKeystrokes('') }
+      );
+      assert.equal(textRes.label, 'SHIFT + TAB');
     });
 
-    it('shows "CMD + A" when hitting A while holding CMD on macOS', () => {
+    it('shows "⌘ + A" by default (symbols) and "CMD + A" with notation="text" when hitting A while holding CMD on macOS', () => {
       const res = formatKeystrokeEvent(
         { key: 'a', code: 'KeyA', metaKey: true },
         { platform: 'mac', keystrokes: parseKeystrokes('') }
       );
       assert.equal(res.shouldShow, true);
       assert.equal(res.isShortcut, true);
-      assert.equal(res.label, 'CMD + A');
+      assert.equal(res.label, '⌘ + A');
       assert.deepEqual(res.keys, [
-        { label: 'CMD', type: 'modifier' },
+        { label: '⌘', type: 'modifier' },
         { label: 'A', type: 'primary' },
       ]);
+
+      const textRes = formatKeystrokeEvent(
+        { key: 'a', code: 'KeyA', metaKey: true },
+        { platform: 'mac', notation: 'text', keystrokes: parseKeystrokes('') }
+      );
+      assert.equal(textRes.label, 'CMD + A');
     });
 
     it('shows "CTRL + A" when hitting A while holding CTRL on Windows', () => {
@@ -116,24 +128,36 @@ describe('keystroke utilities unit tests', () => {
       ]);
     });
 
-    it('shows "SHIFT + CMD + T" when hitting T while holding SHIFT and CMD on macOS', () => {
+    it('shows "⇧ + ⌘ + T" by default and "SHIFT + CMD + T" with notation="text" on macOS', () => {
       const res = formatKeystrokeEvent(
         { key: 'T', code: 'KeyT', shiftKey: true, metaKey: true },
         { platform: 'mac', keystrokes: parseKeystrokes('shortcuts') }
       );
       assert.equal(res.shouldShow, true);
       assert.equal(res.isShortcut, true);
-      assert.equal(res.label, 'SHIFT + CMD + T');
+      assert.equal(res.label, '⇧ + ⌘ + T');
+
+      const textRes = formatKeystrokeEvent(
+        { key: 'T', code: 'KeyT', shiftKey: true, metaKey: true },
+        { platform: 'mac', notation: 'text', keystrokes: parseKeystrokes('shortcuts') }
+      );
+      assert.equal(textRes.label, 'SHIFT + CMD + T');
     });
 
-    it('shows "SHIFT + ENTER" as a shortcut', () => {
+    it('shows "⇧ + ↵" by default and "SHIFT + ENTER" with notation="text" as a shortcut', () => {
       const res = formatKeystrokeEvent(
         { key: 'Enter', code: 'Enter', shiftKey: true },
         { platform: 'mac', keystrokes: parseKeystrokes('shortcuts') }
       );
       assert.equal(res.shouldShow, true);
       assert.equal(res.isShortcut, true);
-      assert.equal(res.label, 'SHIFT + ENTER');
+      assert.equal(res.label, '⇧ + ↵');
+
+      const textRes = formatKeystrokeEvent(
+        { key: 'Enter', code: 'Enter', shiftKey: true },
+        { platform: 'mac', notation: 'text', keystrokes: parseKeystrokes('shortcuts') }
+      );
+      assert.equal(textRes.label, 'SHIFT + ENTER');
     });
 
     it('ignores plain character typing by default (no value), allows it in "all", and shows nothing in "none"', () => {
@@ -188,7 +212,7 @@ describe('keystroke utilities unit tests', () => {
         { platform: 'mac', keystrokes: defaultKeystrokes }
       );
       assert.equal(backspaceRes.shouldShow, true);
-      assert.equal(backspaceRes.label, 'BACKSPACE');
+      assert.equal(backspaceRes.label, '⌫');
 
       const spaceRes = formatKeystrokeEvent(
         { key: ' ', code: 'Space' },
@@ -209,7 +233,7 @@ describe('keystroke utilities unit tests', () => {
         { platform: 'mac', keystrokes: defaultKeystrokes }
       );
       assert.equal(deleteRes.shouldShow, true);
-      assert.equal(deleteRes.label, 'DELETE');
+      assert.equal(deleteRes.label, '⌦');
 
       for (let i = 1; i <= 15; i++) {
         const fnKey = `F${i}`;
@@ -240,17 +264,25 @@ describe('keystroke utilities unit tests', () => {
       );
       assert.equal(fnF1.shouldShow, true);
       assert.equal(fnF1.isShortcut, true);
-      assert.equal(fnF1.label, 'FN + F1');
+      assert.equal(fnF1.label, '🌐 + F1');
       assert.deepEqual(fnF1.keys, [
-        { label: 'FN', type: 'modifier' },
+        { label: '🌐', type: 'modifier' },
         { label: 'F1', type: 'primary' },
       ]);
     });
   });
 
   describe('parseKeystrokeString()', () => {
-    it('parses static keystroke strings into modifier and primary key objects', () => {
+    it('parses static keystroke strings into modifier and primary key objects (symbols by default, text when notation="text")', () => {
       assert.deepEqual(parseKeystrokeString('SHIFT + TAB'), {
+        keys: [
+          { label: '⇧', type: 'modifier' },
+          { label: '⇥', type: 'primary' },
+        ],
+        label: '⇧ + ⇥',
+      });
+
+      assert.deepEqual(parseKeystrokeString('SHIFT + TAB', { notation: 'text' }), {
         keys: [
           { label: 'SHIFT', type: 'modifier' },
           { label: 'TAB', type: 'primary' },
@@ -260,10 +292,10 @@ describe('keystroke utilities unit tests', () => {
 
       assert.deepEqual(parseKeystrokeString('FN + F1'), {
         keys: [
-          { label: 'FN', type: 'modifier' },
+          { label: '🌐', type: 'modifier' },
           { label: 'F1', type: 'primary' },
         ],
-        label: 'FN + F1',
+        label: '🌐 + F1',
       });
 
       assert.deepEqual(parseKeystrokeString('→'), {

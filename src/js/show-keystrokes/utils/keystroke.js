@@ -8,6 +8,7 @@ export const DEFAULT_HIDE_DELAY = 1250;
 export const DEFAULT_HIDE_DURATION = 200;
 export const DEFAULT_SIZE = 'large';
 export const DEFAULT_POSITION = 'viewport top right';
+export const DEFAULT_NOTATION = 'symbols';
 
 export const VALID_SIZES = new Set(['small', 'medium', 'large', 'x-large', 'xx-large']);
 export const VALID_VERTICAL_POSITIONS = new Set(['top', 'center', 'bottom']);
@@ -257,7 +258,7 @@ export function isFunctionKey(key) {
  * @returns {string}
  */
 export function normalizeKeyLabel(event, options = {}) {
-  const notation = options.notation === 'symbols' ? 'symbols' : 'text';
+  const notation = options.notation === 'text' ? 'text' : DEFAULT_NOTATION;
   const labelMap = notation === 'symbols' ? KEY_LABELS_SYMBOLS : KEY_LABELS_TEXT;
 
   const rawKey = String(event?.key ?? '');
@@ -332,7 +333,7 @@ export function normalizeKeyLabel(event, options = {}) {
  */
 export function getModifierLabels(event, options = {}) {
   const platform = options.platform || 'mac';
-  const notation = options.notation === 'symbols' ? 'symbols' : 'text';
+  const notation = options.notation === 'text' ? 'text' : DEFAULT_NOTATION;
   const mapMetaToCtrlOnWindows = Boolean(options.mapMetaToCtrlOnWindows);
 
   const fn =
@@ -388,7 +389,7 @@ export function getModifierLabels(event, options = {}) {
 export function formatKeystrokeEvent(event, options = {}) {
   const keystrokesSet = options.keystrokes instanceof Set ? options.keystrokes : parseKeystrokes(options.keystrokes);
   const platform = detectPlatform(options.platform);
-  const notation = options.notation === 'symbols' ? 'symbols' : 'text';
+  const notation = options.notation === 'text' ? 'text' : DEFAULT_NOTATION;
 
   const rawKey = String(event?.key ?? '');
   const rawCode = String(event?.code ?? '');
@@ -517,7 +518,7 @@ export function parseKeystrokeString(input, options = {}) {
     return { keys: [], label: '' };
   }
 
-  const notation = options.notation === 'symbols' ? 'symbols' : 'text';
+  const notation = options.notation === 'text' ? 'text' : DEFAULT_NOTATION;
   const labelMap = notation === 'symbols' ? KEY_LABELS_SYMBOLS : KEY_LABELS_TEXT;
 
   let rawParts = [];
@@ -554,10 +555,41 @@ export function parseKeystrokeString(input, options = {}) {
     else if (upper === 'ARROWUP' || upper === 'UP') normalized = '↑';
     else if (upper === 'ARROWDOWN' || upper === 'DOWN') normalized = '↓';
     else if (upper === ' ' || upper === 'SPACE' || upper === 'SPACEBAR') normalized = 'SPACE';
-    else if (upper === 'COMMAND') normalized = notation === 'symbols' ? '⌘' : 'CMD';
-    else if (upper === 'CONTROL') normalized = notation === 'symbols' ? '⌃' : 'CTRL';
-    else if (upper === 'OPTION') normalized = notation === 'symbols' ? '⌥' : 'OPT';
-    else if (Object.prototype.hasOwnProperty.call(labelMap, part)) {
+    else if (upper === 'CMD' || upper === 'COMMAND' || upper === 'META' || part === '⌘') {
+      normalized = notation === 'symbols' ? '⌘' : 'CMD';
+    } else if (upper === 'CTRL' || upper === 'CONTROL' || part === '⌃') {
+      normalized = notation === 'symbols' ? '⌃' : 'CTRL';
+    } else if (upper === 'OPT' || upper === 'OPTION' || part === '⌥') {
+      normalized = notation === 'symbols' ? '⌥' : 'OPT';
+    } else if (upper === 'ALT') {
+      normalized = notation === 'symbols' ? '⌥' : 'ALT';
+    } else if (upper === 'SHIFT' || part === '⇧') {
+      normalized = notation === 'symbols' ? '⇧' : 'SHIFT';
+    } else if (upper === 'FN' || part === '🌐') {
+      normalized = notation === 'symbols' ? '🌐' : 'FN';
+    } else if (upper === 'WIN' || upper === 'WINDOWS' || upper === 'SUPER' || part === '⊞') {
+      normalized = notation === 'symbols' ? '⊞' : 'WIN';
+    } else if (upper === 'TAB' || part === '⇥') {
+      normalized = notation === 'symbols' ? '⇥' : 'TAB';
+    } else if (upper === 'ENTER' || upper === 'RETURN' || part === '↵') {
+      normalized = notation === 'symbols' ? '↵' : 'ENTER';
+    } else if (upper === 'ESC' || upper === 'ESCAPE' || part === '⎋') {
+      normalized = notation === 'symbols' ? '⎋' : 'ESC';
+    } else if (upper === 'BACKSPACE' || part === '⌫') {
+      normalized = notation === 'symbols' ? '⌫' : 'BACKSPACE';
+    } else if (upper === 'DELETE' || upper === 'DEL' || part === '⌦') {
+      normalized = notation === 'symbols' ? '⌦' : 'DELETE';
+    } else if (upper === 'HOME' || part === '↖') {
+      normalized = notation === 'symbols' ? '↖' : 'HOME';
+    } else if (upper === 'END' || part === '↘') {
+      normalized = notation === 'symbols' ? '↘' : 'END';
+    } else if (upper === 'PAGE UP' || upper === 'PAGEUP' || part === '⇞') {
+      normalized = notation === 'symbols' ? '⇞' : 'PAGE UP';
+    } else if (upper === 'PAGE DOWN' || upper === 'PAGEDOWN' || part === '⇟') {
+      normalized = notation === 'symbols' ? '⇟' : 'PAGE DOWN';
+    } else if (upper === 'CAPS LOCK' || upper === 'CAPSLOCK' || part === '⇪') {
+      normalized = notation === 'symbols' ? '⇪' : 'CAPS LOCK';
+    } else if (Object.prototype.hasOwnProperty.call(labelMap, part)) {
       normalized = labelMap[part];
     } else {
       normalized = upper;

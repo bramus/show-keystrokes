@@ -202,6 +202,14 @@
                   </div>
 
                   <div class="control-group">
+                    <label for="select-notation">Notation (<code>notation</code>)</label>
+                    <select id="select-notation">
+                      <option value="symbols" selected>Symbol Glyphs (symbols — Default)</option>
+                      <option value="text">Text Labels (text)</option>
+                    </select>
+                  </div>
+
+                  <div class="control-group">
                     <label for="select-disabled">State (<code>disabled</code>)</label>
                     <select id="select-disabled">
                       <option value="false" selected>Enabled (Default)</option>
@@ -351,6 +359,11 @@
                   <td><code>"mac"</code> (uses <code>CMD</code>), <code>"windows"</code> (uses <code>CTRL</code>), or <code>"auto"</code></td>
                 </tr>
                 <tr>
+                  <td><code>notation</code></td>
+                  <td><code>"symbols"</code></td>
+                  <td><code>"symbols"</code> (e.g. <code>⌘</code>, <code>⇧</code>, <code>⌥</code>, <code>⌃</code>, <code>⇥</code>, <code>↵</code>) or <code>"text"</code> (e.g. <code>CMD</code>, <code>SHIFT</code>, <code>TAB</code>, <code>ENTER</code>)</td>
+                </tr>
+                <tr>
                   <td><code>keys</code></td>
                   <td><code>""</code></td>
                   <td>Keystroke string to display (e.g. <code>"SHIFT + TAB"</code>, <code>"CMD + A"</code>, <code>"→"</code>), also reflected via <code>el.keys</code></td>
@@ -445,20 +458,24 @@
 
         <!-- macOS vs Windows -->
         <section id="platforms">
-          <h3>macOS vs. Windows Support</h3>
+          <h3>macOS vs. Windows &amp; Key Label Notation</h3>
           <p class="section-desc">
-            <code>&lt;show-keystrokes&gt;</code> automatically detects the user's operating system (using <code>CMD</code> on macOS and <code>CTRL</code> on Windows), or you can explicitly set <code>platform="mac"</code> or <code>platform="windows"</code>.
+            <code>&lt;show-keystrokes&gt;</code> automatically detects the user's operating system and defaults to symbol glyphs (<code>notation="symbols"</code> → <code>⌘</code>, <code>⇧</code>, <code>⌥</code>, <code>⌃</code>, <code>⇥</code>, <code>↵</code>). Set <code>notation="text"</code> to render text labels (<code>CMD</code>, <code>SHIFT</code>, <code>TAB</code>, <code>ENTER</code>), or explicitly set <code>platform="mac"</code> / <code>platform="windows"</code>.
           </p>
 
           <div class="card">
             <div class="showcase-row">
               <div class="showcase-item">
-                <span class="showcase-caption">macOS (<code>platform="mac"</code>)</span>
+                <span class="showcase-caption">macOS Symbols (<code>platform="mac"</code> — Default)</span>
                 <show-keystrokes platform="mac" keys="SHIFT + CMD + T" theme="modern" color-scheme="light" static></show-keystrokes>
               </div>
               <div class="showcase-item">
-                <span class="showcase-caption">Windows (<code>platform="windows"</code>)</span>
-                <show-keystrokes platform="windows" keys="SHIFT + CTRL + T" theme="modern" color-scheme="light" static></show-keystrokes>
+                <span class="showcase-caption">macOS Text (<code>platform="mac" notation="text"</code>)</span>
+                <show-keystrokes platform="mac" notation="text" keys="SHIFT + CMD + T" theme="modern" color-scheme="light" static></show-keystrokes>
+              </div>
+              <div class="showcase-item">
+                <span class="showcase-caption">Windows Text (<code>platform="windows" notation="text"</code>)</span>
+                <show-keystrokes platform="windows" notation="text" keys="SHIFT + CTRL + T" theme="modern" color-scheme="light" static></show-keystrokes>
               </div>
             </div>
           </div>

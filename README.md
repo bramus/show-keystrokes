@@ -20,9 +20,10 @@
   - **Shortcuts Only (`keystrokes="shortcuts"`)**: Shows only modifier combinations and function keys.
   - **Navigational Keys Only (`keystrokes="navigational"`)**: Shows only navigational and special keys (`TAB`, arrows, `SPACE`, etc.).
   - **Nothing (`keystrokes="none"`)**: Shows nothing.
-- **Cross-Platform (macOS & Windows/Linux)**:
-  - Automatically detects macOS (`CMD`, `ALT`, `SHIFT`, `CTRL`) vs. Windows/Linux (`CTRL`, `ALT`, `SHIFT`, `WIN`).
+- **Cross-Platform & Symbol Glyphs (`platform` & `notation`)**:
+  - Automatically detects macOS (`⌘`, `⌥`, `⇧`, `⌃`) vs. Windows/Linux (`CTRL`, `ALT`, `⇧`, `⊞`).
   - Override explicitly with `platform="mac"` or `platform="windows"`.
+  - Renders symbol glyphs by default (`notation="symbols"` → `⌘`, `⌥`, `⇧`, `⌃`, `⇥`, `↵`, `⎋`, `⌫`, `⌦`, …) or text labels (`notation="text"` → `CMD`, `OPT`, `SHIFT`, `CTRL`, `TAB`, `ENTER`, …).
 - **Two Built-In Themes with Light & Dark Variants**:
   - **Modern (`theme="modern"`)**: Clean, low-profile keycaps—white rounded squares with grey text in light mode; black rounded squares with lightgrey text in dark mode.
   - **Mechanical Keyboard (`theme="mechanical"`)**: Sculpted 3D keycap dish with monospace legends and accented modifier keys in both light and dark modes.
@@ -150,6 +151,18 @@ By default, a pressed keystroke stays visible for **`1250` ms** (`hide-delay`) a
 
 <!-- Disable auto-hiding by setting hide-delay="0" -->
 <show-keystrokes hide-delay="0"></show-keystrokes>
+```
+
+### Key Label Notation (`notation`)
+
+By default, `<show-keystrokes>` renders symbol glyphs (`notation="symbols"`), such as `⌘`, `⇧`, `⌥`, `⌃`, `🌐`, `⊞`, `⇥`, `↵`, `⎋`, `⌫`, `⌦`, `↖`, `↘`, `⇞`, `⇟`, and `⇪`. Set `notation="text"` to render text labels (`CMD`, `SHIFT`, `TAB`, `ENTER`, etc.):
+
+```html
+<!-- Default: symbol glyphs (e.g. ⇧ + ⌘ + T, ⇧ + ⇥) -->
+<show-keystrokes notation="symbols"></show-keystrokes>
+
+<!-- Text labels (e.g. SHIFT + CMD + T, SHIFT + TAB) -->
+<show-keystrokes notation="text"></show-keystrokes>
 ```
 
 ### Static / Declarative Keycaps

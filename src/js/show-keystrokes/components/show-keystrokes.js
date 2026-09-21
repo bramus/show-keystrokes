@@ -9,6 +9,7 @@ import {
   DEFAULT_HIDE_DURATION,
   DEFAULT_SIZE,
   DEFAULT_POSITION,
+  DEFAULT_NOTATION,
   detectPlatform,
   parseKeystrokes,
   parsePosition,
@@ -1094,6 +1095,23 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   /**
+   * Gets or sets the key label notation ('symbols' or 'text').
+   * Defaults to 'symbols'.
+   * @returns {'symbols' | 'text'}
+   */
+  get notation() {
+    return this.getAttribute('notation') === 'text' ? 'text' : DEFAULT_NOTATION;
+  }
+
+  set notation(val) {
+    if (val === null || val === undefined || val === '' || val === DEFAULT_NOTATION) {
+      this.removeAttribute('notation');
+    } else {
+      this.setAttribute('notation', String(val));
+    }
+  }
+
+  /**
    * Gets or sets the currently displayed keystroke string (e.g. "SHIFT + TAB").
    */
   get keys() {
@@ -1116,7 +1134,7 @@ export class ShowKeystrokes extends HTMLElement {
     this.#clearTimer();
     const parsed = parseKeystrokeString(input, {
       platform: this.platform,
-      notation: this.getAttribute('notation') || 'text',
+      notation: this.notation,
     });
 
     this.#currentKeys = parsed.keys;
@@ -1145,7 +1163,7 @@ export class ShowKeystrokes extends HTMLElement {
     const result = formatKeystrokeEvent(event, {
       keystrokes: this.activeKeystrokes,
       platform: effectivePlatform,
-      notation: this.getAttribute('notation') || 'text',
+      notation: this.notation,
       mapMetaToCtrlOnWindows: explicitWindowsOnMac,
     });
 
