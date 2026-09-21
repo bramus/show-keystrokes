@@ -61,16 +61,15 @@
           <div class="sidenav-title">On this page</div>
           <ul class="sidenav-list">
             <li><a href="#playground" class="is-active">Interactive Playground</a></li>
-            <li><a href="#overview">Overview</a></li>
             <li><a href="#features">Features</a></li>
             <li><a href="#installation">Installation</a></li>
             <li><a href="#attributes">Attributes &amp; API</a></li>
             <li class="sidenav-divider">Examples</li>
-            <li><a href="#configuration">Show Modes</a></li>
             <li><a href="#themes">Built-In Themes</a></li>
             <li><a href="#platforms">macOS vs. Windows</a></li>
             <li><a href="#parts-styling">Custom Styling (::part)</a></li>
             <li><a href="#javascript-api">JavaScript API</a></li>
+            <li><a href="#static-keystrokes">Showing static keystrokes</a></li>
           </ul>
         </nav>
       </aside>
@@ -81,13 +80,12 @@
         <section id="playground">
           <h2>Interactive Playground</h2>
           <p class="section-desc">
-            Press any shortcut or navigational key on your keyboard (e.g. <code>→</code>, <code>SHIFT + TAB</code>, <code>CMD + A</code>, <code>SHIFT + CMD + T</code>), or click one of the preset buttons below. <strong>Click the stage area below to focus and capture keystrokes</strong>—while focused, keystrokes are prevented from bubbling up so you can safely test keys like <code>SPACE</code>, <code>TAB</code>, or arrow keys without scrolling the page.
+            Press any shortcut or navigational key on your keyboard (e.g. <code>→</code>, <code>SHIFT + TAB</code>, <code>CMD + A</code>, <code>SHIFT + CMD + T</code>). <strong>Click the stage area below to focus and capture keystrokes</strong>—while focused, keystrokes are prevented from bubbling up so you can safely test keys like <code>SPACE</code>, <code>TAB</code>, or arrow keys without scrolling the page.
           </p>
 
           <div class="card playground-card">
             <div class="card-header">
               <span class="card-title">Live Keystroke Visualizer</span>
-              <span class="card-meta" id="active-markup-preview">&lt;show-keystrokes theme="modern" color-scheme="light" position="normal"&gt;&lt;/show-keystrokes&gt;</span>
             </div>
 
             <div class="visualizer-stage" id="visualizer-stage" data-stage-scheme="light" tabindex="0" role="region" aria-label="Interactive Keystroke Stage — Click to focus and capture keystrokes">
@@ -99,18 +97,9 @@
               <show-keystrokes id="playground-visualizer" theme="modern" color-scheme="light" position="normal"></show-keystrokes>
             </div>
 
-            <div class="preset-bar">
-              <span class="preset-label">Simulate keystroke:</span>
-              <button type="button" class="preset-btn" data-sim-key="ArrowRight">→</button>
-              <button type="button" class="preset-btn" data-sim-key="Tab" data-sim-shift="true">SHIFT + TAB</button>
-              <button type="button" class="preset-btn" data-sim-key="a" data-sim-primary-mod="true">CMD / CTRL + A</button>
-              <button type="button" class="preset-btn" data-sim-key="t" data-sim-shift="true" data-sim-primary-mod="true">SHIFT + CMD / CTRL + T</button>
-              <button type="button" class="preset-btn" data-sim-key="Enter" data-sim-shift="true">SHIFT + ENTER</button>
-              <button type="button" class="preset-btn" data-sim-key=" ">SPACE</button>
-              <button type="button" class="preset-btn preset-btn-clear" id="btn-clear-visualizer">Clear</button>
-            </div>
-
-            <div class="controls-grid">
+            <div class="controls-section">
+              <h3 class="controls-title">Configuration</h3>
+              <div class="controls-grid">
               <div class="control-group">
                 <label for="select-show">Show (<code>show</code>)</label>
                 <select id="select-show">
@@ -200,50 +189,14 @@
                   <option value="true">Disabled (disabled)</option>
                 </select>
               </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Overview Section -->
-        <section id="overview">
-          <h2>Overview</h2>
-          <p class="section-desc">
-            Drop <code>&lt;show-keystrokes&gt;</code> anywhere on your page to visualize keystrokes as the user presses them, or set the <code>keys</code> attribute to render static keycaps in documentation.
-          </p>
-
-          <div class="card">
-            <div class="card-header">
-              <span class="card-title">Examples from Specification</span>
-              <span class="card-meta">Declarative &amp; Live</span>
-            </div>
-            <div class="showcase-row">
-              <div class="showcase-item">
-                <span class="showcase-caption">Right Arrow Key</span>
-                <show-keystrokes keys="→" theme="modern" color-scheme="light" static></show-keystrokes>
-              </div>
-              <div class="showcase-item">
-                <span class="showcase-caption">Hold SHIFT + Hit TAB</span>
-                <show-keystrokes keys="SHIFT + TAB" theme="modern" color-scheme="light" static></show-keystrokes>
-              </div>
-              <div class="showcase-item">
-                <span class="showcase-caption">Hold CMD + Hit A</span>
-                <show-keystrokes keys="CMD + A" theme="modern" color-scheme="light" static></show-keystrokes>
-              </div>
-              <div class="showcase-item">
-                <span class="showcase-caption">Hold SHIFT + CMD + Hit T</span>
-                <show-keystrokes keys="SHIFT + CMD + T" theme="modern" color-scheme="light" static></show-keystrokes>
               </div>
             </div>
-            <micro-lighter language="html" controls="copy">
-              <pre><code>&lt;!-- Live listener (defaults to showing shortcuts &amp; navigational keys) --&gt;
-&lt;show-keystrokes&gt;&lt;/show-keystrokes&gt;
 
-&lt;!-- Show all keystrokes --&gt;
-&lt;show-keystrokes show="all"&gt;&lt;/show-keystrokes&gt;
-
-&lt;!-- Static keycap display --&gt;
-&lt;show-keystrokes keys="SHIFT + TAB" static&gt;&lt;/show-keystrokes&gt;</code></pre>
-            </micro-lighter>
+            <div id="playground-code-container">
+              <micro-lighter language="html" controls="copy">
+                <pre><code id="active-markup-preview">&lt;show-keystrokes theme="modern" color-scheme="light" position="normal"&gt;&lt;/show-keystrokes&gt;</code></pre>
+              </micro-lighter>
+            </div>
           </div>
         </section>
 
@@ -345,6 +298,16 @@
                   <td><code>"mac"</code> (uses <code>CMD</code>), <code>"windows"</code> (uses <code>CTRL</code>), or <code>"auto"</code></td>
                 </tr>
                 <tr>
+                  <td><code>keys</code></td>
+                  <td><code>""</code></td>
+                  <td>Keystroke string to display (e.g. <code>"SHIFT + TAB"</code>, <code>"CMD + A"</code>, <code>"→"</code>), also reflected via <code>el.keys</code></td>
+                </tr>
+                <tr>
+                  <td><code>static</code></td>
+                  <td><code>false</code></td>
+                  <td>Boolean attribute (and reflected <code>el.static</code> property) that renders static keycaps in normal document flow without attaching keyboard listeners or auto-hiding</td>
+                </tr>
+                <tr>
                   <td><code>disabled</code></td>
                   <td><code>false</code></td>
                   <td>Boolean attribute (and reflected <code>el.disabled</code> property) that disables the component and detaches all event listeners</td>
@@ -354,69 +317,12 @@
           </div>
         </section>
 
-        <!-- Configuration / Show Modes -->
-        <section id="configuration">
-          <h2>Show Modes</h2>
-          <p class="section-desc">
-            Control which keystrokes are visualized using the <code>show</code> attribute (defaults to Shortcuts &amp; Navigational when omitted).
-          </p>
-
-          <div class="card">
-            <div class="show-demo-grid">
-              <div class="show-demo-box">
-                <div class="show-demo-header">
-                  <strong>Default: Shortcuts &amp; Navigational</strong>
-                  <code>(no value)</code>
-                </div>
-                <p class="show-demo-desc">Responds to shortcuts (<code>CMD + A</code>, <code>SHIFT + ENTER</code>) and navigational keys (<code>→</code>, <code>TAB</code>, <code>SPACE</code>, <code>BACKSPACE</code>, <code>DELETE</code>, <code>F1–F15</code>), ignoring plain typing.</p>
-                <div class="show-demo-stage">
-                  <span class="show-demo-hint">Waiting for shortcut or arrow key…</span>
-                  <show-keystrokes position="normal"></show-keystrokes>
-                </div>
-              </div>
-
-              <div class="show-demo-box">
-                <div class="show-demo-header">
-                  <strong>All Keystrokes</strong>
-                  <code>show="all"</code>
-                </div>
-                <p class="show-demo-desc">Visualizes every single key press including letters, numbers, symbols, shortcuts, and navigational keys.</p>
-                <div class="show-demo-stage">
-                  <span class="show-demo-hint">Waiting for any key (A, 1, SPACE, →)…</span>
-                  <show-keystrokes show="all" position="normal"></show-keystrokes>
-                </div>
-              </div>
-
-              <div class="show-demo-box">
-                <div class="show-demo-header">
-                  <strong>Shortcuts Only</strong>
-                  <code>show="shortcuts"</code>
-                </div>
-                <p class="show-demo-desc">Only responds to modifier combinations (<code>CMD + A</code>, <code>SHIFT + CMD + T</code>, <code>SHIFT + TAB</code>, <code>SHIFT + ENTER</code>).</p>
-                <div class="show-demo-stage">
-                  <span class="show-demo-hint">Waiting for a shortcut (CMD + A)…</span>
-                  <show-keystrokes show="shortcuts" position="normal"></show-keystrokes>
-                </div>
-              </div>
-
-              <div class="show-demo-box">
-                <div class="show-demo-header">
-                  <strong>Navigational Keys Only</strong>
-                  <code>show="navigational"</code>
-                </div>
-                <p class="show-demo-desc">Only responds to navigational and special keys (<code>←</code>, <code>↑</code>, <code>→</code>, <code>↓</code>, <code>TAB</code>, <code>SPACE</code>, <code>BACKSPACE</code>, <code>DELETE</code>, <code>F1–F15</code>, <code>ENTER</code>, <code>ESC</code>).</p>
-                <div class="show-demo-stage">
-                  <span class="show-demo-hint">Waiting for TAB, SPACE, or arrows (→)…</span>
-                  <show-keystrokes show="navigational" position="normal"></show-keystrokes>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <!-- Examples -->
+        <h2 id="examples">Examples</h2>
 
         <!-- Built-In Themes -->
         <section id="themes">
-          <h2>Built-In Themes (Light &amp; Dark Variants)</h2>
+          <h3>Built-In Themes (Light &amp; Dark Variants)</h3>
           <p class="section-desc">
             <code>&lt;show-keystrokes&gt;</code> ships with two built-in themes: <strong>Modern</strong> (<code>theme="modern"</code>) and <strong>Mechanical Keyboard</strong> (<code>theme="mechanical"</code>), each with both Light and Dark variants.
           </p>
@@ -426,7 +332,7 @@
             <div class="theme-panel theme-panel-light">
               <div class="theme-panel-header">
                 <span class="theme-badge">Theme 1 · Light</span>
-                <h3>Modern (Light)</h3>
+                <h4>Modern (Light)</h4>
                 <code>theme="modern" color-scheme="light"</code>
               </div>
               <p class="theme-panel-desc">White rounded squares with grey text and subtle keycap elevation.</p>
@@ -441,7 +347,7 @@
             <div class="theme-panel theme-panel-dark">
               <div class="theme-panel-header">
                 <span class="theme-badge">Theme 1 · Dark</span>
-                <h3>Modern (Dark)</h3>
+                <h4>Modern (Dark)</h4>
                 <code>theme="modern" color-scheme="dark"</code>
               </div>
               <p class="theme-panel-desc">Black rounded squares with lightgrey text mimicking backlit keys.</p>
@@ -456,7 +362,7 @@
             <div class="theme-panel theme-panel-light">
               <div class="theme-panel-header">
                 <span class="theme-badge">Theme 2 · Light</span>
-                <h3>Mechanical Keyboard (Light)</h3>
+                <h4>Mechanical Keyboard (Light)</h4>
                 <code>theme="mechanical" color-scheme="light"</code>
               </div>
               <p class="theme-panel-desc">Sculpted off-white keycaps with deep 3D keywell dish and slate modifier accents.</p>
@@ -471,7 +377,7 @@
             <div class="theme-panel theme-panel-dark">
               <div class="theme-panel-header">
                 <span class="theme-badge">Theme 2 · Dark</span>
-                <h3>Mechanical Keyboard (Dark)</h3>
+                <h4>Mechanical Keyboard (Dark)</h4>
                 <code>theme="mechanical" color-scheme="dark"</code>
               </div>
               <p class="theme-panel-desc">Carbon keycaps with high-contrast legends and indigo modifier keycaps.</p>
@@ -486,7 +392,7 @@
 
         <!-- macOS vs Windows -->
         <section id="platforms">
-          <h2>macOS vs. Windows Support</h2>
+          <h3>macOS vs. Windows Support</h3>
           <p class="section-desc">
             <code>&lt;show-keystrokes&gt;</code> automatically detects the user's operating system (using <code>CMD</code> on macOS and <code>CTRL</code> on Windows), or you can explicitly set <code>platform="mac"</code> or <code>platform="windows"</code>.
           </p>
@@ -507,7 +413,7 @@
 
         <!-- Custom Styling Section -->
         <section id="parts-styling">
-          <h2>Custom Styling via CSS <code>::part()</code> &amp; Variables</h2>
+          <h3>Custom Styling via CSS <code>::part()</code> &amp; Variables</h3>
           <p class="section-desc">
             Style keys using CSS Custom Properties or target <code>::part(key)</code>, <code>::part(modifier)</code>, and <code>::part(separator)</code> directly.
           </p>
@@ -541,7 +447,7 @@ show-keystrokes.custom-neon::part(modifier) {
 
         <!-- JavaScript API -->
         <section id="javascript-api">
-          <h2>JavaScript API</h2>
+          <h3>JavaScript API</h3>
           <div class="card">
             <micro-lighter language="javascript" controls="copy">
               <pre><code>import { create } from 'show-keystrokes';
@@ -575,6 +481,45 @@ el.addEventListener('keystroke', (e) =&gt; {
   console.log(e.detail.keys);     // e.g. ["SHIFT", "TAB"]
   console.log(e.detail.category); // "shortcut" | "navigation" | "keystroke"
 });</code></pre>
+            </micro-lighter>
+          </div>
+        </section>
+
+        <!-- Showing Static Keystrokes Section -->
+        <section id="static-keystrokes">
+          <h3>Showing static keystrokes</h3>
+          <p class="section-desc">
+            Use the <code>keys</code> and <code>static</code> attributes on <code>&lt;show-keystrokes&gt;</code> to render static keycaps in documentation, tutorials, or UI hints without attaching keyboard event listeners or auto-hiding.
+          </p>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Static Keycap Examples</span>
+              <span class="card-meta">Declarative</span>
+            </div>
+            <div class="showcase-row">
+              <div class="showcase-item">
+                <span class="showcase-caption">Right Arrow Key</span>
+                <show-keystrokes keys="→" theme="modern" color-scheme="light" static></show-keystrokes>
+              </div>
+              <div class="showcase-item">
+                <span class="showcase-caption">Hold SHIFT + Hit TAB</span>
+                <show-keystrokes keys="SHIFT + TAB" theme="modern" color-scheme="light" static></show-keystrokes>
+              </div>
+              <div class="showcase-item">
+                <span class="showcase-caption">Hold CMD + Hit A</span>
+                <show-keystrokes keys="CMD + A" theme="modern" color-scheme="light" static></show-keystrokes>
+              </div>
+              <div class="showcase-item">
+                <span class="showcase-caption">Hold SHIFT + CMD + Hit T</span>
+                <show-keystrokes keys="SHIFT + CMD + T" theme="modern" color-scheme="light" static></show-keystrokes>
+              </div>
+            </div>
+            <micro-lighter language="html" controls="copy">
+              <pre><code>&lt;show-keystrokes keys="→" static&gt;&lt;/show-keystrokes&gt;
+&lt;show-keystrokes keys="SHIFT + TAB" static&gt;&lt;/show-keystrokes&gt;
+&lt;show-keystrokes keys="CMD + A" static&gt;&lt;/show-keystrokes&gt;
+&lt;show-keystrokes keys="SHIFT + CMD + T" static&gt;&lt;/show-keystrokes&gt;</code></pre>
             </micro-lighter>
           </div>
         </section>

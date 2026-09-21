@@ -5,7 +5,7 @@
 const visualizer = document.getElementById('playground-visualizer');
 const stage = document.getElementById('visualizer-stage');
 const stagePromptMain = document.getElementById('stage-prompt-main');
-const markupPreview = document.getElementById('active-markup-preview');
+const playgroundCodeContainer = document.getElementById('playground-code-container');
 
 const selectShow = document.getElementById('select-show');
 const selectTheme = document.getElementById('select-theme');
@@ -17,7 +17,6 @@ const selectPositionArea = document.getElementById('select-position-area');
 const inputTimeout = document.getElementById('input-timeout');
 const inputFadeDuration = document.getElementById('input-fade-duration');
 const selectDisabled = document.getElementById('select-disabled');
-const btnClear = document.getElementById('btn-clear-visualizer');
 
 function renderDefaultStagePromptMain() {
   if (!stagePromptMain) return;
@@ -154,8 +153,18 @@ function updatePlaygroundAttributes() {
     .filter(Boolean)
     .join(' ');
 
-  if (markupPreview) {
-    markupPreview.textContent = `<show-keystrokes ${attrs}></show-keystrokes>`;
+  if (playgroundCodeContainer) {
+    const lighter = document.createElement('micro-lighter');
+    lighter.setAttribute('language', 'html');
+    lighter.setAttribute('controls', 'copy');
+    const pre = document.createElement('pre');
+    const code = document.createElement('code');
+    code.id = 'active-markup-preview';
+    code.textContent = `<show-keystrokes ${attrs}></show-keystrokes>`;
+    pre.appendChild(code);
+    lighter.appendChild(pre);
+    playgroundCodeContainer.replaceChildren(lighter);
+    setupMicroLighterCopyButtons();
   }
 
   syncStagePrompt();
@@ -171,48 +180,6 @@ selectPositionArea?.addEventListener('change', updatePlaygroundAttributes);
 inputTimeout?.addEventListener('input', updatePlaygroundAttributes);
 inputFadeDuration?.addEventListener('input', updatePlaygroundAttributes);
 selectDisabled?.addEventListener('change', updatePlaygroundAttributes);
-
-btnClear?.addEventListener('click', () => {
-  visualizer?.clear();
-});
-
-document.querySelectorAll('.preset-btn[data-sim-key]').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    const key = btn.getAttribute('data-sim-key');
-    const shiftKey = btn.getAttribute('data-sim-shift') === 'true';
-    const primaryMod = btn.getAttribute('data-sim-primary-mod') === 'true';
-    const allOnly = btn.getAttribute('data-sim-all-only') === 'true';
-
-    if (allOnly && selectShow && selectShow.value !== 'all') {
-      selectShow.value = 'all';
-      updatePlaygroundAttributes();
-    }
-
-    const effectivePlatform = visualizer?.platform || 'mac';
-    const isMac = effectivePlatform === 'mac';
-
-    let eventCode = key;
-    if (key === ' ') {
-      eventCode = 'Space';
-    } else if (key.length === 1) {
-      eventCode = `Key${key.toUpperCase()}`;
-    }
-
-    const syntheticEvent = new KeyboardEvent('keydown', {
-      key,
-      code: eventCode,
-      shiftKey,
-      metaKey: primaryMod && isMac,
-      ctrlKey: primaryMod && !isMac,
-      bubbles: true,
-    });
-
-    window.dispatchEvent(syntheticEvent);
-    setTimeout(() => {
-      window.dispatchEvent(new KeyboardEvent('keyup', { key, bubbles: true }));
-    }, 150);
-  });
-});
 
 // Click-to-capture keystrokes on the playground stage:
 // When #visualizer-stage has focus, prevent keystrokes from bubbling up or triggering

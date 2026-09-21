@@ -280,8 +280,22 @@ section {
   gap: 1.25rem;
 }
 
+.main-content > h2,
 section h2 {
   font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.main-content > h2 {
+  margin-bottom: -1.75rem;
+}
+
+section > h3 {
+  font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.015em;
   display: flex;
@@ -577,69 +591,25 @@ micro-lighter::part(copy-button):hover {
   display: none;
 }
 
-.show-demo-stage {
+.controls-section {
   display: flex;
-  align-items: center;
-  min-height: 2.75rem;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-color);
 }
 
-.show-demo-hint {
-  font-size: 0.85rem;
-  font-style: italic;
-  color: var(--text-muted);
-}
-
-.show-demo-stage:has(show-keystrokes[active]) .show-demo-hint {
-  display: none;
-}
-
-.preset-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.preset-label {
-  font-size: 0.85rem;
+.controls-title {
+  font-size: 1rem;
   font-weight: 600;
-  color: var(--text-muted);
-  margin-right: 0.25rem;
-}
-
-.preset-btn {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 0.4rem 0.75rem;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-surface-elevated);
   color: var(--text-color);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.preset-btn:hover {
-  background: var(--bg-surface);
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-}
-
-.preset-btn:active {
-  transform: translateY(1px);
-}
-
-.preset-btn-clear {
-  margin-left: auto;
+  margin: 0;
 }
 
 .controls-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--border-color);
 }
 
 .control-group {
@@ -687,35 +657,6 @@ micro-lighter::part(copy-button):hover {
   font-size: 0.8rem;
   font-weight: 600;
   color: #52525b;
-}
-
-.show-demo-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.25rem;
-}
-
-.show-demo-box {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1.25rem;
-  border-radius: 10px;
-  background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-color);
-}
-
-.show-demo-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-
-.show-demo-desc {
-  font-size: 0.85rem;
-  color: var(--text-muted);
 }
 
 .themes-grid {
