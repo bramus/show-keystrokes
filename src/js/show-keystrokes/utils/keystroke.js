@@ -116,6 +116,7 @@ const KEY_LABELS_SYMBOLS = {
 export const ALL_MODIFIER_LABELS = new Set([
   'FN',
   '🌐',
+  '🌐\uFE0E',
   'CMD',
   'COMMAND',
   'META',
@@ -347,7 +348,7 @@ export function getModifierLabels(event, options = {}) {
   const modifiers = [];
 
   if (platform === 'mac') {
-    if (fn) modifiers.push(notation === 'symbols' ? '🌐' : 'FN');
+    if (fn) modifiers.push(notation === 'symbols' ? '🌐\uFE0E' : 'FN');
     if (ctrl) modifiers.push(notation === 'symbols' ? '⌃' : 'CTRL');
     if (alt) modifiers.push(notation === 'symbols' ? '⌥' : 'ALT');
     if (shift) modifiers.push(notation === 'symbols' ? '⇧' : 'SHIFT');
@@ -565,8 +566,8 @@ export function parseKeystrokeString(input, options = {}) {
       normalized = notation === 'symbols' ? '⌥' : 'ALT';
     } else if (upper === 'SHIFT' || part === '⇧') {
       normalized = notation === 'symbols' ? '⇧' : 'SHIFT';
-    } else if (upper === 'FN' || part === '🌐') {
-      normalized = notation === 'symbols' ? '🌐' : 'FN';
+    } else if (upper === 'FN' || part === '🌐' || part === '🌐\uFE0E') {
+      normalized = notation === 'symbols' ? '🌐\uFE0E' : 'FN';
     } else if (upper === 'WIN' || upper === 'WINDOWS' || upper === 'SUPER' || part === '⊞') {
       normalized = notation === 'symbols' ? '⊞' : 'WIN';
     } else if (upper === 'TAB' || part === '⇥') {

@@ -155,7 +155,7 @@ By default, a pressed keystroke stays visible for **`1250` ms** (`hide-delay`) a
 
 ### Key Label Notation (`notation`)
 
-By default, `<show-keystrokes>` renders symbol glyphs (`notation="symbols"`), such as `⌘`, `⇧`, `⌥`, `⌃`, `🌐`, `⊞`, `⇥`, `↵`, `⎋`, `⌫`, `⌦`, `↖`, `↘`, `⇞`, `⇟`, and `⇪`. Set `notation="text"` to render text labels (`CMD`, `SHIFT`, `TAB`, `ENTER`, etc.):
+By default, `<show-keystrokes>` renders symbol glyphs (`notation="symbols"`), such as `⌘`, `⇧`, `⌥`, `⌃`, `🌐︎`, `⊞`, `⇥`, `↵`, `⎋`, `⌫`, `⌦`, `↖`, `↘`, `⇞`, `⇟`, and `⇪`. Set `notation="text"` to render text labels (`CMD`, `SHIFT`, `TAB`, `ENTER`, etc.):
 
 ```html
 <!-- Default: symbol glyphs (e.g. ⇧ + ⌘ + T, ⇧ + ⇥) -->

@@ -264,9 +264,9 @@ describe('keystroke utilities unit tests', () => {
       );
       assert.equal(fnF1.shouldShow, true);
       assert.equal(fnF1.isShortcut, true);
-      assert.equal(fnF1.label, '🌐 + F1');
+      assert.equal(fnF1.label, '🌐\uFE0E + F1');
       assert.deepEqual(fnF1.keys, [
-        { label: '🌐', type: 'modifier' },
+        { label: '🌐\uFE0E', type: 'modifier' },
         { label: 'F1', type: 'primary' },
       ]);
     });
@@ -292,10 +292,10 @@ describe('keystroke utilities unit tests', () => {
 
       assert.deepEqual(parseKeystrokeString('FN + F1'), {
         keys: [
-          { label: '🌐', type: 'modifier' },
+          { label: '🌐\uFE0E', type: 'modifier' },
           { label: 'F1', type: 'primary' },
         ],
-        label: '🌐 + F1',
+        label: '🌐\uFE0E + F1',
       });
 
       assert.deepEqual(parseKeystrokeString('→'), {
