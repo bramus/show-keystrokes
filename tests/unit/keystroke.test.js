@@ -261,10 +261,42 @@ describe('keystroke utilities unit tests', () => {
       });
     });
 
+    it('supports leading pointer and mouse keywords and defaults to bottom right when omitted', () => {
+      assert.deepEqual(parsePosition('pointer'), {
+        vertical: 'bottom',
+        horizontal: 'right',
+        pointer: true,
+        positionArea: 'bottom right',
+        value: 'pointer bottom right',
+      });
+      assert.deepEqual(parsePosition('mouse'), {
+        vertical: 'bottom',
+        horizontal: 'right',
+        pointer: true,
+        positionArea: 'bottom right',
+        value: 'mouse bottom right',
+      });
+      assert.deepEqual(parsePosition('mouse top right'), {
+        vertical: 'top',
+        horizontal: 'right',
+        pointer: true,
+        positionArea: 'top right',
+        value: 'mouse top right',
+      });
+      assert.deepEqual(parsePosition('pointer right top'), {
+        vertical: 'top',
+        horizontal: 'right',
+        pointer: true,
+        positionArea: 'top right',
+        value: 'pointer top right',
+      });
+    });
+
     it('returns null for invalid or incomplete position values', () => {
       assert.equal(parsePosition(null), null);
       assert.equal(parsePosition(''), null);
       assert.equal(parsePosition('top'), null);
+      assert.equal(parsePosition('mouse top'), null);
       assert.equal(parsePosition('top bottom'), null);
       assert.equal(parsePosition('left right'), null);
       assert.equal(parsePosition('top right extra'), null);

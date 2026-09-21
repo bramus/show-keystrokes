@@ -102,22 +102,30 @@ key-stroke {
 }
 ```
 
-### Fixed Viewport Positioning (`position`)
+### Viewport & Pointer Positioning (`position`)
 
-Set the `position` attribute using any combination of `top` / `center` / `bottom` and `left` / `center` / `right` to apply `position: fixed` at that viewport location with a `1rem` gap (customizable via `--key-stroke-position-offset`):
+Set the `position` attribute using any combination of `top` / `center` / `bottom` and `left` / `center` / `right`:
 
-```html
-<!-- Fixed in the top-right corner of the viewport -->
-<key-stroke position="top right"></key-stroke>
+1. **Fixed Viewport Positioning**: Applies `position: fixed` at that viewport location with a `1rem` gap (customizable via `--key-stroke-position-offset`):
+   ```html
+   <!-- Fixed in the top-right corner of the viewport -->
+   <key-stroke position="top right"></key-stroke>
 
-<!-- Fixed at the bottom-center of the viewport -->
-<key-stroke position="bottom center"></key-stroke>
-```
+   <!-- Fixed at the bottom-center of the viewport -->
+   <key-stroke position="bottom center"></key-stroke>
+   ```
+2. **Pointer Positioning (CSS Anchor Positioning)**: Prefix `position` with `pointer` to anchor `<key-stroke>` to an invisible `#keystroke-anchor` tracking the pointer via CSS Anchor Positioning (`position-area` + `position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block`). When setting only `pointer`, it defaults to `pointer bottom right`:
+   ```html
+   <!-- Defaults to bottom right of the pointer -->
+   <key-stroke position="pointer"></key-stroke>
+
+   <!-- Positioned to the top right of the pointer -->
+   <key-stroke position="pointer top right"></key-stroke>
+   ```
 
 Accepted values:
-- `top left`, `top center`, `top right`
-- `center left`, `center center`, `center right`
-- `bottom left`, `bottom center`, `bottom right`
+- Viewport: `top left`, `top center`, `top right`, `center left`, `center center`, `center right`, `bottom left`, `bottom center`, `bottom right`
+- Pointer: `pointer`, `pointer <top|center|bottom> <left|center|right>`
 
 ### Auto-Hide Timeout & Fade-Out Duration (`timeout` & `fade-duration`)
 

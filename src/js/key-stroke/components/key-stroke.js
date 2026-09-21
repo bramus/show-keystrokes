@@ -56,6 +56,10 @@ const COMPONENT_STYLES = `
     --_separator-color: var(--key-stroke-separator-color, light-dark(var(--_apple-sep-light), var(--_apple-sep-dark)));
 
     display: inline-flex;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    width: max-content;
+    flex-shrink: 0;
     vertical-align: middle;
     box-sizing: border-box;
     user-select: none;
@@ -94,7 +98,7 @@ const COMPONENT_STYLES = `
    * VIEWPORT POSITIONING (position="<top|center|bottom> <left|center|right>")
    * Fixes the component in the viewport with a 1rem gap (--key-stroke-position-offset)
    * ========================================================================== */
-  :host([position~="top" i][position~="left" i]) {
+  :host([position~="top" i][position~="left" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
     position: fixed;
     top: var(--_position-offset);
     bottom: auto;
@@ -105,7 +109,7 @@ const COMPONENT_STYLES = `
     pointer-events: var(--key-stroke-pointer-events, none);
   }
 
-  :host([position~="top" i][position~="center" i]) {
+  :host([position~="top" i][position~="center" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
     position: fixed;
     top: var(--_position-offset);
     bottom: auto;
@@ -116,7 +120,7 @@ const COMPONENT_STYLES = `
     pointer-events: var(--key-stroke-pointer-events, none);
   }
 
-  :host([position~="top" i][position~="right" i]) {
+  :host([position~="top" i][position~="right" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
     position: fixed;
     top: var(--_position-offset);
     bottom: auto;
@@ -127,7 +131,7 @@ const COMPONENT_STYLES = `
     pointer-events: var(--key-stroke-pointer-events, none);
   }
 
-  :host([position~="center" i][position~="left" i]) {
+  :host([position~="center" i][position~="left" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
     position: fixed;
     top: 50%;
     bottom: auto;
@@ -149,7 +153,7 @@ const COMPONENT_STYLES = `
     pointer-events: var(--key-stroke-pointer-events, none);
   }
 
-  :host([position~="center" i][position~="right" i]) {
+  :host([position~="center" i][position~="right" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
     position: fixed;
     top: 50%;
     bottom: auto;
@@ -160,7 +164,7 @@ const COMPONENT_STYLES = `
     pointer-events: var(--key-stroke-pointer-events, none);
   }
 
-  :host([position~="bottom" i][position~="left" i]) {
+  :host([position~="bottom" i][position~="left" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
     position: fixed;
     top: auto;
     bottom: var(--_position-offset);
@@ -171,7 +175,7 @@ const COMPONENT_STYLES = `
     pointer-events: var(--key-stroke-pointer-events, none);
   }
 
-  :host([position~="bottom" i][position~="center" i]) {
+  :host([position~="bottom" i][position~="center" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
     position: fixed;
     top: auto;
     bottom: var(--_position-offset);
@@ -182,7 +186,7 @@ const COMPONENT_STYLES = `
     pointer-events: var(--key-stroke-pointer-events, none);
   }
 
-  :host([position~="bottom" i][position~="right" i]) {
+  :host([position~="bottom" i][position~="right" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
     position: fixed;
     top: auto;
     bottom: var(--_position-offset);
@@ -191,6 +195,76 @@ const COMPONENT_STYLES = `
     translate: none;
     z-index: var(--key-stroke-z-index, 9999);
     pointer-events: var(--key-stroke-pointer-events, none);
+  }
+
+  /* ==========================================================================
+   * POINTER / MOUSE ANCHOR POSITIONING
+   * (position="pointer|mouse [<top|center|bottom> <left|center|right>]")
+   * Anchors <key-stroke> to the invisible #keystroke-anchor tracking the pointer
+   * using CSS Anchor Positioning (position-area & position-try-fallbacks).
+   * ========================================================================== */
+  :host([position~="pointer" i]),
+  :host([position~="mouse" i]) {
+    position: fixed;
+    inset: auto;
+    translate: none;
+    position-anchor: --keystroke-anchor;
+    position-area: bottom right;
+    position-try-fallbacks: none;
+    position-visibility: always;
+    margin: var(--key-stroke-pointer-gap, 0.25rem);
+    z-index: var(--key-stroke-z-index, 9999);
+    pointer-events: var(--key-stroke-pointer-events, none);
+  }
+
+  :host([position~="pointer" i][active]),
+  :host([position~="mouse" i][active]) {
+    position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block;
+  }
+
+  :host([position~="pointer" i][position~="top" i][position~="left" i]),
+  :host([position~="mouse" i][position~="top" i][position~="left" i]) {
+    position-area: top left;
+  }
+
+  :host([position~="pointer" i][position~="top" i][position~="center" i]),
+  :host([position~="mouse" i][position~="top" i][position~="center" i]) {
+    position-area: top center;
+  }
+
+  :host([position~="pointer" i][position~="top" i][position~="right" i]),
+  :host([position~="mouse" i][position~="top" i][position~="right" i]) {
+    position-area: top right;
+  }
+
+  :host([position~="pointer" i][position~="center" i][position~="left" i]),
+  :host([position~="mouse" i][position~="center" i][position~="left" i]) {
+    position-area: center left;
+  }
+
+  :host([position="pointer center center" i]),
+  :host([position="mouse center center" i]) {
+    position-area: center center;
+  }
+
+  :host([position~="pointer" i][position~="center" i][position~="right" i]),
+  :host([position~="mouse" i][position~="center" i][position~="right" i]) {
+    position-area: center right;
+  }
+
+  :host([position~="pointer" i][position~="bottom" i][position~="left" i]),
+  :host([position~="mouse" i][position~="bottom" i][position~="left" i]) {
+    position-area: bottom left;
+  }
+
+  :host([position~="pointer" i][position~="bottom" i][position~="center" i]),
+  :host([position~="mouse" i][position~="bottom" i][position~="center" i]) {
+    position-area: bottom center;
+  }
+
+  :host([position~="pointer" i][position~="bottom" i][position~="right" i]),
+  :host([position~="mouse" i][position~="bottom" i][position~="right" i]) {
+    position-area: bottom right;
   }
 
   /* Color scheme overrides via attribute */
@@ -303,7 +377,10 @@ const COMPONENT_STYLES = `
 
   .container {
     display: inline-flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    width: max-content;
+    flex-shrink: 0;
     align-items: center;
     justify-content: center;
     gap: var(--_gap);
@@ -325,6 +402,7 @@ const COMPONENT_STYLES = `
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     box-sizing: border-box;
     min-width: var(--_key-min-size);
     height: var(--_key-min-size);
@@ -372,6 +450,8 @@ const COMPONENT_STYLES = `
     display: var(--key-stroke-separator-display, inline-flex);
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
+    white-space: nowrap;
     color: var(--_separator-color);
     font-family: var(--_key-font-family);
     font-size: var(--key-stroke-separator-size, 0.875em);
@@ -380,6 +460,137 @@ const COMPONENT_STYLES = `
     line-height: 1;
   }
 `;
+
+const KEYSTROKE_ANCHOR_ID = 'keystroke-anchor';
+const KEYSTROKE_ANCHOR_STYLE_ID = 'keystroke-anchor-styles';
+
+const KEYSTROKE_ANCHOR_STYLES = `
+  #${KEYSTROKE_ANCHOR_ID} {
+    position: fixed;
+    top: var(--keystroke-pointer-y, 50vh);
+    left: var(--keystroke-pointer-x, 50vw);
+    width: var(--key-stroke-anchor-size, 1.25rem);
+    height: var(--key-stroke-anchor-size, 1.25rem);
+    translate: -50% -50%;
+    pointer-events: none;
+    opacity: 0;
+    z-index: -1;
+    anchor-name: --keystroke-anchor;
+  }
+
+  key-stroke[position~="pointer" i],
+  key-stroke[position~="mouse" i] {
+    position: fixed;
+    inset: auto;
+    translate: none;
+    width: max-content;
+    white-space: nowrap;
+    position-anchor: --keystroke-anchor;
+    position-area: bottom right;
+    position-try-fallbacks: none;
+    position-visibility: always;
+    margin: var(--key-stroke-pointer-gap, 0.25rem);
+    z-index: var(--key-stroke-z-index, 9999);
+    pointer-events: var(--key-stroke-pointer-events, none);
+  }
+
+  key-stroke[position~="pointer" i][active],
+  key-stroke[position~="mouse" i][active] {
+    position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block;
+  }
+
+  key-stroke[position~="pointer" i][position~="top" i][position~="left" i],
+  key-stroke[position~="mouse" i][position~="top" i][position~="left" i] {
+    position-area: top left;
+  }
+
+  key-stroke[position~="pointer" i][position~="top" i][position~="center" i],
+  key-stroke[position~="mouse" i][position~="top" i][position~="center" i] {
+    position-area: top center;
+  }
+
+  key-stroke[position~="pointer" i][position~="top" i][position~="right" i],
+  key-stroke[position~="mouse" i][position~="top" i][position~="right" i] {
+    position-area: top right;
+  }
+
+  key-stroke[position~="pointer" i][position~="center" i][position~="left" i],
+  key-stroke[position~="mouse" i][position~="center" i][position~="left" i] {
+    position-area: center left;
+  }
+
+  key-stroke[position="pointer center center" i],
+  key-stroke[position="mouse center center" i] {
+    position-area: center center;
+  }
+
+  key-stroke[position~="pointer" i][position~="center" i][position~="right" i],
+  key-stroke[position~="mouse" i][position~="center" i][position~="right" i] {
+    position-area: center right;
+  }
+
+  key-stroke[position~="pointer" i][position~="bottom" i][position~="left" i],
+  key-stroke[position~="mouse" i][position~="bottom" i][position~="left" i] {
+    position-area: bottom left;
+  }
+
+  key-stroke[position~="pointer" i][position~="bottom" i][position~="center" i],
+  key-stroke[position~="mouse" i][position~="bottom" i][position~="center" i] {
+    position-area: bottom center;
+  }
+
+  key-stroke[position~="pointer" i][position~="bottom" i][position~="right" i],
+  key-stroke[position~="mouse" i][position~="bottom" i][position~="right" i] {
+    position-area: bottom right;
+  }
+`;
+
+let pointerTrackingInitialized = false;
+
+function ensureKeystrokeAnchor() {
+  if (typeof document === 'undefined' || typeof window === 'undefined') {
+    return null;
+  }
+
+  if (document.head && !document.getElementById(KEYSTROKE_ANCHOR_STYLE_ID)) {
+    const styleEl = document.createElement('style');
+    styleEl.id = KEYSTROKE_ANCHOR_STYLE_ID;
+    styleEl.textContent = KEYSTROKE_ANCHOR_STYLES;
+    document.head.appendChild(styleEl);
+  }
+
+  let anchorEl = document.getElementById(KEYSTROKE_ANCHOR_ID);
+  if (!anchorEl && document.body) {
+    anchorEl = document.createElement('div');
+    anchorEl.id = KEYSTROKE_ANCHOR_ID;
+    anchorEl.setAttribute('aria-hidden', 'true');
+    // Prepend as the first child of document.body so it precedes all <key-stroke> elements in DOM tree order
+    document.body.prepend(anchorEl);
+  }
+
+  if (!pointerTrackingInitialized) {
+    pointerTrackingInitialized = true;
+
+    const updatePointerAnchor = (event) => {
+      if (typeof event.clientX !== 'number' || typeof event.clientY !== 'number') {
+        return;
+      }
+      const el = document.getElementById(KEYSTROKE_ANCHOR_ID);
+      if (el) {
+        el.style.left = `${event.clientX}px`;
+        el.style.top = `${event.clientY}px`;
+      }
+      document.documentElement?.style.setProperty('--keystroke-pointer-x', `${event.clientX}px`);
+      document.documentElement?.style.setProperty('--keystroke-pointer-y', `${event.clientY}px`);
+    };
+
+    window.addEventListener('pointermove', updatePointerAnchor, { passive: true, capture: true });
+    window.addEventListener('mousemove', updatePointerAnchor, { passive: true, capture: true });
+    window.addEventListener('pointerdown', updatePointerAnchor, { passive: true, capture: true });
+  }
+
+  return anchorEl;
+}
 
 export class KeyStroke extends HTMLElement {
   static get observedAttributes() {
@@ -417,6 +628,7 @@ export class KeyStroke extends HTMLElement {
   #boundKeyUp = null;
   #boundBlur = null;
   #fadeTimer = null;
+  #fallbackRafId = null;
   #currentKeys = [];
   #currentLabel = '';
   #isPhysicalMac = false;
@@ -444,6 +656,8 @@ export class KeyStroke extends HTMLElement {
   }
 
   connectedCallback() {
+    ensureKeystrokeAnchor();
+
     if (!this.hasAttribute('theme')) {
       this.setAttribute('theme', 'apple');
     }
@@ -531,6 +745,7 @@ export class KeyStroke extends HTMLElement {
     if (!rawVal) {
       return;
     }
+    ensureKeystrokeAnchor();
     const parsed = parsePosition(rawVal);
     if (parsed && rawVal !== parsed.value) {
       this.setAttribute('position', parsed.value);
@@ -805,12 +1020,35 @@ export class KeyStroke extends HTMLElement {
    */
   clear() {
     this.#clearTimer();
+    if (this.#fallbackRafId && typeof cancelAnimationFrame === 'function') {
+      cancelAnimationFrame(this.#fallbackRafId);
+      this.#fallbackRafId = null;
+    }
     this.#currentKeys = [];
     this.#currentLabel = '';
     this.removeAttribute('pressed');
     this.removeAttribute('fading');
-    this.#container.classList.remove('is-fading');
-    this.#render();
+    this.removeAttribute('active');
+
+    // Clear position-anchor and position-try-fallbacks after fade-out while hidden
+    this.style.setProperty('position-anchor', 'none');
+    this.style.setProperty('position-try-fallbacks', 'none');
+
+    if (typeof requestAnimationFrame === 'function') {
+      this.#fallbackRafId = requestAnimationFrame(() => {
+        this.#fallbackRafId = requestAnimationFrame(() => {
+          this.#fallbackRafId = null;
+          if (this.#currentKeys.length === 0 && this.#container) {
+            this.#container.classList.remove('is-fading');
+            this.#container.replaceChildren();
+            this.#container.classList.add('is-empty');
+          }
+        });
+      });
+    } else {
+      this.#container.classList.remove('is-fading');
+      this.#render();
+    }
   }
 
   #attachListeners() {
@@ -911,15 +1149,24 @@ export class KeyStroke extends HTMLElement {
       return;
     }
 
+    if (this.#fallbackRafId && typeof cancelAnimationFrame === 'function') {
+      cancelAnimationFrame(this.#fallbackRafId);
+      this.#fallbackRafId = null;
+    }
+
+    const wasActive = this.hasAttribute('active');
     this.#container.replaceChildren();
 
     if (this.#currentKeys.length === 0) {
       this.#container.classList.add('is-empty');
       this.removeAttribute('active');
+      this.style.setProperty('position-anchor', 'none');
+      this.style.setProperty('position-try-fallbacks', 'none');
       return;
     }
 
     this.#container.classList.remove('is-empty');
+    this.#container.classList.remove('is-fading');
     this.setAttribute('active', '');
 
     const fragment = document.createDocumentFragment();
@@ -966,5 +1213,22 @@ export class KeyStroke extends HTMLElement {
     });
 
     this.#container.appendChild(fragment);
+
+    // Reinstate position-anchor immediately and reinstate position-try-fallbacks after one rendered frame
+    // so Blink evaluates the base position-area at the current pointer coordinates first.
+    this.style.removeProperty('position-anchor');
+    if (typeof requestAnimationFrame === 'function') {
+      this.style.setProperty('position-try-fallbacks', 'none');
+      this.#fallbackRafId = requestAnimationFrame(() => {
+        this.#fallbackRafId = requestAnimationFrame(() => {
+          this.#fallbackRafId = null;
+          if (this.#currentKeys.length > 0) {
+            this.style.removeProperty('position-try-fallbacks');
+          }
+        });
+      });
+    } else {
+      this.style.removeProperty('position-try-fallbacks');
+    }
   }
 }

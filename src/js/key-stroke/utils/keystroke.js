@@ -11,6 +11,7 @@ export const DEFAULT_SIZE = 'large';
 export const VALID_SIZES = new Set(['small', 'medium', 'large', 'x-large', 'xx-large']);
 export const VALID_VERTICAL_POSITIONS = new Set(['top', 'center', 'bottom']);
 export const VALID_HORIZONTAL_POSITIONS = new Set(['left', 'center', 'right']);
+export const VALID_POINTER_KEYWORDS = new Set(['pointer', 'mouse']);
 
 export const MODIFIER_EVENT_KEYS = new Set([
   'Meta',
@@ -559,13 +560,20 @@ export function parseKeystrokeString(input, options = {}) {
 }
 
 /**
- * Parses and validates a `position` attribute value combining a vertical token
- * ('top' | 'center' | 'bottom') and a horizontal token ('left' | 'center' | 'right').
+ * Parses and validates a `position` attribute value.
+ * Accepts:
+ * - Viewport positioning: two tokens combining vertical ('top' | 'center' | 'bottom')
+ *   and horizontal ('left' | 'center' | 'right'), e.g. "top right", "bottom center".
+ * - Pointer/mouse positioning: optional leading 'pointer' (or alias 'mouse') keyword
+ *   followed by optional vertical and horizontal tokens (e.g. "mouse top right", "pointer bottom left").
+ *   When only "pointer" or "mouse" is specified, defaults to bottom right ("pointer bottom right" / "mouse bottom right").
  *
- * @param {string | null | undefined} positionAttr - e.g. "top right", "bottom center", "center center"
+ * @param {string | null | undefined} positionAttr
  * @returns {{
  *   vertical: 'top' | 'center' | 'bottom',
  *   horizontal: 'left' | 'center' | 'right',
+ *   pointer?: boolean,
+ *   positionArea?: string,
  *   value: string
  * } | null}
  */
@@ -580,6 +588,50 @@ export function parsePosition(positionAttr) {
     .split(/\s+/)
     .filter(Boolean);
 
+  if (tokens.length === 0 || tokens.length > 3) {
+    return null;
+  }
+
+  // Case 1: Leading 'pointer' or 'mouse' keyword
+  if (VALID_POINTER_KEYWORDS.has(tokens[0])) {
+    const prefix = tokens[0];
+
+    if (tokens.length === 1) {
+      return {
+        vertical: 'bottom',
+        horizontal: 'right',
+        pointer: true,
+        positionArea: 'bottom right',
+        value: `${prefix} bottom right`,
+      };
+    }
+
+    if (tokens.length === 3) {
+      const [, second, third] = tokens;
+      if (VALID_VERTICAL_POSITIONS.has(second) && VALID_HORIZONTAL_POSITIONS.has(third)) {
+        return {
+          vertical: second,
+          horizontal: third,
+          pointer: true,
+          positionArea: `${second} ${third}`,
+          value: `${prefix} ${second} ${third}`,
+        };
+      }
+      if (VALID_HORIZONTAL_POSITIONS.has(second) && VALID_VERTICAL_POSITIONS.has(third)) {
+        return {
+          vertical: third,
+          horizontal: second,
+          pointer: true,
+          positionArea: `${third} ${second}`,
+          value: `${prefix} ${third} ${second}`,
+        };
+      }
+    }
+
+    return null;
+  }
+
+  // Case 2: Standard 2-token viewport positioning
   if (tokens.length !== 2) {
     return null;
   }
