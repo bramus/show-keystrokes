@@ -63,7 +63,6 @@
             <li><a href="#playground" class="is-active">Interactive Playground</a></li>
             <li><a href="#features">Features</a></li>
             <li><a href="#installation">Installation</a></li>
-            <li><a href="#bookmarklet">Bookmarklet</a></li>
             <li><a href="#attributes">Attributes &amp; API</a></li>
             <li class="sidenav-divider">Examples</li>
             <li><a href="#themes">Built-In Themes</a></li>
@@ -71,6 +70,9 @@
             <li><a href="#parts-styling">Custom Styling (::part)</a></li>
             <li><a href="#javascript-api">JavaScript API</a></li>
             <li><a href="#static-keystrokes">Showing static keystrokes</a></li>
+            <li class="sidenav-divider">Use on Any Webpage</li>
+            <li><a href="#bookmarklet">Bookmarklet</a></li>
+            <li><a href="#extension">Extension</a></li>
           </ul>
         </nav>
       </aside>
@@ -272,32 +274,6 @@
             <p class="card-text">Import the package to automatically register the <code>&lt;show-keystrokes&gt;</code> custom element:</p>
             <micro-lighter language="javascript" controls="copy">
               <pre><code>import 'show-keystrokes';</code></pre>
-            </micro-lighter>
-          </div>
-        </section>
-
-        <!-- Bookmarklet Section -->
-        <section id="bookmarklet">
-          <h2>Bookmarklet</h2>
-          <p class="section-desc">
-            Want to use <code>&lt;show-keystrokes&gt;</code> on any webpage without installing anything? Drag the bookmarklet button below to your browser’s toolbar. Clicking it on any page dynamically imports <code>create</code> from <code>https://cdn.jsdelivr.net/npm/show-keystrokes</code> and appends a <code>&lt;show-keystrokes&gt;</code> instance with the default positioning and theme applied.
-          </p>
-          <div class="card">
-            <div class="bookmarklet-row">
-              <a class="bookmarklet-btn" href="javascript:void(!document.getElementById('show-keystrokes-bookmarklet')&amp;&amp;import('https://cdn.jsdelivr.net/npm/show-keystrokes/index.js').then(({create})=&gt;create({id:'show-keystrokes-bookmarklet'})).catch((err)=&gt;alert('Failed to load show-keystrokes: '+err.message)))" title="Drag me to your bookmarks toolbar">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-                </svg>
-                <span>Show Keystrokes</span>
-              </a>
-              <span class="bookmarklet-hint">← Drag this button to your bookmarks toolbar</span>
-            </div>
-            <micro-lighter language="javascript" controls="copy">
-              <pre><code>if (!document.getElementById('show-keystrokes-bookmarklet')) {
-  import('https://cdn.jsdelivr.net/npm/show-keystrokes')
-    .then(({ create }) =&gt; create({ id: 'show-keystrokes-bookmarklet' }))
-    .catch((err) =&gt; alert(`Failed to load show-keystrokes: ${err.message}`));
-}</code></pre>
             </micro-lighter>
           </div>
         </section>
@@ -591,6 +567,72 @@ el.addEventListener('keystroke', (e) =&gt; {
 &lt;show-keystrokes keys="CMD + A" static&gt;&lt;/show-keystrokes&gt;
 &lt;show-keystrokes keys="SHIFT + CMD + T" static&gt;&lt;/show-keystrokes&gt;</code></pre>
             </micro-lighter>
+          </div>
+        </section>
+
+        <!-- Use on Any Webpage -->
+        <h2 id="use-on-any-webpage">Use on Any Webpage</h2>
+
+        <!-- Bookmarklet Section -->
+        <section id="bookmarklet">
+          <h3>Bookmarklet</h3>
+          <p class="section-desc">
+            <code>&lt;show-keystrokes&gt;</code> is also available as a bookmarklet for when you want to inject it onto any webpage without modifying the page’s code or installing anything. Drag the button below to your browser’s bookmarks toolbar—clicking it on any page dynamically imports <code>create</code> from <code>https://cdn.jsdelivr.net/npm/show-keystrokes</code> and appends a <code>&lt;show-keystrokes&gt;</code> instance with the default positioning and theme applied.
+          </p>
+          <div class="card">
+            <div class="bookmarklet-row">
+              <a class="bookmarklet-btn" href="javascript:void(!document.getElementById('show-keystrokes-bookmarklet')&amp;&amp;import('https://cdn.jsdelivr.net/npm/show-keystrokes/index.js').then(({create})=&gt;create({id:'show-keystrokes-bookmarklet'})).catch((err)=&gt;alert('Failed to load show-keystrokes: '+err.message)))" title="Drag me to your bookmarks toolbar">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span>Show Keystrokes</span>
+              </a>
+              <span class="bookmarklet-hint">← Drag this button to your bookmarks toolbar</span>
+            </div>
+            <micro-lighter language="javascript" controls="copy">
+              <pre><code>if (!document.getElementById('show-keystrokes-bookmarklet')) {
+  import('https://cdn.jsdelivr.net/npm/show-keystrokes')
+    .then(({ create }) =&gt; create({ id: 'show-keystrokes-bookmarklet' }))
+    .catch((err) =&gt; alert(`Failed to load show-keystrokes: ${err.message}`));
+}</code></pre>
+            </micro-lighter>
+          </div>
+        </section>
+
+        <!-- Extension Section -->
+        <section id="extension">
+          <h3>Extension</h3>
+          <div class="warning-box" role="note">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <p><strong>Note:</strong> The extension is currently pending review by Google for the Chrome Web Store. The link will become active once the review is complete.</p>
+          </div>
+          <p class="section-desc">
+            <code>&lt;show-keystrokes&gt;</code> is also available as a browser extension for when you want to inject it onto any webpage without modifying the page’s code—perfect for live demos, talks, and screen casting. The extension is <a href="https://chromewebstore.google.com/detail/show-keystrokes/djfbngdmoohldepblnidecjhmgommdmh" target="_blank" rel="noopener noreferrer">available on the Chrome Web Store</a>.
+          </p>
+          <div class="card">
+            <div class="extension-intro">
+              <div class="extension-details">
+                <p class="card-text">
+                  Compared to the bookmarklet, the browser extension offers several key advantages:
+                </p>
+                <ul class="extension-features-list">
+                  <li><strong>Persists across navigations:</strong> Automatically re-injects <code>&lt;show-keystrokes&gt;</code> as you navigate between pages on an enabled origin—no need to re-click the bookmarklet on every page load.</li>
+                  <li><strong>Per-origin configuration &amp; overrides:</strong> Customize <code>keystrokes</code>, <code>position</code>, <code>positionArea</code>, and <code>size</code> for individual websites directly from the extension popup, with your settings saved and restored automatically on future visits.</li>
+                  <li><strong>Configurable global defaults:</strong> Set your preferred default options (<code>keystrokes</code>, <code>position</code>, <code>size</code>, <code>theme</code>, <code>color-scheme</code>, <code>hide-delay</code>, and <code>hide-duration</code>), preview them live, and manage saved per-origin configurations from the extension’s Settings page.</li>
+                  <li><strong>Quick keyboard shortcut &amp; status indicator:</strong> Press <code>SHIFT + CMD + K</code> (macOS) or <code>SHIFT + CTRL + K</code> (Windows/Linux) to toggle <code>&lt;show-keystrokes&gt;</code> on or off at any time, with a green status badge on the toolbar icon showing when it is active.</li>
+                  <li><strong>Works on strict CSP websites:</strong> Bundles <code>&lt;show-keystrokes&gt;</code> locally inside the extension so it works reliably even on websites whose Content Security Policy blocks external CDN scripts.</li>
+                </ul>
+              </div>
+              <div class="extension-cta">
+                <a href="https://chromewebstore.google.com/detail/show-keystrokes/djfbngdmoohldepblnidecjhmgommdmh" class="webstore-badge-link" target="_blank" rel="noopener noreferrer">
+                  <img src="images/chrome-webstore.svg" alt="Available in the Chrome Web Store" width="220" height="67">
+                </a>
+              </div>
+            </div>
           </div>
         </section>
       </main>
