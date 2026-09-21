@@ -140,14 +140,14 @@ function updatePlaygroundAttributes() {
   visualizer.disabled = isDisabled;
 
   const attrs = [
+    showVal ? `show="${showVal}"` : '',
+    positionVal ? `position="${positionVal}"` : '',
     `theme="${themeVal}"`,
     schemeVal !== 'auto' ? `color-scheme="${schemeVal}"` : '',
-    showVal ? `show="${showVal}"` : '',
-    platformVal !== 'auto' ? `platform="${platformVal}"` : '',
     sizeVal && sizeVal !== 'large' ? `size="${sizeVal}"` : '',
-    positionVal ? `position="${positionVal}"` : '',
     timeoutVal && timeoutVal !== '1500' ? `timeout="${timeoutVal}"` : '',
     fadeDurationVal && fadeDurationVal !== '300' ? `fade-duration="${fadeDurationVal}"` : '',
+    platformVal !== 'auto' ? `platform="${platformVal}"` : '',
     isDisabled ? 'disabled' : '',
   ]
     .filter(Boolean)

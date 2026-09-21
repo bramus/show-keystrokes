@@ -631,12 +631,17 @@ micro-lighter::part(copy-button):hover {
   display: none;
 }
 
-.controls-section {
+.controls-section,
+.code-section {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
   padding-top: 1.25rem;
   border-top: 1px solid var(--border-color);
+}
+
+.code-section {
+  gap: 0.75rem;
 }
 
 .controls-title {
@@ -646,10 +651,31 @@ micro-lighter::part(copy-button):hover {
   margin: 0;
 }
 
+.controls-category {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.controls-subtitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 0;
+}
+
 .controls-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
+}
+
+@media (max-width: 720px) {
+  .controls-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
 }
 
 .control-group {

@@ -100,103 +100,125 @@
 
             <div class="controls-section">
               <h3 class="controls-title">Configuration</h3>
-              <div class="controls-grid">
-              <div class="control-group">
-                <label for="select-show">Show (<code>show</code>)</label>
-                <select id="select-show">
-                  <option value="" selected>Shortcuts &amp; Navigational (Default)</option>
-                  <option value="all">All Keystrokes (all)</option>
-                  <option value="shortcuts">Shortcuts Only (shortcuts)</option>
-                  <option value="navigational">Navigational Keys Only (navigational)</option>
-                  <option value="none">Nothing (none)</option>
-                </select>
+
+              <div class="controls-category">
+                <h4 class="controls-subtitle">Base configuration</h4>
+                <div class="controls-grid">
+                  <div class="control-group">
+                    <label for="select-show">Show (<code>show</code>)</label>
+                    <select id="select-show">
+                      <option value="" selected>Shortcuts &amp; Navigational (Default)</option>
+                      <option value="all">All Keystrokes (all)</option>
+                      <option value="shortcuts">Shortcuts Only (shortcuts)</option>
+                      <option value="navigational">Navigational Keys Only (navigational)</option>
+                      <option value="none">Nothing (none)</option>
+                    </select>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="select-position-anchor">Position Anchor (<code>position</code>)</label>
+                    <select id="select-position-anchor">
+                      <option value="viewport">Viewport (Default)</option>
+                      <option value="pointer">Pointer (pointer)</option>
+                      <option value="normal" selected>Normal (normal)</option>
+                    </select>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="select-position-area">Position Area (<code>position</code>)</label>
+                    <select id="select-position-area" disabled>
+                      <option value="top left">top left</option>
+                      <option value="top center">top center</option>
+                      <option value="top right" selected>top right (Default)</option>
+                      <option value="center left">center left</option>
+                      <option value="center center">center center</option>
+                      <option value="center right">center right</option>
+                      <option value="bottom left">bottom left</option>
+                      <option value="bottom center">bottom center</option>
+                      <option value="bottom right">bottom right</option>
+                    </select>
+                  </div>
+                </div>
               </div>
 
-              <div class="control-group">
-                <label for="select-theme">Theme (<code>theme</code>)</label>
-                <select id="select-theme">
-                  <option value="modern" selected>Modern (modern)</option>
-                  <option value="mechanical">Mechanical Keyboard (mechanical)</option>
-                </select>
+              <div class="controls-category">
+                <h4 class="controls-subtitle">Style</h4>
+                <div class="controls-grid">
+                  <div class="control-group">
+                    <label for="select-theme">Theme (<code>theme</code>)</label>
+                    <select id="select-theme">
+                      <option value="modern" selected>Modern (modern)</option>
+                      <option value="mechanical">Mechanical Keyboard (mechanical)</option>
+                    </select>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="select-scheme">Variant (<code>color-scheme</code>)</label>
+                    <select id="select-scheme">
+                      <option value="light" selected>Light Mode (light)</option>
+                      <option value="dark">Dark Mode (dark)</option>
+                      <option value="auto">System Auto (auto)</option>
+                    </select>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="select-size">Size (<code>size</code>)</label>
+                    <select id="select-size">
+                      <option value="small">Small (small)</option>
+                      <option value="medium">Medium (medium)</option>
+                      <option value="large" selected>Large (large — Default)</option>
+                      <option value="x-large">Extra Large (x-large)</option>
+                      <option value="xx-large">Double Extra Large (xx-large)</option>
+                    </select>
+                  </div>
+                </div>
               </div>
 
-              <div class="control-group">
-                <label for="select-scheme">Variant (<code>color-scheme</code>)</label>
-                <select id="select-scheme">
-                  <option value="light" selected>Light Mode (light)</option>
-                  <option value="dark">Dark Mode (dark)</option>
-                  <option value="auto">System Auto (auto)</option>
-                </select>
+              <div class="controls-category">
+                <h4 class="controls-subtitle">Animation</h4>
+                <div class="controls-grid">
+                  <div class="control-group">
+                    <label for="input-timeout">Hide Timeout in ms (<code>timeout</code>)</label>
+                    <input type="number" id="input-timeout" min="0" step="100" value="1500">
+                  </div>
+
+                  <div class="control-group">
+                    <label for="input-fade-duration">Fade-Out in ms (<code>fade-duration</code>)</label>
+                    <input type="number" id="input-fade-duration" min="0" step="50" value="300">
+                  </div>
+                </div>
               </div>
 
-              <div class="control-group">
-                <label for="select-platform">Platform (<code>platform</code>)</label>
-                <select id="select-platform">
-                  <option value="auto" selected>Auto-Detect OS (auto)</option>
-                  <option value="mac">macOS (CMD)</option>
-                  <option value="windows">Windows / Linux (CTRL)</option>
-                </select>
-              </div>
+              <div class="controls-category">
+                <h4 class="controls-subtitle">Misc</h4>
+                <div class="controls-grid">
+                  <div class="control-group">
+                    <label for="select-platform">Platform (<code>platform</code>)</label>
+                    <select id="select-platform">
+                      <option value="auto" selected>Auto-Detect OS (auto)</option>
+                      <option value="mac">macOS (CMD)</option>
+                      <option value="windows">Windows / Linux (CTRL)</option>
+                    </select>
+                  </div>
 
-              <div class="control-group">
-                <label for="select-size">Size (<code>size</code>)</label>
-                <select id="select-size">
-                  <option value="small">Small (small)</option>
-                  <option value="medium">Medium (medium)</option>
-                  <option value="large" selected>Large (large — Default)</option>
-                  <option value="x-large">Extra Large (x-large)</option>
-                  <option value="xx-large">Double Extra Large (xx-large)</option>
-                </select>
-              </div>
-
-              <div class="control-group">
-                <label for="select-position-anchor">Position Anchor (<code>position</code>)</label>
-                <select id="select-position-anchor">
-                  <option value="viewport">Viewport (Default)</option>
-                  <option value="pointer">Pointer (pointer)</option>
-                  <option value="normal" selected>Normal (normal)</option>
-                </select>
-              </div>
-
-              <div class="control-group">
-                <label for="select-position-area">Position Area (<code>position</code>)</label>
-                <select id="select-position-area" disabled>
-                  <option value="top left">top left</option>
-                  <option value="top center">top center</option>
-                  <option value="top right" selected>top right (Default)</option>
-                  <option value="center left">center left</option>
-                  <option value="center center">center center</option>
-                  <option value="center right">center right</option>
-                  <option value="bottom left">bottom left</option>
-                  <option value="bottom center">bottom center</option>
-                  <option value="bottom right">bottom right</option>
-                </select>
-              </div>
-
-              <div class="control-group">
-                <label for="input-timeout">Hide Timeout in ms (<code>timeout</code>)</label>
-                <input type="number" id="input-timeout" min="0" step="100" value="1500">
-              </div>
-
-              <div class="control-group">
-                <label for="input-fade-duration">Fade-Out in ms (<code>fade-duration</code>)</label>
-                <input type="number" id="input-fade-duration" min="0" step="50" value="300">
-              </div>
-
-              <div class="control-group">
-                <label for="select-disabled">State (<code>disabled</code>)</label>
-                <select id="select-disabled">
-                  <option value="false" selected>Enabled (Default)</option>
-                  <option value="true">Disabled (disabled)</option>
-                </select>
-              </div>
+                  <div class="control-group">
+                    <label for="select-disabled">State (<code>disabled</code>)</label>
+                    <select id="select-disabled">
+                      <option value="false" selected>Enabled (Default)</option>
+                      <option value="true">Disabled (disabled)</option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div id="playground-code-container">
-              <micro-lighter language="html" controls="copy">
-                <pre><code id="active-markup-preview">&lt;show-keystrokes theme="modern" color-scheme="light" position="normal"&gt;&lt;/show-keystrokes&gt;</code></pre>
-              </micro-lighter>
+            <div class="code-section">
+              <h3 class="controls-title">Code</h3>
+              <div id="playground-code-container">
+                <micro-lighter language="html" controls="copy">
+                  <pre><code id="active-markup-preview">&lt;show-keystrokes position="normal" theme="modern" color-scheme="light"&gt;&lt;/show-keystrokes&gt;</code></pre>
+                </micro-lighter>
+              </div>
             </div>
           </div>
         </section>
