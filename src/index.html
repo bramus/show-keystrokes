@@ -63,6 +63,7 @@
             <li><a href="#playground" class="is-active">Interactive Playground</a></li>
             <li><a href="#features">Features</a></li>
             <li><a href="#installation">Installation</a></li>
+            <li><a href="#bookmarklet">Bookmarklet</a></li>
             <li><a href="#attributes">Attributes &amp; API</a></li>
             <li class="sidenav-divider">Examples</li>
             <li><a href="#themes">Built-In Themes</a></li>
@@ -237,6 +238,32 @@
             <p class="card-text">Import the package to automatically register the <code>&lt;show-keystrokes&gt;</code> custom element:</p>
             <micro-lighter language="javascript" controls="copy">
               <pre><code>import 'show-keystrokes';</code></pre>
+            </micro-lighter>
+          </div>
+        </section>
+
+        <!-- Bookmarklet Section -->
+        <section id="bookmarklet">
+          <h2>Bookmarklet</h2>
+          <p class="section-desc">
+            Want to use <code>&lt;show-keystrokes&gt;</code> on any webpage without installing anything? Drag the bookmarklet button below to your browser’s toolbar. Clicking it on any page dynamically imports <code>create</code> from <code>https://cdn.jsdelivr.net/npm/show-keystrokes</code> and appends a <code>&lt;show-keystrokes&gt;</code> instance with the default positioning and theme applied.
+          </p>
+          <div class="card">
+            <div class="bookmarklet-row">
+              <a class="bookmarklet-btn" href="javascript:void(!document.getElementById('show-keystrokes-bookmarklet')&amp;&amp;import('https://cdn.jsdelivr.net/npm/show-keystrokes').then(({create})=&gt;create({id:'show-keystrokes-bookmarklet'})).catch((err)=&gt;alert('Failed to load show-keystrokes: '+err.message)))" title="Drag me to your bookmarks toolbar">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span>Show Keystrokes</span>
+              </a>
+              <span class="bookmarklet-hint">← Drag this button to your bookmarks toolbar</span>
+            </div>
+            <micro-lighter language="javascript" controls="copy">
+              <pre><code>if (!document.getElementById('show-keystrokes-bookmarklet')) {
+  import('https://cdn.jsdelivr.net/npm/show-keystrokes')
+    .then(({ create }) =&gt; create({ id: 'show-keystrokes-bookmarklet' }))
+    .catch((err) =&gt; alert(`Failed to load show-keystrokes: ${err.message}`));
+}</code></pre>
             </micro-lighter>
           </div>
         </section>

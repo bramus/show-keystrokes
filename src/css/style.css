@@ -349,6 +349,46 @@ section > h3 {
   color: var(--text-muted);
 }
 
+/* Bookmarklet */
+.bookmarklet-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.bookmarklet-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.925rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  text-decoration: none;
+  cursor: grab;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.bookmarklet-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+.bookmarklet-btn:active {
+  cursor: grabbing;
+  transform: translateY(0);
+}
+
+.bookmarklet-hint {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
 /* Features Grid */
 .features-grid {
   display: grid;
