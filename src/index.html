@@ -577,7 +577,7 @@ el.addEventListener('keystroke', (e) =&gt; {
         <section id="bookmarklet">
           <h3>Bookmarklet</h3>
           <p class="section-desc">
-            <code>&lt;show-keystrokes&gt;</code> is also available as a bookmarklet for when you want to inject it onto any webpage without modifying the page’s code or installing anything. Drag the button below to your browser’s bookmarks toolbar—clicking it on any page dynamically imports <code>create</code> from <code>https://cdn.jsdelivr.net/npm/show-keystrokes</code> and appends a <code>&lt;show-keystrokes&gt;</code> instance with the default positioning and theme applied.
+            <code>&lt;show-keystrokes&gt;</code> is also available as a bookmarklet for when you want to inject it onto any webpage without modifying the page’s code or installing anything. Drag the button below to your browser’s bookmarks toolbar—clicking it on any page dynamically imports <code>create</code> from <code>https://cdn.jsdelivr.net/npm/show-keystrokes/index.js</code> and appends a <code>&lt;show-keystrokes&gt;</code> instance with the default positioning and theme applied.
           </p>
           <div class="card">
             <div class="bookmarklet-row">
@@ -591,7 +591,7 @@ el.addEventListener('keystroke', (e) =&gt; {
             </div>
             <micro-lighter language="javascript" controls="copy">
               <pre><code>if (!document.getElementById('show-keystrokes-bookmarklet')) {
-  import('https://cdn.jsdelivr.net/npm/show-keystrokes')
+  import('https://cdn.jsdelivr.net/npm/show-keystrokes/index.js')
     .then(({ create }) =&gt; create({ id: 'show-keystrokes-bookmarklet' }))
     .catch((err) =&gt; alert(`Failed to load show-keystrokes: ${err.message}`));
 }</code></pre>
