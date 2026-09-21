@@ -153,6 +153,20 @@ Use `keys` and `static` to render static keycaps in documentation:
 <show-keystrokes keys="CMD + A" theme="modern" static></show-keystrokes>
 ```
 
+### Enabling & Disabling (`disabled`)
+
+Use the boolean `disabled` attribute or the `el.disabled` JavaScript property to disable `<show-keystrokes>`. When disabled, no event listeners (`keydown`, `keyup`, `blur`, or pointer tracking) are registered and any active live keystrokes are cleared. Updating `el.disabled` reflects to the DOM attribute, and modifying the `disabled` attribute updates `el.disabled`:
+
+```html
+<show-keystrokes disabled></show-keystrokes>
+```
+
+```javascript
+const el = document.querySelector('show-keystrokes');
+el.disabled = true;  // adds `disabled` attribute and detaches all listeners
+el.disabled = false; // removes `disabled` attribute and re-attaches listeners
+```
+
 ---
 
 ## Styling

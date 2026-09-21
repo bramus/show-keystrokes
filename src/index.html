@@ -192,6 +192,14 @@
                 <label for="input-fade-duration">Fade-Out in ms (<code>fade-duration</code>)</label>
                 <input type="number" id="input-fade-duration" min="0" step="50" value="300">
               </div>
+
+              <div class="control-group">
+                <label for="select-disabled">State (<code>disabled</code>)</label>
+                <select id="select-disabled">
+                  <option value="false" selected>Enabled (Default)</option>
+                  <option value="true">Disabled (disabled)</option>
+                </select>
+              </div>
             </div>
           </div>
         </section>
@@ -532,6 +540,10 @@ show-keystrokes.custom-neon::part(modifier) {
 // Programmatically display a keystroke
 el.showKeys('SHIFT + TAB');
 el.keys = 'CMD + A';
+
+// Enable or disable listening (reflects to the `disabled` attribute)
+el.disabled = true;
+el.disabled = false;
 
 // Clear display
 el.clear();

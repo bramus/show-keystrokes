@@ -15,6 +15,7 @@ const selectPositionAnchor = document.getElementById('select-position-anchor');
 const selectPositionArea = document.getElementById('select-position-area');
 const inputTimeout = document.getElementById('input-timeout');
 const inputFadeDuration = document.getElementById('input-fade-duration');
+const selectDisabled = document.getElementById('select-disabled');
 const btnClear = document.getElementById('btn-clear-visualizer');
 
 function updatePlaygroundAttributes() {
@@ -29,6 +30,7 @@ function updatePlaygroundAttributes() {
   const positionAreaVal = selectPositionArea ? selectPositionArea.value : 'bottom right';
   const timeoutVal = inputTimeout ? inputTimeout.value.trim() : '1500';
   const fadeDurationVal = inputFadeDuration ? inputFadeDuration.value.trim() : '300';
+  const isDisabled = selectDisabled ? selectDisabled.value === 'true' : false;
 
   if (selectPositionArea) {
     selectPositionArea.disabled = !positionAnchorVal;
@@ -86,6 +88,8 @@ function updatePlaygroundAttributes() {
     visualizer.setAttribute('fade-duration', fadeDurationVal);
   }
 
+  visualizer.disabled = isDisabled;
+
   const attrs = [
     `theme="${themeVal}"`,
     schemeVal !== 'auto' ? `color-scheme="${schemeVal}"` : '',
@@ -95,6 +99,7 @@ function updatePlaygroundAttributes() {
     positionVal ? `position="${positionVal}"` : '',
     timeoutVal && timeoutVal !== '1500' ? `timeout="${timeoutVal}"` : '',
     fadeDurationVal && fadeDurationVal !== '300' ? `fade-duration="${fadeDurationVal}"` : '',
+    isDisabled ? 'disabled' : '',
   ]
     .filter(Boolean)
     .join(' ');
@@ -113,6 +118,7 @@ selectPositionAnchor?.addEventListener('change', updatePlaygroundAttributes);
 selectPositionArea?.addEventListener('change', updatePlaygroundAttributes);
 inputTimeout?.addEventListener('input', updatePlaygroundAttributes);
 inputFadeDuration?.addEventListener('input', updatePlaygroundAttributes);
+selectDisabled?.addEventListener('change', updatePlaygroundAttributes);
 
 btnClear?.addEventListener('click', () => {
   visualizer?.clear();

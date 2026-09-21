@@ -66,7 +66,8 @@ const COMPONENT_STYLES = `
     -webkit-user-select: none;
   }
 
-  :host([hidden]) {
+  :host([hidden]),
+  :host([disabled]:not([static])) {
     display: none !important;
   }
 
@@ -545,7 +546,21 @@ const KEYSTROKE_ANCHOR_STYLES = `
   }
 `;
 
-let pointerTrackingInitialized = false;
+const activePointerInstances = new Set();
+let pointerTrackingAttached = false;
+
+const updatePointerAnchor = (event) => {
+  if (typeof event.clientX !== 'number' || typeof event.clientY !== 'number') {
+    return;
+  }
+  const el = document.getElementById(KEYSTROKE_ANCHOR_ID);
+  if (el) {
+    el.style.left = `${event.clientX}px`;
+    el.style.top = `${event.clientY}px`;
+  }
+  document.documentElement?.style.setProperty('--show-keystrokes-pointer-x', `${event.clientX}px`);
+  document.documentElement?.style.setProperty('--show-keystrokes-pointer-y', `${event.clientY}px`);
+};
 
 function ensureKeystrokeAnchor() {
   if (typeof document === 'undefined' || typeof window === 'undefined') {
@@ -568,28 +583,31 @@ function ensureKeystrokeAnchor() {
     document.body.prepend(anchorEl);
   }
 
-  if (!pointerTrackingInitialized) {
-    pointerTrackingInitialized = true;
+  return anchorEl;
+}
 
-    const updatePointerAnchor = (event) => {
-      if (typeof event.clientX !== 'number' || typeof event.clientY !== 'number') {
-        return;
-      }
-      const el = document.getElementById(KEYSTROKE_ANCHOR_ID);
-      if (el) {
-        el.style.left = `${event.clientX}px`;
-        el.style.top = `${event.clientY}px`;
-      }
-      document.documentElement?.style.setProperty('--show-keystrokes-pointer-x', `${event.clientX}px`);
-      document.documentElement?.style.setProperty('--show-keystrokes-pointer-y', `${event.clientY}px`);
-    };
-
+function registerPointerTracking(instance) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  ensureKeystrokeAnchor();
+  activePointerInstances.add(instance);
+  if (!pointerTrackingAttached) {
+    pointerTrackingAttached = true;
     window.addEventListener('pointermove', updatePointerAnchor, { passive: true, capture: true });
     window.addEventListener('mousemove', updatePointerAnchor, { passive: true, capture: true });
     window.addEventListener('pointerdown', updatePointerAnchor, { passive: true, capture: true });
   }
+}
 
-  return anchorEl;
+function unregisterPointerTracking(instance) {
+  activePointerInstances.delete(instance);
+  if (activePointerInstances.size === 0 && pointerTrackingAttached && typeof window !== 'undefined') {
+    pointerTrackingAttached = false;
+    window.removeEventListener('pointermove', updatePointerAnchor, { passive: true, capture: true });
+    window.removeEventListener('mousemove', updatePointerAnchor, { passive: true, capture: true });
+    window.removeEventListener('pointerdown', updatePointerAnchor, { passive: true, capture: true });
+  }
 }
 
 export class ShowKeystrokes extends HTMLElement {
@@ -654,7 +672,9 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   connectedCallback() {
-    ensureKeystrokeAnchor();
+    if (!this.disabled) {
+      ensureKeystrokeAnchor();
+    }
 
     if (!this.hasAttribute('theme')) {
       this.setAttribute('theme', 'modern');
@@ -673,7 +693,7 @@ export class ShowKeystrokes extends HTMLElement {
 
     // Check if declarative keys attribute or child text content was provided
     const initialKeys = this.getAttribute('keys') || this.textContent?.trim();
-    if (initialKeys) {
+    if (initialKeys && (!this.disabled || this.hasAttribute('static'))) {
       this.showKeys(initialKeys);
     } else {
       this.#render();
@@ -720,7 +740,21 @@ export class ShowKeystrokes extends HTMLElement {
       return;
     }
 
-    if (name === 'static' || name === 'disabled' || name === 'target') {
+    if (name === 'disabled') {
+      this.#detachListeners();
+      if (this.disabled) {
+        this.#clearTimer();
+        if (!this.hasAttribute('static') && this.#currentKeys.length > 0) {
+          this.clear();
+        }
+      } else {
+        ensureKeystrokeAnchor();
+        this.#attachListeners();
+      }
+      return;
+    }
+
+    if (name === 'static' || name === 'target') {
       this.#detachListeners();
       this.#attachListeners();
     }
@@ -750,7 +784,9 @@ export class ShowKeystrokes extends HTMLElement {
     if (!rawVal) {
       return;
     }
-    ensureKeystrokeAnchor();
+    if (!this.disabled) {
+      ensureKeystrokeAnchor();
+    }
     const parsed = parsePosition(rawVal);
     if (parsed && rawVal !== parsed.value) {
       this.setAttribute('position', parsed.value);
@@ -764,6 +800,26 @@ export class ShowKeystrokes extends HTMLElement {
     const parsed = parseSize(rawVal);
     if (parsed && rawVal !== parsed) {
       this.setAttribute('size', parsed);
+    }
+  }
+
+  /**
+   * Gets or sets whether the component is disabled.
+   * Reflects the boolean `disabled` HTML attribute.
+   * @returns {boolean}
+   */
+  get disabled() {
+    return this.hasAttribute('disabled');
+  }
+
+  set disabled(val) {
+    const isDisabled = Boolean(val);
+    if (isDisabled) {
+      if (!this.hasAttribute('disabled')) {
+        this.setAttribute('disabled', '');
+      }
+    } else if (this.hasAttribute('disabled')) {
+      this.removeAttribute('disabled');
     }
   }
 
@@ -957,6 +1013,9 @@ export class ShowKeystrokes extends HTMLElement {
    * @param {string | string[]} input - e.g. "CMD + A", "SHIFT + TAB", "→", or ['SHIFT', 'TAB']
    */
   showKeys(input) {
+    if (this.disabled && !this.hasAttribute('static')) {
+      return;
+    }
     this.#clearTimer();
     const parsed = parseKeystrokeString(input, {
       platform: this.platform,
@@ -976,6 +1035,10 @@ export class ShowKeystrokes extends HTMLElement {
    * @returns {boolean} True if the keystroke matched the active `show` mode and was displayed
    */
   handleKeyEvent(event) {
+    if (this.disabled) {
+      return false;
+    }
+
     const effectivePlatform = this.platform;
     const explicitWindowsOnMac =
       effectivePlatform === 'windows' &&
@@ -1054,9 +1117,11 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   #attachListeners() {
-    if (this.hasAttribute('static') || this.hasAttribute('disabled')) {
+    if (this.hasAttribute('static') || this.disabled) {
       return;
     }
+
+    registerPointerTracking(this);
 
     const targetAttr = this.getAttribute('target');
     let target = typeof window !== 'undefined' ? window : null;
@@ -1080,6 +1145,7 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   #detachListeners() {
+    unregisterPointerTracking(this);
     if (this.#targetElement) {
       this.#targetElement.removeEventListener('keydown', this.#boundKeyDown, { capture: true });
       this.#targetElement.removeEventListener('keyup', this.#boundKeyUp, { capture: true });
