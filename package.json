@@ -1,0 +1,45 @@
+{
+  "name": "key-stroke",
+  "version": "1.0.0",
+  "description": "A zero-dependency custom element that visualizes keystrokes, keyboard shortcuts, and navigational keys with macOS & Windows support and stylable themes.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "prepublishOnly": "if [ -z $PUBLISH ]; then echo 'This package must be published using `npm run pub`\\n' && exit 1; fi",
+    "pub": "PUBLISH=true npm run build && npm publish ./dist",
+    "start": "npx -y serve src",
+    "dev": "npx -y serve src",
+    "deploy": "netlify deploy --dir=src --prod",
+    "deploy:preview": "netlify deploy --dir=src",
+    "test": "npm run test:unit",
+    "test:unit": "node --test tests/unit/**/*.test.js"
+  },
+  "keywords": [
+    "key-stroke",
+    "keystroke",
+    "keyboard",
+    "shortcuts",
+    "visualizer",
+    "custom-element",
+    "web-components"
+  ],
+  "author": {
+    "name": "Bramus Van Damme",
+    "email": "bramus@bram.us",
+    "url": "https://www.bram.us/"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bramus/key-stroke.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bramus/key-stroke/issues"
+  },
+  "homepage": "https://github.com/bramus/key-stroke#readme"
+}

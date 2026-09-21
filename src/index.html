@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en" data-syntax-theme="github">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>&lt;key-stroke&gt; – Keystroke &amp; Shortcut Visualizer Custom Element</title>
+  <meta name="description" content="A custom element (&lt;key-stroke&gt;) that visualizes keystrokes, keyboard shortcuts, and navigational keys with customizable themes (Apple Keyboard &amp; Mechanical, Light &amp; Dark).">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://key-stroke.netlify.app/">
+  <meta property="og:title" content="&lt;key-stroke&gt; – Keystroke &amp; Shortcut Visualizer">
+  <meta property="og:description" content="A custom element that visualizes keystrokes, keyboard shortcuts, and navigational keys with macOS/Windows support and customizable themes.">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="&lt;key-stroke&gt; – Keystroke &amp; Shortcut Visualizer">
+  <meta name="twitter:description" content="A custom element that visualizes keystrokes, keyboard shortcuts, and navigational keys with macOS/Windows support and customizable themes.">
+  <meta name="twitter:creator" content="@bramus">
+
+  <link rel="stylesheet" href="https://davatron5000.github.io/microlighter/microlighter/themes/github.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="https://davatron5000.github.io/microlighter/microlighter/micro-lighter-element.min.js"></script>
+  <script type="module" src="js/key-stroke/index.js"></script>
+  <script type="module" src="js/app.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <div class="header-top">
+        <div class="title-group">
+          <h1><span class="title-tag">&lt;key-stroke&gt;</span></h1>
+        </div>
+        <div class="header-actions">
+          <a href="https://github.com/bramus/key-stroke" class="github-btn" target="_blank" rel="noopener noreferrer" aria-label="View on GitHub">
+            <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+            </svg>
+            <span>GitHub</span>
+          </a>
+          <a href="https://npmjs.com/package/key-stroke" class="npm-btn" target="_blank" rel="noopener noreferrer" aria-label="View on npm">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+              <path d="M1.763 0C.786 0 0 .786 0 1.763v20.474C0 23.214.786 24 1.763 24h20.474c.977 0 1.763-.786 1.763-1.763V1.763C24 .786 23.214 0 22.237 0zM5.13 5.323l13.837.019-.009 13.836h-3.464l.01-10.382h-3.456L12.04 19.17H5.113z" />
+            </svg>
+            <span>npm</span>
+          </a>
+        </div>
+      </div>
+      <p class="description">
+        A zero-dependency custom element that visualizes live keystrokes, keyboard shortcuts (<code>CMD + A</code>, <code>SHIFT + CMD + T</code>, <code>SHIFT + ENTER</code>), and navigational keys (<code>→</code>, <code>SHIFT + TAB</code>) with macOS &amp; Windows support and stylable themes.
+      </p>
+    </header>
+
+    <div class="page-layout">
+      <!-- Sticky Sidebar Navigation (Scrollspy) -->
+      <aside class="sidebar">
+        <nav class="sidenav" aria-label="Page Sections">
+          <div class="sidenav-title">On this page</div>
+          <ul class="sidenav-list">
+            <li><a href="#playground" class="is-active">Interactive Playground</a></li>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#installation">Installation</a></li>
+            <li><a href="#attributes">Attributes &amp; API</a></li>
+            <li class="sidenav-divider">Examples</li>
+            <li><a href="#configuration">Filter Modes</a></li>
+            <li><a href="#themes">Built-In Themes</a></li>
+            <li><a href="#platforms">macOS vs. Windows</a></li>
+            <li><a href="#parts-styling">Custom Styling (::part)</a></li>
+            <li><a href="#javascript-api">JavaScript API</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Live Playground -->
+        <section id="playground">
+          <h2>Interactive Playground</h2>
+          <p class="section-desc">
+            Press any shortcut or navigational key on your keyboard (e.g. <code>→</code>, <code>SHIFT + TAB</code>, <code>CMD + A</code>, <code>SHIFT + CMD + T</code>), or click one of the preset buttons below. <strong>Click the stage area below to focus and capture keystrokes</strong>—while focused, keystrokes are prevented from bubbling up so you can safely test keys like <code>SPACE</code>, <code>TAB</code>, or arrow keys without scrolling the page.
+          </p>
+
+          <div class="card playground-card">
+            <div class="card-header">
+              <span class="card-title">Live Keystroke Visualizer</span>
+              <span class="card-meta" id="active-markup-preview">&lt;key-stroke theme="apple" color-scheme="light"&gt;&lt;/key-stroke&gt;</span>
+            </div>
+
+            <div class="visualizer-stage" id="visualizer-stage" data-stage-scheme="light" tabindex="0" role="region" aria-label="Interactive Keystroke Stage — Click to focus and capture keystrokes">
+              <span class="stage-capture-badge" id="stage-capture-badge">Click to capture keys</span>
+              <div class="stage-prompt" id="stage-prompt">
+                <span class="stage-prompt-main">Press a shortcut or arrow key (e.g. <code>→</code>, <code>SHIFT + TAB</code>, <code>CMD + A</code>)…</span>
+                <span class="stage-prompt-sub" id="stage-capture-hint">Click this area to focus &amp; capture keys (prevents <code>SPACE</code> or arrows from scrolling the page)</span>
+              </div>
+              <key-stroke id="playground-visualizer" theme="apple" color-scheme="light"></key-stroke>
+            </div>
+
+            <div class="preset-bar">
+              <span class="preset-label">Simulate keystroke:</span>
+              <button type="button" class="preset-btn" data-sim-key="ArrowRight">→</button>
+              <button type="button" class="preset-btn" data-sim-key="Tab" data-sim-shift="true">SHIFT + TAB</button>
+              <button type="button" class="preset-btn" data-sim-key="a" data-sim-primary-mod="true">CMD / CTRL + A</button>
+              <button type="button" class="preset-btn" data-sim-key="t" data-sim-shift="true" data-sim-primary-mod="true">SHIFT + CMD / CTRL + T</button>
+              <button type="button" class="preset-btn" data-sim-key="Enter" data-sim-shift="true">SHIFT + ENTER</button>
+              <button type="button" class="preset-btn" data-sim-key=" ">SPACE</button>
+              <button type="button" class="preset-btn preset-btn-clear" id="btn-clear-visualizer">Clear</button>
+            </div>
+
+            <div class="controls-grid">
+              <div class="control-group">
+                <label for="select-filter">Filter (<code>filter</code>)</label>
+                <select id="select-filter">
+                  <option value="shortcuts, navigation" selected>Shortcuts &amp; Navigational (Default)</option>
+                  <option value="all">All Keystrokes (all)</option>
+                  <option value="shortcuts">Shortcuts Only (shortcuts)</option>
+                  <option value="navigation">Navigational Keys Only (navigation)</option>
+                </select>
+              </div>
+
+              <div class="control-group">
+                <label for="select-theme">Theme (<code>theme</code>)</label>
+                <select id="select-theme">
+                  <option value="apple" selected>Apple Keyboard (apple)</option>
+                  <option value="mechanical">Mechanical Keyboard (mechanical)</option>
+                </select>
+              </div>
+
+              <div class="control-group">
+                <label for="select-scheme">Variant (<code>color-scheme</code>)</label>
+                <select id="select-scheme">
+                  <option value="light" selected>Light Mode (light)</option>
+                  <option value="dark">Dark Mode (dark)</option>
+                  <option value="auto">System Auto (auto)</option>
+                </select>
+              </div>
+
+              <div class="control-group">
+                <label for="select-platform">Platform (<code>platform</code>)</label>
+                <select id="select-platform">
+                  <option value="auto" selected>Auto-Detect OS (auto)</option>
+                  <option value="mac">macOS (CMD)</option>
+                  <option value="windows">Windows / Linux (CTRL)</option>
+                </select>
+              </div>
+
+              <div class="control-group">
+                <label for="select-size">Size (<code>size</code>)</label>
+                <select id="select-size">
+                  <option value="small">Small (small)</option>
+                  <option value="medium">Medium (medium)</option>
+                  <option value="large" selected>Large (large — Default)</option>
+                  <option value="x-large">Extra Large (x-large)</option>
+                  <option value="xx-large">Double Extra Large (xx-large)</option>
+                </select>
+              </div>
+
+              <div class="control-group">
+                <label for="select-position">Viewport Position (<code>position</code>)</label>
+                <select id="select-position">
+                  <option value="" selected>Inline (Default)</option>
+                  <option value="top left">top left</option>
+                  <option value="top center">top center</option>
+                  <option value="top right">top right</option>
+                  <option value="center left">center left</option>
+                  <option value="center center">center center</option>
+                  <option value="center right">center right</option>
+                  <option value="bottom left">bottom left</option>
+                  <option value="bottom center">bottom center</option>
+                  <option value="bottom right">bottom right</option>
+                </select>
+              </div>
+
+              <div class="control-group">
+                <label for="input-timeout">Hide Timeout in ms (<code>timeout</code>)</label>
+                <input type="number" id="input-timeout" min="0" step="100" value="1500">
+              </div>
+
+              <div class="control-group">
+                <label for="input-fade-duration">Fade-Out in ms (<code>fade-duration</code>)</label>
+                <input type="number" id="input-fade-duration" min="0" step="50" value="300">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Overview Section -->
+        <section id="overview">
+          <h2>Overview</h2>
+          <p class="section-desc">
+            Drop <code>&lt;key-stroke&gt;</code> anywhere on your page to visualize keystrokes as the user presses them, or set the <code>keys</code> attribute to render static keycaps in documentation.
+          </p>
+
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Examples from Specification</span>
+              <span class="card-meta">Declarative &amp; Live</span>
+            </div>
+            <div class="showcase-row">
+              <div class="showcase-item">
+                <span class="showcase-caption">Right Arrow Key</span>
+                <key-stroke keys="→" theme="apple" color-scheme="light" static></key-stroke>
+              </div>
+              <div class="showcase-item">
+                <span class="showcase-caption">Hold SHIFT + Hit TAB</span>
+                <key-stroke keys="SHIFT + TAB" theme="apple" color-scheme="light" static></key-stroke>
+              </div>
+              <div class="showcase-item">
+                <span class="showcase-caption">Hold CMD + Hit A</span>
+                <key-stroke keys="CMD + A" theme="apple" color-scheme="light" static></key-stroke>
+              </div>
+              <div class="showcase-item">
+                <span class="showcase-caption">Hold SHIFT + CMD + Hit T</span>
+                <key-stroke keys="SHIFT + CMD + T" theme="apple" color-scheme="light" static></key-stroke>
+              </div>
+            </div>
+            <micro-lighter language="html" controls="copy">
+              <pre><code>&lt;!-- Live listener (defaults to showing shortcuts &amp; navigational keys) --&gt;
+&lt;key-stroke&gt;&lt;/key-stroke&gt;
+
+&lt;!-- Listen to all keystrokes --&gt;
+&lt;key-stroke filter="all"&gt;&lt;/key-stroke&gt;
+
+&lt;!-- Static keycap display --&gt;
+&lt;key-stroke keys="SHIFT + TAB" static&gt;&lt;/key-stroke&gt;</code></pre>
+            </micro-lighter>
+          </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features">
+          <h2>Features</h2>
+          <div class="features-grid">
+            <div class="feature-card">
+              <h3>Configurable Keystroke Filters</h3>
+              <p>Choose between <code>shortcuts, navigation</code> (default), <code>all</code> keystrokes, <code>shortcuts</code> only, or <code>navigation</code> keys only.</p>
+            </div>
+            <div class="feature-card">
+              <h3>macOS &amp; Windows Aware</h3>
+              <p>Automatically adapts modifier names to macOS (<code>CMD</code>, <code>SHIFT</code>, <code>ALT</code>, <code>CTRL</code>) and Windows/Linux (<code>CTRL</code>, <code>SHIFT</code>, <code>ALT</code>, <code>WIN</code>), or override via <code>platform</code>.</p>
+            </div>
+            <div class="feature-card">
+              <h3>Apple Keyboard &amp; Mechanical Themes</h3>
+              <p>Includes two built-in themes—<strong>Apple Keyboard</strong> (rounded squares) and <strong>Mechanical</strong>—each with Light and Dark variants.</p>
+            </div>
+            <div class="feature-card">
+              <h3>Positioning, Sizes &amp; Auto-Hide</h3>
+              <p>Pin overlays to any viewport corner via <code>position="top right"</code>, scale across 5 presets (<code>small</code> to <code>xx-large</code>), and customize fade-out timeouts.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Installation Section -->
+        <section id="installation">
+          <h2>Installation &amp; Setup</h2>
+          <div class="card">
+            <micro-lighter language="bash" controls="copy">
+              <pre><code>npm install key-stroke</code></pre>
+            </micro-lighter>
+            <p class="card-text">Import the package to automatically register the <code>&lt;key-stroke&gt;</code> custom element:</p>
+            <micro-lighter language="javascript" controls="copy">
+              <pre><code>import 'key-stroke';</code></pre>
+            </micro-lighter>
+          </div>
+        </section>
+
+        <!-- Attributes Table -->
+        <section id="attributes">
+          <h2>Attributes &amp; Configuration</h2>
+          <p class="section-desc">
+            Configure <code>&lt;key-stroke&gt;</code> declaratively using HTML attributes or dynamically via JavaScript properties.
+          </p>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Attribute</th>
+                  <th>Default</th>
+                  <th>Values / Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>filter</code></td>
+                  <td><code>"shortcuts, navigation"</code></td>
+                  <td><code>"shortcuts, navigation"</code>, <code>"all"</code>, <code>"shortcuts"</code>, or <code>"navigation"</code></td>
+                </tr>
+                <tr>
+                  <td><code>theme</code></td>
+                  <td><code>"apple"</code></td>
+                  <td><code>"apple"</code> (Apple Keyboard) or <code>"mechanical"</code> (Mechanical Keyboard)</td>
+                </tr>
+                <tr>
+                  <td><code>color-scheme</code></td>
+                  <td><code>"auto"</code></td>
+                  <td><code>"light"</code>, <code>"dark"</code>, or <code>"auto"</code></td>
+                </tr>
+                <tr>
+                  <td><code>size</code></td>
+                  <td><code>"large"</code></td>
+                  <td><code>"small"</code>, <code>"medium"</code>, <code>"large"</code>, <code>"x-large"</code>, or <code>"xx-large"</code> (or omit and set CSS <code>font-size</code>)</td>
+                </tr>
+                <tr>
+                  <td><code>position</code></td>
+                  <td><em>Inline</em></td>
+                  <td>Two tokens combining <code>top</code>/<code>center</code>/<code>bottom</code> with <code>left</code>/<code>center</code>/<code>right</code> (e.g. <code>"top right"</code>)</td>
+                </tr>
+                <tr>
+                  <td><code>timeout</code></td>
+                  <td><code>1500</code></td>
+                  <td>Duration in milliseconds before the pressed keystroke starts fading out (<code>0</code> disables auto-hide)</td>
+                </tr>
+                <tr>
+                  <td><code>fade-duration</code></td>
+                  <td><code>300</code></td>
+                  <td>Duration in milliseconds of the fade-out transition (also aliased as <code>fade-out</code>)</td>
+                </tr>
+                <tr>
+                  <td><code>platform</code></td>
+                  <td><code>"auto"</code></td>
+                  <td><code>"mac"</code> (uses <code>CMD</code>), <code>"windows"</code> (uses <code>CTRL</code>), or <code>"auto"</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Configuration / Filter Modes -->
+        <section id="configuration">
+          <h2>Filter Modes</h2>
+          <p class="section-desc">
+            Control which keystrokes are visualized using the <code>filter</code> attribute (defaults to <code>"shortcuts, navigation"</code>).
+          </p>
+
+          <div class="card">
+            <div class="filter-demo-grid">
+              <div class="filter-demo-box">
+                <div class="filter-demo-header">
+                  <strong>Default: Shortcuts + Navigational</strong>
+                  <code>filter="shortcuts, navigation"</code>
+                </div>
+                <p class="filter-demo-desc">Responds to shortcuts (<code>CMD + A</code>, <code>SHIFT + ENTER</code>) and navigation (<code>→</code>, <code>TAB</code>, <code>SPACE</code>, <code>BACKSPACE</code>, <code>DELETE</code>, <code>F1–F15</code>), ignoring plain typing.</p>
+                <div class="filter-demo-stage">
+                  <span class="filter-demo-hint">Waiting for shortcut or arrow key…</span>
+                  <key-stroke filter="shortcuts, navigation"></key-stroke>
+                </div>
+              </div>
+
+              <div class="filter-demo-box">
+                <div class="filter-demo-header">
+                  <strong>All Keystrokes</strong>
+                  <code>filter="all"</code>
+                </div>
+                <p class="filter-demo-desc">Visualizes every single key press including letters, numbers, symbols, shortcuts, and navigation.</p>
+                <div class="filter-demo-stage">
+                  <span class="filter-demo-hint">Waiting for any key (A, 1, SPACE, →)…</span>
+                  <key-stroke filter="all"></key-stroke>
+                </div>
+              </div>
+
+              <div class="filter-demo-box">
+                <div class="filter-demo-header">
+                  <strong>Shortcuts Only</strong>
+                  <code>filter="shortcuts"</code>
+                </div>
+                <p class="filter-demo-desc">Only responds to modifier combinations (<code>CMD + A</code>, <code>SHIFT + CMD + T</code>, <code>SHIFT + TAB</code>, <code>SHIFT + ENTER</code>).</p>
+                <div class="filter-demo-stage">
+                  <span class="filter-demo-hint">Waiting for a shortcut (CMD + A)…</span>
+                  <key-stroke filter="shortcuts"></key-stroke>
+                </div>
+              </div>
+
+              <div class="filter-demo-box">
+                <div class="filter-demo-header">
+                  <strong>Navigational &amp; Special Keys Only</strong>
+                  <code>filter="navigation"</code>
+                </div>
+                <p class="filter-demo-desc">Only responds to navigation and special keys (<code>←</code>, <code>↑</code>, <code>→</code>, <code>↓</code>, <code>TAB</code>, <code>SPACE</code>, <code>BACKSPACE</code>, <code>DELETE</code>, <code>F1–F15</code>, <code>ENTER</code>, <code>ESC</code>).</p>
+                <div class="filter-demo-stage">
+                  <span class="filter-demo-hint">Waiting for TAB, SPACE, or arrows (→)…</span>
+                  <key-stroke filter="navigation"></key-stroke>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Built-In Themes -->
+        <section id="themes">
+          <h2>Built-In Themes (Light &amp; Dark Variants)</h2>
+          <p class="section-desc">
+            <code>&lt;key-stroke&gt;</code> ships with two built-in themes: <strong>Apple Keyboard</strong> (<code>theme="apple"</code>) and <strong>Mechanical Keyboard</strong> (<code>theme="mechanical"</code>), each with both Light and Dark variants.
+          </p>
+
+          <div class="themes-grid">
+            <!-- Theme 1 Light: Apple Keyboard Light -->
+            <div class="theme-panel theme-panel-light">
+              <div class="theme-panel-header">
+                <span class="theme-badge">Theme 1 · Light</span>
+                <h3>Apple Keyboard (Light)</h3>
+                <code>theme="apple" color-scheme="light"</code>
+              </div>
+              <p class="theme-panel-desc">White rounded squares with grey text and subtle keycap elevation.</p>
+              <div class="theme-samples">
+                <key-stroke theme="apple" color-scheme="light" keys="→" static></key-stroke>
+                <key-stroke theme="apple" color-scheme="light" keys="SHIFT + TAB" static></key-stroke>
+                <key-stroke theme="apple" color-scheme="light" keys="CMD + A" static></key-stroke>
+              </div>
+            </div>
+
+            <!-- Theme 1 Dark: Apple Keyboard Dark -->
+            <div class="theme-panel theme-panel-dark">
+              <div class="theme-panel-header">
+                <span class="theme-badge">Theme 1 · Dark</span>
+                <h3>Apple Keyboard (Dark)</h3>
+                <code>theme="apple" color-scheme="dark"</code>
+              </div>
+              <p class="theme-panel-desc">Black rounded squares with lightgrey text mimicking backlit Apple keys.</p>
+              <div class="theme-samples">
+                <key-stroke theme="apple" color-scheme="dark" keys="→" static></key-stroke>
+                <key-stroke theme="apple" color-scheme="dark" keys="SHIFT + TAB" static></key-stroke>
+                <key-stroke theme="apple" color-scheme="dark" keys="CMD + A" static></key-stroke>
+              </div>
+            </div>
+
+            <!-- Theme 2 Light: Mechanical Light -->
+            <div class="theme-panel theme-panel-light">
+              <div class="theme-panel-header">
+                <span class="theme-badge">Theme 2 · Light</span>
+                <h3>Mechanical Keyboard (Light)</h3>
+                <code>theme="mechanical" color-scheme="light"</code>
+              </div>
+              <p class="theme-panel-desc">Sculpted off-white keycaps with deep 3D keywell dish and slate modifier accents.</p>
+              <div class="theme-samples">
+                <key-stroke theme="mechanical" color-scheme="light" keys="→" static></key-stroke>
+                <key-stroke theme="mechanical" color-scheme="light" keys="SHIFT + TAB" static></key-stroke>
+                <key-stroke theme="mechanical" color-scheme="light" keys="CMD + A" static></key-stroke>
+              </div>
+            </div>
+
+            <!-- Theme 2 Dark: Mechanical Dark -->
+            <div class="theme-panel theme-panel-dark">
+              <div class="theme-panel-header">
+                <span class="theme-badge">Theme 2 · Dark</span>
+                <h3>Mechanical Keyboard (Dark)</h3>
+                <code>theme="mechanical" color-scheme="dark"</code>
+              </div>
+              <p class="theme-panel-desc">Carbon keycaps with high-contrast legends and indigo modifier keycaps.</p>
+              <div class="theme-samples">
+                <key-stroke theme="mechanical" color-scheme="dark" keys="→" static></key-stroke>
+                <key-stroke theme="mechanical" color-scheme="dark" keys="SHIFT + TAB" static></key-stroke>
+                <key-stroke theme="mechanical" color-scheme="dark" keys="CTRL + A" static></key-stroke>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- macOS vs Windows -->
+        <section id="platforms">
+          <h2>macOS vs. Windows Support</h2>
+          <p class="section-desc">
+            <code>&lt;key-stroke&gt;</code> automatically detects the user's operating system (using <code>CMD</code> on macOS and <code>CTRL</code> on Windows), or you can explicitly set <code>platform="mac"</code> or <code>platform="windows"</code>.
+          </p>
+
+          <div class="card">
+            <div class="showcase-row">
+              <div class="showcase-item">
+                <span class="showcase-caption">macOS (<code>platform="mac"</code>)</span>
+                <key-stroke platform="mac" keys="SHIFT + CMD + T" theme="apple" color-scheme="light" static></key-stroke>
+              </div>
+              <div class="showcase-item">
+                <span class="showcase-caption">Windows (<code>platform="windows"</code>)</span>
+                <key-stroke platform="windows" keys="SHIFT + CTRL + T" theme="apple" color-scheme="light" static></key-stroke>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Custom Styling Section -->
+        <section id="parts-styling">
+          <h2>Custom Styling via CSS <code>::part()</code> &amp; Variables</h2>
+          <p class="section-desc">
+            Style keys using CSS Custom Properties or target <code>::part(key)</code>, <code>::part(modifier)</code>, and <code>::part(separator)</code> directly.
+          </p>
+
+          <div class="card">
+            <div class="showcase-row">
+              <div class="showcase-item">
+                <span class="showcase-caption">Neon Cyber Custom Style</span>
+                <key-stroke class="custom-neon" keys="SHIFT + CMD + P" static></key-stroke>
+              </div>
+              <div class="showcase-item">
+                <span class="showcase-caption">Pill Gradient Custom Style</span>
+                <key-stroke class="custom-pill" keys="CTRL + ENTER" static></key-stroke>
+              </div>
+            </div>
+            <micro-lighter language="css" controls="copy">
+              <pre><code>key-stroke.custom-neon::part(key) {
+  background: #0f172a;
+  color: #38bdf8;
+  border: 1px solid #0284c7;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.35), 0 2px 0 #0369a1;
+}
+
+key-stroke.custom-neon::part(modifier) {
+  color: #f472b6;
+  border-color: #db2777;
+}</code></pre>
+            </micro-lighter>
+          </div>
+        </section>
+
+        <!-- JavaScript API -->
+        <section id="javascript-api">
+          <h2>JavaScript API</h2>
+          <div class="card">
+            <micro-lighter language="javascript" controls="copy">
+              <pre><code>const el = document.querySelector('key-stroke');
+
+// Programmatically display a keystroke
+el.showKeys('SHIFT + TAB');
+el.keys = 'CMD + A';
+
+// Clear display
+el.clear();
+
+// Listen for keystroke events
+el.addEventListener('keystroke', (e) =&gt; {
+  console.log(e.detail.label);    // e.g. "SHIFT + TAB"
+  console.log(e.detail.keys);     // e.g. ["SHIFT", "TAB"]
+  console.log(e.detail.category); // "shortcut" | "navigation" | "keystroke"
+});</code></pre>
+            </micro-lighter>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+</body>
+
+</html>
