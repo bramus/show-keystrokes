@@ -1,9 +1,9 @@
 /**
- * key-stroke entry point
- * Defines <key-stroke> custom element and exports KeyStroke class & keystroke utilities.
+ * show-keystrokes entry point
+ * Defines <show-keystrokes> custom element and exports ShowKeystrokes class & keystroke utilities.
  */
 
-import { KeyStroke } from './components/key-stroke.js';
+import { ShowKeystrokes } from './components/show-keystrokes.js';
 import {
   DEFAULT_FILTERS,
   DEFAULT_TIMEOUT,
@@ -25,12 +25,12 @@ import {
   parseKeystrokeString,
 } from './utils/keystroke.js';
 
-if (typeof customElements !== 'undefined' && !customElements.get('key-stroke')) {
-  customElements.define('key-stroke', KeyStroke);
+if (typeof customElements !== 'undefined' && !customElements.get('show-keystrokes')) {
+  customElements.define('show-keystrokes', ShowKeystrokes);
 }
 
 export {
-  KeyStroke,
+  ShowKeystrokes,
   DEFAULT_FILTERS,
   DEFAULT_TIMEOUT,
   DEFAULT_FADE_DURATION,
@@ -51,4 +51,4 @@ export {
   parseKeystrokeString,
 };
 
-export default KeyStroke;
+export default ShowKeystrokes;

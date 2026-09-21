@@ -1,11 +1,11 @@
-# key-stroke
+# show-keystrokes
 
 > A zero-dependency custom element that visualizes keystrokes, keyboard shortcuts, and navigational keys with macOS & Windows support and stylable themes.
 
-[![npm version](https://img.shields.io/npm/v/key-stroke.svg)](https://www.npmjs.com/package/key-stroke)
+[![npm version](https://img.shields.io/npm/v/show-keystrokes.svg)](https://www.npmjs.com/package/show-keystrokes)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[**Live Demo & Playground → https://key-stroke.netlify.app/**](https://key-stroke.netlify.app/)
+[**Live Demo & Playground → https://show-keystrokes.netlify.app/**](https://show-keystrokes.netlify.app/)
 
 ## Features
 
@@ -27,7 +27,7 @@
   - **Mechanical Keyboard (`theme="mechanical"`)**: Sculpted 3D keycap dish with monospace legends and accented modifier keys in both light and dark modes.
   - Supports automatic `light-dark()` adaptation or explicit `color-scheme="light"` / `color-scheme="dark"`.
 - **Highly Stylable**:
-  - Customize with CSS Custom Properties (`--key-stroke-key-bg`, `--key-stroke-key-color`, `--key-stroke-key-radius`, etc.) or Shadow DOM parts (`::part(key)`, `::part(modifier)`, `::part(primary)`, `::part(separator)`).
+  - Customize with CSS Custom Properties (`--show-keystrokes-key-bg`, `--show-keystrokes-key-color`, `--show-keystrokes-key-radius`, etc.) or Shadow DOM parts (`::part(key)`, `::part(modifier)`, `::part(primary)`, `::part(separator)`).
 
 ---
 
@@ -36,19 +36,19 @@
 ### 1. Using npm
 
 ```bash
-npm install key-stroke
+npm install show-keystrokes
 ```
 
-Import the module to automatically register `<key-stroke>`:
+Import the module to automatically register `<show-keystrokes>`:
 
 ```javascript
-import 'key-stroke';
+import 'show-keystrokes';
 ```
 
 ### 2. Using a CDN
 
 ```html
-<script type="module" src="https://cdn.jsdelivr.net/npm/key-stroke/index.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/show-keystrokes/index.js"></script>
 ```
 
 ---
@@ -59,28 +59,28 @@ import 'key-stroke';
 
 ```html
 <!-- Default: shows shortcuts and navigational keys -->
-<key-stroke></key-stroke>
+<show-keystrokes></show-keystrokes>
 
 <!-- Show all keystrokes -->
-<key-stroke filter="all"></key-stroke>
+<show-keystrokes filter="all"></show-keystrokes>
 
 <!-- Show only shortcuts -->
-<key-stroke filter="shortcuts"></key-stroke>
+<show-keystrokes filter="shortcuts"></show-keystrokes>
 
 <!-- Show only navigational keys -->
-<key-stroke filter="navigation"></key-stroke>
+<show-keystrokes filter="navigation"></show-keystrokes>
 ```
 
 ### Themes & Light/Dark Variants
 
 ```html
 <!-- Apple Keyboard (Light & Dark) -->
-<key-stroke theme="apple" color-scheme="light"></key-stroke>
-<key-stroke theme="apple" color-scheme="dark"></key-stroke>
+<show-keystrokes theme="apple" color-scheme="light"></show-keystrokes>
+<show-keystrokes theme="apple" color-scheme="dark"></show-keystrokes>
 
 <!-- Mechanical Keyboard (Light & Dark) -->
-<key-stroke theme="mechanical" color-scheme="light"></key-stroke>
-<key-stroke theme="mechanical" color-scheme="dark"></key-stroke>
+<show-keystrokes theme="mechanical" color-scheme="light"></show-keystrokes>
+<show-keystrokes theme="mechanical" color-scheme="dark"></show-keystrokes>
 ```
 
 ### Sizing (`size` & CSS `font-size`)
@@ -88,16 +88,16 @@ import 'key-stroke';
 Use the `size` attribute (`small`, `medium`, `large`, `x-large`, `xx-large` — defaults to `large`) to adjust the base `font-size` of the component, or omit the `size` attribute and set `font-size` directly via CSS:
 
 ```html
-<key-stroke size="small"></key-stroke>
-<key-stroke size="medium"></key-stroke>
-<key-stroke size="large"></key-stroke>
-<key-stroke size="x-large"></key-stroke>
-<key-stroke size="xx-large"></key-stroke>
+<show-keystrokes size="small"></show-keystrokes>
+<show-keystrokes size="medium"></show-keystrokes>
+<show-keystrokes size="large"></show-keystrokes>
+<show-keystrokes size="x-large"></show-keystrokes>
+<show-keystrokes size="xx-large"></show-keystrokes>
 ```
 
 ```css
 /* When no size attribute is set, setting font-size scales the entire component */
-key-stroke {
+show-keystrokes {
   font-size: 1.5rem;
 }
 ```
@@ -106,21 +106,21 @@ key-stroke {
 
 Set the `position` attribute using any combination of `top` / `center` / `bottom` and `left` / `center` / `right`:
 
-1. **Fixed Viewport Positioning**: Applies `position: fixed` at that viewport location with a `1rem` gap (customizable via `--key-stroke-position-offset`):
+1. **Fixed Viewport Positioning**: Applies `position: fixed` at that viewport location with a `1rem` gap (customizable via `--show-keystrokes-position-offset`):
    ```html
    <!-- Fixed in the top-right corner of the viewport -->
-   <key-stroke position="top right"></key-stroke>
+   <show-keystrokes position="top right"></show-keystrokes>
 
    <!-- Fixed at the bottom-center of the viewport -->
-   <key-stroke position="bottom center"></key-stroke>
+   <show-keystrokes position="bottom center"></show-keystrokes>
    ```
-2. **Pointer Positioning (CSS Anchor Positioning)**: Prefix `position` with `pointer` to anchor `<key-stroke>` to an invisible `#keystroke-anchor` tracking the pointer via CSS Anchor Positioning (`position-area` + `position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block`). When setting only `pointer`, it defaults to `pointer bottom right`:
+2. **Pointer Positioning (CSS Anchor Positioning)**: Prefix `position` with `pointer` to anchor `<show-keystrokes>` to an invisible `#show-keystrokes-anchor` tracking the pointer via CSS Anchor Positioning (`position-area` + `position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block`). When setting only `pointer`, it defaults to `pointer bottom right`:
    ```html
    <!-- Defaults to bottom right of the pointer -->
-   <key-stroke position="pointer"></key-stroke>
+   <show-keystrokes position="pointer"></show-keystrokes>
 
    <!-- Positioned to the top right of the pointer -->
-   <key-stroke position="pointer top right"></key-stroke>
+   <show-keystrokes position="pointer top right"></show-keystrokes>
    ```
 
 Accepted values:
@@ -133,10 +133,10 @@ By default, a pressed keystroke stays visible for **`1500` ms** (`timeout`) and 
 
 ```html
 <!-- Wait 2500ms before fading out over 500ms -->
-<key-stroke timeout="2500" fade-duration="500"></key-stroke>
+<show-keystrokes timeout="2500" fade-duration="500"></show-keystrokes>
 
 <!-- Disable auto-hiding by setting timeout="0" -->
-<key-stroke timeout="0"></key-stroke>
+<show-keystrokes timeout="0"></show-keystrokes>
 ```
 
 ### Static / Declarative Keycaps
@@ -144,9 +144,9 @@ By default, a pressed keystroke stays visible for **`1500` ms** (`timeout`) and 
 Use `keys` and `static` to render static keycaps in documentation:
 
 ```html
-<key-stroke keys="→" theme="apple" static></key-stroke>
-<key-stroke keys="SHIFT + TAB" theme="apple" static></key-stroke>
-<key-stroke keys="CMD + A" theme="apple" static></key-stroke>
+<show-keystrokes keys="→" theme="apple" static></show-keystrokes>
+<show-keystrokes keys="SHIFT + TAB" theme="apple" static></show-keystrokes>
+<show-keystrokes keys="CMD + A" theme="apple" static></show-keystrokes>
 ```
 
 ---
@@ -167,16 +167,16 @@ Use `keys` and `static` to render static keycaps in documentation:
 
 | Property | Description |
 | :--- | :--- |
-| `--key-stroke-key-bg` | Keycap background color |
-| `--key-stroke-key-color` | Keycap text color |
-| `--key-stroke-key-border` | Keycap border shorthand |
-| `--key-stroke-key-radius` | Keycap border radius (default `8px` for `apple`) |
-| `--key-stroke-key-shadow` | Keycap box shadow |
-| `--key-stroke-key-min-size` | Minimum width and height of square keycaps (default `2.75rem`) |
-| `--key-stroke-modifier-bg` | Background override for modifier keys |
-| `--key-stroke-modifier-color` | Text color override for modifier keys |
-| `--key-stroke-separator-color` | Color of the `+` separator |
-| `--key-stroke-position-offset` | Viewport edge gap when `position` is set (default `1rem`) |
+| `--show-keystrokes-key-bg` | Keycap background color |
+| `--show-keystrokes-key-color` | Keycap text color |
+| `--show-keystrokes-key-border` | Keycap border shorthand |
+| `--show-keystrokes-key-radius` | Keycap border radius (default `8px` for `apple`) |
+| `--show-keystrokes-key-shadow` | Keycap box shadow |
+| `--show-keystrokes-key-min-size` | Minimum width and height of square keycaps (default `2.75rem`) |
+| `--show-keystrokes-modifier-bg` | Background override for modifier keys |
+| `--show-keystrokes-modifier-color` | Text color override for modifier keys |
+| `--show-keystrokes-separator-color` | Color of the `+` separator |
+| `--show-keystrokes-position-offset` | Viewport edge gap when `position` is set (default `1rem`) |
 
 ---
 

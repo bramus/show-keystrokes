@@ -1,5 +1,5 @@
 /**
- * Interactive Playground & Demo controller for <key-stroke>.
+ * Interactive Playground & Demo controller for <show-keystrokes>.
  */
 
 const visualizer = document.getElementById('playground-visualizer');
@@ -96,7 +96,7 @@ function updatePlaygroundAttributes() {
     .join(' ');
 
   if (markupPreview) {
-    markupPreview.textContent = `<key-stroke ${attrs}></key-stroke>`;
+    markupPreview.textContent = `<show-keystrokes ${attrs}></show-keystrokes>`;
   }
 }
 

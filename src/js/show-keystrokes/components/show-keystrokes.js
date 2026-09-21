@@ -1,5 +1,5 @@
 /**
- * <key-stroke> Custom Element
+ * <show-keystrokes> Custom Element
  * Visualizes keystrokes, keyboard shortcuts, and navigational keys with
  * configurable filters, macOS/Windows support, and customizable themes.
  */
@@ -21,15 +21,15 @@ const COMPONENT_STYLES = `
   :host {
     font-size: 1rem;
 
-    --_key-min-size: var(--key-stroke-key-min-size, 2.75em);
-    --_key-radius: var(--key-stroke-key-radius, 0.5em);
-    --_key-padding: var(--key-stroke-key-padding, 0 0.65em);
-    --_key-font-family: var(--key-stroke-key-font-family, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, "Segoe UI", Roboto, sans-serif);
-    --_key-font-size: var(--key-stroke-key-font-size, 0.875em);
-    --_key-font-weight: var(--key-stroke-key-font-weight, 600);
-    --_gap: var(--key-stroke-gap, 0.375em);
-    --_position-offset: var(--key-stroke-position-offset, 1rem);
-    --_fade-duration: var(--key-stroke-fade-duration, ${DEFAULT_FADE_DURATION}ms);
+    --_key-min-size: var(--show-keystrokes-key-min-size, 2.75em);
+    --_key-radius: var(--show-keystrokes-key-radius, 0.5em);
+    --_key-padding: var(--show-keystrokes-key-padding, 0 0.65em);
+    --_key-font-family: var(--show-keystrokes-key-font-family, -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, "Segoe UI", Roboto, sans-serif);
+    --_key-font-size: var(--show-keystrokes-key-font-size, 0.875em);
+    --_key-font-weight: var(--show-keystrokes-key-font-weight, 600);
+    --_gap: var(--show-keystrokes-gap, 0.375em);
+    --_position-offset: var(--show-keystrokes-position-offset, 1rem);
+    --_fade-duration: var(--show-keystrokes-fade-duration, ${DEFAULT_FADE_DURATION}ms);
 
     /* Default Theme: Apple Keyboard (Light & Dark via light-dark()) */
     color-scheme: light dark;
@@ -45,15 +45,15 @@ const COMPONENT_STYLES = `
     --_apple-sep-light: #86868b;
     --_apple-sep-dark: #98989d;
 
-    --_key-bg: var(--key-stroke-key-bg, light-dark(#ffffff, #1c1c1e));
-    --_key-bg-image: var(--key-stroke-key-bg-image, var(--_apple-bg-light));
-    --_key-color: var(--key-stroke-key-color, light-dark(var(--_apple-color-light), var(--_apple-color-dark)));
-    --_key-border: var(--key-stroke-key-border, 1px solid light-dark(var(--_apple-border-light), var(--_apple-border-dark)));
-    --_key-shadow: var(--key-stroke-key-shadow, var(--_apple-shadow-light));
-    --_modifier-bg: var(--key-stroke-modifier-bg, var(--_key-bg));
-    --_modifier-bg-image: var(--key-stroke-modifier-bg-image, var(--_key-bg-image));
-    --_modifier-color: var(--key-stroke-modifier-color, var(--_key-color));
-    --_separator-color: var(--key-stroke-separator-color, light-dark(var(--_apple-sep-light), var(--_apple-sep-dark)));
+    --_key-bg: var(--show-keystrokes-key-bg, light-dark(#ffffff, #1c1c1e));
+    --_key-bg-image: var(--show-keystrokes-key-bg-image, var(--_apple-bg-light));
+    --_key-color: var(--show-keystrokes-key-color, light-dark(var(--_apple-color-light), var(--_apple-color-dark)));
+    --_key-border: var(--show-keystrokes-key-border, 1px solid light-dark(var(--_apple-border-light), var(--_apple-border-dark)));
+    --_key-shadow: var(--show-keystrokes-key-shadow, var(--_apple-shadow-light));
+    --_modifier-bg: var(--show-keystrokes-modifier-bg, var(--_key-bg));
+    --_modifier-bg-image: var(--show-keystrokes-modifier-bg-image, var(--_key-bg-image));
+    --_modifier-color: var(--show-keystrokes-modifier-color, var(--_key-color));
+    --_separator-color: var(--show-keystrokes-separator-color, light-dark(var(--_apple-sep-light), var(--_apple-sep-dark)));
 
     display: inline-flex;
     flex-wrap: nowrap;
@@ -96,7 +96,7 @@ const COMPONENT_STYLES = `
 
   /* ==========================================================================
    * VIEWPORT POSITIONING (position="<top|center|bottom> <left|center|right>")
-   * Fixes the component in the viewport with a 1rem gap (--key-stroke-position-offset)
+   * Fixes the component in the viewport with a 1rem gap (--show-keystrokes-position-offset)
    * ========================================================================== */
   :host([position~="top" i][position~="left" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
     position: fixed;
@@ -105,8 +105,8 @@ const COMPONENT_STYLES = `
     left: var(--_position-offset);
     right: auto;
     translate: none;
-    z-index: var(--key-stroke-z-index, 9999);
-    pointer-events: var(--key-stroke-pointer-events, none);
+    z-index: var(--show-keystrokes-z-index, 9999);
+    pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
   :host([position~="top" i][position~="center" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
@@ -116,8 +116,8 @@ const COMPONENT_STYLES = `
     left: 50%;
     right: auto;
     translate: -50% 0;
-    z-index: var(--key-stroke-z-index, 9999);
-    pointer-events: var(--key-stroke-pointer-events, none);
+    z-index: var(--show-keystrokes-z-index, 9999);
+    pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
   :host([position~="top" i][position~="right" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
@@ -127,8 +127,8 @@ const COMPONENT_STYLES = `
     left: auto;
     right: var(--_position-offset);
     translate: none;
-    z-index: var(--key-stroke-z-index, 9999);
-    pointer-events: var(--key-stroke-pointer-events, none);
+    z-index: var(--show-keystrokes-z-index, 9999);
+    pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
   :host([position~="center" i][position~="left" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
@@ -138,8 +138,8 @@ const COMPONENT_STYLES = `
     left: var(--_position-offset);
     right: auto;
     translate: 0 -50%;
-    z-index: var(--key-stroke-z-index, 9999);
-    pointer-events: var(--key-stroke-pointer-events, none);
+    z-index: var(--show-keystrokes-z-index, 9999);
+    pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
   :host([position="center center" i]) {
@@ -149,8 +149,8 @@ const COMPONENT_STYLES = `
     left: 50%;
     right: auto;
     translate: -50% -50%;
-    z-index: var(--key-stroke-z-index, 9999);
-    pointer-events: var(--key-stroke-pointer-events, none);
+    z-index: var(--show-keystrokes-z-index, 9999);
+    pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
   :host([position~="center" i][position~="right" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
@@ -160,8 +160,8 @@ const COMPONENT_STYLES = `
     left: auto;
     right: var(--_position-offset);
     translate: 0 -50%;
-    z-index: var(--key-stroke-z-index, 9999);
-    pointer-events: var(--key-stroke-pointer-events, none);
+    z-index: var(--show-keystrokes-z-index, 9999);
+    pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
   :host([position~="bottom" i][position~="left" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
@@ -171,8 +171,8 @@ const COMPONENT_STYLES = `
     left: var(--_position-offset);
     right: auto;
     translate: none;
-    z-index: var(--key-stroke-z-index, 9999);
-    pointer-events: var(--key-stroke-pointer-events, none);
+    z-index: var(--show-keystrokes-z-index, 9999);
+    pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
   :host([position~="bottom" i][position~="center" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
@@ -182,8 +182,8 @@ const COMPONENT_STYLES = `
     left: 50%;
     right: auto;
     translate: -50% 0;
-    z-index: var(--key-stroke-z-index, 9999);
-    pointer-events: var(--key-stroke-pointer-events, none);
+    z-index: var(--show-keystrokes-z-index, 9999);
+    pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
   :host([position~="bottom" i][position~="right" i]:not([position~="pointer" i]):not([position~="mouse" i])) {
@@ -193,14 +193,14 @@ const COMPONENT_STYLES = `
     left: auto;
     right: var(--_position-offset);
     translate: none;
-    z-index: var(--key-stroke-z-index, 9999);
-    pointer-events: var(--key-stroke-pointer-events, none);
+    z-index: var(--show-keystrokes-z-index, 9999);
+    pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
   /* ==========================================================================
    * POINTER / MOUSE ANCHOR POSITIONING
    * (position="pointer|mouse [<top|center|bottom> <left|center|right>]")
-   * Anchors <key-stroke> to the invisible #keystroke-anchor tracking the pointer
+   * Anchors <show-keystrokes> to the invisible #show-keystrokes-anchor tracking the pointer
    * using CSS Anchor Positioning (position-area & position-try-fallbacks).
    * ========================================================================== */
   :host([position~="pointer" i]),
@@ -208,13 +208,13 @@ const COMPONENT_STYLES = `
     position: fixed;
     inset: auto;
     translate: none;
-    position-anchor: --keystroke-anchor;
+    position-anchor: --show-keystrokes-anchor;
     position-area: bottom right;
     position-try-fallbacks: none;
     position-visibility: always;
-    margin: var(--key-stroke-pointer-gap, 0.25rem);
-    z-index: var(--key-stroke-z-index, 9999);
-    pointer-events: var(--key-stroke-pointer-events, none);
+    margin: var(--show-keystrokes-pointer-gap, 0.25rem);
+    z-index: var(--show-keystrokes-z-index, 9999);
+    pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
   :host([position~="pointer" i][active]),
@@ -272,30 +272,30 @@ const COMPONENT_STYLES = `
   :host([variant="light"]),
   :host([theme$="-light"]) {
     color-scheme: light;
-    --_key-bg: var(--key-stroke-key-bg, #ffffff);
-    --_key-bg-image: var(--key-stroke-key-bg-image, var(--_apple-bg-light));
-    --_key-color: var(--key-stroke-key-color, var(--_apple-color-light));
-    --_key-border: var(--key-stroke-key-border, 1px solid var(--_apple-border-light));
-    --_key-shadow: var(--key-stroke-key-shadow, var(--_apple-shadow-light));
-    --_separator-color: var(--key-stroke-separator-color, var(--_apple-sep-light));
+    --_key-bg: var(--show-keystrokes-key-bg, #ffffff);
+    --_key-bg-image: var(--show-keystrokes-key-bg-image, var(--_apple-bg-light));
+    --_key-color: var(--show-keystrokes-key-color, var(--_apple-color-light));
+    --_key-border: var(--show-keystrokes-key-border, 1px solid var(--_apple-border-light));
+    --_key-shadow: var(--show-keystrokes-key-shadow, var(--_apple-shadow-light));
+    --_separator-color: var(--show-keystrokes-separator-color, var(--_apple-sep-light));
   }
 
   :host([color-scheme="dark"]),
   :host([variant="dark"]),
   :host([theme$="-dark"]) {
     color-scheme: dark;
-    --_key-bg: var(--key-stroke-key-bg, #1c1c1e);
-    --_key-bg-image: var(--key-stroke-key-bg-image, var(--_apple-bg-dark));
-    --_key-color: var(--key-stroke-key-color, var(--_apple-color-dark));
-    --_key-border: var(--key-stroke-key-border, 1px solid var(--_apple-border-dark));
-    --_key-shadow: var(--key-stroke-key-shadow, var(--_apple-shadow-dark));
-    --_separator-color: var(--key-stroke-separator-color, var(--_apple-sep-dark));
+    --_key-bg: var(--show-keystrokes-key-bg, #1c1c1e);
+    --_key-bg-image: var(--show-keystrokes-key-bg-image, var(--_apple-bg-dark));
+    --_key-color: var(--show-keystrokes-key-color, var(--_apple-color-dark));
+    --_key-border: var(--show-keystrokes-key-border, 1px solid var(--_apple-border-dark));
+    --_key-shadow: var(--show-keystrokes-key-shadow, var(--_apple-shadow-dark));
+    --_separator-color: var(--show-keystrokes-separator-color, var(--_apple-sep-dark));
   }
 
   @media (prefers-color-scheme: dark) {
     :host(:not([color-scheme="light"]):not([variant="light"]):not([theme$="-light"])) {
-      --_key-bg-image: var(--key-stroke-key-bg-image, var(--_apple-bg-dark));
-      --_key-shadow: var(--key-stroke-key-shadow, var(--_apple-shadow-dark));
+      --_key-bg-image: var(--show-keystrokes-key-bg-image, var(--_apple-bg-dark));
+      --_key-shadow: var(--show-keystrokes-key-shadow, var(--_apple-shadow-dark));
     }
   }
 
@@ -322,16 +322,16 @@ const COMPONENT_STYLES = `
     --_mech-shadow-light: inset 0 -4px 0 #cfc8b8, inset 0 1px 0 #ffffff, 0 3px 0 #948c7d, 0 5px 10px rgba(0, 0, 0, 0.15);
     --_mech-shadow-dark: inset 0 -4px 0 #161b22, inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 3px 0 #090c10, 0 6px 12px rgba(0, 0, 0, 0.55);
 
-    --_key-radius: var(--key-stroke-key-radius, 0.4375em);
-    --_key-font-family: var(--key-stroke-key-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
-    --_key-bg: var(--key-stroke-key-bg, light-dark(#f1ede4, #282e36));
-    --_key-bg-image: var(--key-stroke-key-bg-image, var(--_mech-bg-light));
-    --_key-color: var(--key-stroke-key-color, light-dark(var(--_mech-color-light), var(--_mech-color-dark)));
-    --_key-border: var(--key-stroke-key-border, 1px solid light-dark(var(--_mech-border-light), var(--_mech-border-dark)));
-    --_key-shadow: var(--key-stroke-key-shadow, var(--_mech-shadow-light));
-    --_modifier-bg: var(--key-stroke-modifier-bg, light-dark(#dbe2ea, #312e81));
-    --_modifier-bg-image: var(--key-stroke-modifier-bg-image, var(--_mech-mod-bg-light));
-    --_modifier-color: var(--key-stroke-modifier-color, light-dark(var(--_mech-mod-color-light), var(--_mech-mod-color-dark)));
+    --_key-radius: var(--show-keystrokes-key-radius, 0.4375em);
+    --_key-font-family: var(--show-keystrokes-key-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+    --_key-bg: var(--show-keystrokes-key-bg, light-dark(#f1ede4, #282e36));
+    --_key-bg-image: var(--show-keystrokes-key-bg-image, var(--_mech-bg-light));
+    --_key-color: var(--show-keystrokes-key-color, light-dark(var(--_mech-color-light), var(--_mech-color-dark)));
+    --_key-border: var(--show-keystrokes-key-border, 1px solid light-dark(var(--_mech-border-light), var(--_mech-border-dark)));
+    --_key-shadow: var(--show-keystrokes-key-shadow, var(--_mech-shadow-light));
+    --_modifier-bg: var(--show-keystrokes-modifier-bg, light-dark(#dbe2ea, #312e81));
+    --_modifier-bg-image: var(--show-keystrokes-modifier-bg-image, var(--_mech-mod-bg-light));
+    --_modifier-color: var(--show-keystrokes-modifier-color, light-dark(var(--_mech-mod-color-light), var(--_mech-mod-color-dark)));
   }
 
   :host([theme="mechanical"][color-scheme="dark"]),
@@ -340,14 +340,14 @@ const COMPONENT_STYLES = `
   :host([theme="classic"][color-scheme="dark"]),
   :host([theme="classic"][variant="dark"]),
   :host([theme="classic-dark"]) {
-    --_key-bg: var(--key-stroke-key-bg, #282e36);
-    --_key-bg-image: var(--key-stroke-key-bg-image, var(--_mech-bg-dark));
-    --_key-color: var(--key-stroke-key-color, var(--_mech-color-dark));
-    --_key-border: var(--key-stroke-key-border, 1px solid var(--_mech-border-dark));
-    --_key-shadow: var(--key-stroke-key-shadow, var(--_mech-shadow-dark));
-    --_modifier-bg: var(--key-stroke-modifier-bg, #312e81);
-    --_modifier-bg-image: var(--key-stroke-modifier-bg-image, var(--_mech-mod-bg-dark));
-    --_modifier-color: var(--key-stroke-modifier-color, var(--_mech-mod-color-dark));
+    --_key-bg: var(--show-keystrokes-key-bg, #282e36);
+    --_key-bg-image: var(--show-keystrokes-key-bg-image, var(--_mech-bg-dark));
+    --_key-color: var(--show-keystrokes-key-color, var(--_mech-color-dark));
+    --_key-border: var(--show-keystrokes-key-border, 1px solid var(--_mech-border-dark));
+    --_key-shadow: var(--show-keystrokes-key-shadow, var(--_mech-shadow-dark));
+    --_modifier-bg: var(--show-keystrokes-modifier-bg, #312e81);
+    --_modifier-bg-image: var(--show-keystrokes-modifier-bg-image, var(--_mech-mod-bg-dark));
+    --_modifier-color: var(--show-keystrokes-modifier-color, var(--_mech-mod-color-dark));
   }
 
   :host([theme="mechanical"][color-scheme="light"]),
@@ -356,22 +356,22 @@ const COMPONENT_STYLES = `
   :host([theme="classic"][color-scheme="light"]),
   :host([theme="classic"][variant="light"]),
   :host([theme="classic-light"]) {
-    --_key-bg: var(--key-stroke-key-bg, #f1ede4);
-    --_key-bg-image: var(--key-stroke-key-bg-image, var(--_mech-bg-light));
-    --_key-color: var(--key-stroke-key-color, var(--_mech-color-light));
-    --_key-border: var(--key-stroke-key-border, 1px solid var(--_mech-border-light));
-    --_key-shadow: var(--key-stroke-key-shadow, var(--_mech-shadow-light));
-    --_modifier-bg: var(--key-stroke-modifier-bg, #dbe2ea);
-    --_modifier-bg-image: var(--key-stroke-modifier-bg-image, var(--_mech-mod-bg-light));
-    --_modifier-color: var(--key-stroke-modifier-color, var(--_mech-mod-color-light));
+    --_key-bg: var(--show-keystrokes-key-bg, #f1ede4);
+    --_key-bg-image: var(--show-keystrokes-key-bg-image, var(--_mech-bg-light));
+    --_key-color: var(--show-keystrokes-key-color, var(--_mech-color-light));
+    --_key-border: var(--show-keystrokes-key-border, 1px solid var(--_mech-border-light));
+    --_key-shadow: var(--show-keystrokes-key-shadow, var(--_mech-shadow-light));
+    --_modifier-bg: var(--show-keystrokes-modifier-bg, #dbe2ea);
+    --_modifier-bg-image: var(--show-keystrokes-modifier-bg-image, var(--_mech-mod-bg-light));
+    --_modifier-color: var(--show-keystrokes-modifier-color, var(--_mech-mod-color-light));
   }
 
   @media (prefers-color-scheme: dark) {
     :host([theme="mechanical"]:not([color-scheme="light"]):not([variant="light"])),
     :host([theme="classic"]:not([color-scheme="light"]):not([variant="light"])) {
-      --_key-bg-image: var(--key-stroke-key-bg-image, var(--_mech-bg-dark));
-      --_key-shadow: var(--key-stroke-key-shadow, var(--_mech-shadow-dark));
-      --_modifier-bg-image: var(--key-stroke-modifier-bg-image, var(--_mech-mod-bg-dark));
+      --_key-bg-image: var(--show-keystrokes-key-bg-image, var(--_mech-bg-dark));
+      --_key-shadow: var(--show-keystrokes-key-shadow, var(--_mech-shadow-dark));
+      --_modifier-bg-image: var(--show-keystrokes-modifier-bg-image, var(--_mech-mod-bg-dark));
     }
   }
 
@@ -447,100 +447,100 @@ const COMPONENT_STYLES = `
   }
 
   .separator {
-    display: var(--key-stroke-separator-display, inline-flex);
+    display: var(--show-keystrokes-separator-display, inline-flex);
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     white-space: nowrap;
     color: var(--_separator-color);
     font-family: var(--_key-font-family);
-    font-size: var(--key-stroke-separator-size, 0.875em);
+    font-size: var(--show-keystrokes-separator-size, 0.875em);
     font-weight: 600;
     padding: 0 0.1em;
     line-height: 1;
   }
 `;
 
-const KEYSTROKE_ANCHOR_ID = 'keystroke-anchor';
-const KEYSTROKE_ANCHOR_STYLE_ID = 'keystroke-anchor-styles';
+const KEYSTROKE_ANCHOR_ID = 'show-keystrokes-anchor';
+const KEYSTROKE_ANCHOR_STYLE_ID = 'show-keystrokes-anchor-styles';
 
 const KEYSTROKE_ANCHOR_STYLES = `
   #${KEYSTROKE_ANCHOR_ID} {
     position: fixed;
-    top: var(--keystroke-pointer-y, 50vh);
-    left: var(--keystroke-pointer-x, 50vw);
-    width: var(--key-stroke-anchor-size, 1.25rem);
-    height: var(--key-stroke-anchor-size, 1.25rem);
+    top: var(--show-keystrokes-pointer-y, 50vh);
+    left: var(--show-keystrokes-pointer-x, 50vw);
+    width: var(--show-keystrokes-anchor-size, 1.25rem);
+    height: var(--show-keystrokes-anchor-size, 1.25rem);
     translate: -50% -50%;
     pointer-events: none;
     opacity: 0;
     z-index: -1;
-    anchor-name: --keystroke-anchor;
+    anchor-name: --show-keystrokes-anchor;
   }
 
-  key-stroke[position~="pointer" i],
-  key-stroke[position~="mouse" i] {
+  show-keystrokes[position~="pointer" i],
+  show-keystrokes[position~="mouse" i] {
     position: fixed;
     inset: auto;
     translate: none;
     width: max-content;
     white-space: nowrap;
-    position-anchor: --keystroke-anchor;
+    position-anchor: --show-keystrokes-anchor;
     position-area: bottom right;
     position-try-fallbacks: none;
     position-visibility: always;
-    margin: var(--key-stroke-pointer-gap, 0.25rem);
-    z-index: var(--key-stroke-z-index, 9999);
-    pointer-events: var(--key-stroke-pointer-events, none);
+    margin: var(--show-keystrokes-pointer-gap, 0.25rem);
+    z-index: var(--show-keystrokes-z-index, 9999);
+    pointer-events: var(--show-keystrokes-pointer-events, none);
   }
 
-  key-stroke[position~="pointer" i][active],
-  key-stroke[position~="mouse" i][active] {
+  show-keystrokes[position~="pointer" i][active],
+  show-keystrokes[position~="mouse" i][active] {
     position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block;
   }
 
-  key-stroke[position~="pointer" i][position~="top" i][position~="left" i],
-  key-stroke[position~="mouse" i][position~="top" i][position~="left" i] {
+  show-keystrokes[position~="pointer" i][position~="top" i][position~="left" i],
+  show-keystrokes[position~="mouse" i][position~="top" i][position~="left" i] {
     position-area: top left;
   }
 
-  key-stroke[position~="pointer" i][position~="top" i][position~="center" i],
-  key-stroke[position~="mouse" i][position~="top" i][position~="center" i] {
+  show-keystrokes[position~="pointer" i][position~="top" i][position~="center" i],
+  show-keystrokes[position~="mouse" i][position~="top" i][position~="center" i] {
     position-area: top center;
   }
 
-  key-stroke[position~="pointer" i][position~="top" i][position~="right" i],
-  key-stroke[position~="mouse" i][position~="top" i][position~="right" i] {
+  show-keystrokes[position~="pointer" i][position~="top" i][position~="right" i],
+  show-keystrokes[position~="mouse" i][position~="top" i][position~="right" i] {
     position-area: top right;
   }
 
-  key-stroke[position~="pointer" i][position~="center" i][position~="left" i],
-  key-stroke[position~="mouse" i][position~="center" i][position~="left" i] {
+  show-keystrokes[position~="pointer" i][position~="center" i][position~="left" i],
+  show-keystrokes[position~="mouse" i][position~="center" i][position~="left" i] {
     position-area: center left;
   }
 
-  key-stroke[position="pointer center center" i],
-  key-stroke[position="mouse center center" i] {
+  show-keystrokes[position="pointer center center" i],
+  show-keystrokes[position="mouse center center" i] {
     position-area: center center;
   }
 
-  key-stroke[position~="pointer" i][position~="center" i][position~="right" i],
-  key-stroke[position~="mouse" i][position~="center" i][position~="right" i] {
+  show-keystrokes[position~="pointer" i][position~="center" i][position~="right" i],
+  show-keystrokes[position~="mouse" i][position~="center" i][position~="right" i] {
     position-area: center right;
   }
 
-  key-stroke[position~="pointer" i][position~="bottom" i][position~="left" i],
-  key-stroke[position~="mouse" i][position~="bottom" i][position~="left" i] {
+  show-keystrokes[position~="pointer" i][position~="bottom" i][position~="left" i],
+  show-keystrokes[position~="mouse" i][position~="bottom" i][position~="left" i] {
     position-area: bottom left;
   }
 
-  key-stroke[position~="pointer" i][position~="bottom" i][position~="center" i],
-  key-stroke[position~="mouse" i][position~="bottom" i][position~="center" i] {
+  show-keystrokes[position~="pointer" i][position~="bottom" i][position~="center" i],
+  show-keystrokes[position~="mouse" i][position~="bottom" i][position~="center" i] {
     position-area: bottom center;
   }
 
-  key-stroke[position~="pointer" i][position~="bottom" i][position~="right" i],
-  key-stroke[position~="mouse" i][position~="bottom" i][position~="right" i] {
+  show-keystrokes[position~="pointer" i][position~="bottom" i][position~="right" i],
+  show-keystrokes[position~="mouse" i][position~="bottom" i][position~="right" i] {
     position-area: bottom right;
   }
 `;
@@ -564,7 +564,7 @@ function ensureKeystrokeAnchor() {
     anchorEl = document.createElement('div');
     anchorEl.id = KEYSTROKE_ANCHOR_ID;
     anchorEl.setAttribute('aria-hidden', 'true');
-    // Prepend as the first child of document.body so it precedes all <key-stroke> elements in DOM tree order
+    // Prepend as the first child of document.body so it precedes all <show-keystrokes> elements in DOM tree order
     document.body.prepend(anchorEl);
   }
 
@@ -580,8 +580,8 @@ function ensureKeystrokeAnchor() {
         el.style.left = `${event.clientX}px`;
         el.style.top = `${event.clientY}px`;
       }
-      document.documentElement?.style.setProperty('--keystroke-pointer-x', `${event.clientX}px`);
-      document.documentElement?.style.setProperty('--keystroke-pointer-y', `${event.clientY}px`);
+      document.documentElement?.style.setProperty('--show-keystrokes-pointer-x', `${event.clientX}px`);
+      document.documentElement?.style.setProperty('--show-keystrokes-pointer-y', `${event.clientY}px`);
     };
 
     window.addEventListener('pointermove', updatePointerAnchor, { passive: true, capture: true });
@@ -592,7 +592,7 @@ function ensureKeystrokeAnchor() {
   return anchorEl;
 }
 
-export class KeyStroke extends HTMLElement {
+export class ShowKeystrokes extends HTMLElement {
   static get observedAttributes() {
     return [
       'filter',
@@ -763,9 +763,9 @@ export class KeyStroke extends HTMLElement {
   }
 
   /**
-   * Gets or sets the component size ('small' | 'medium' | 'large' | 'x-large').
+   * Gets or sets the component size ('small' | 'medium' | 'large' | 'x-large' | 'xx-large').
    * Defaults to 'large'.
-   * @returns {'small' | 'medium' | 'large' | 'x-large'}
+   * @returns {'small' | 'medium' | 'large' | 'x-large' | 'xx-large'}
    */
   get size() {
     return parseSize(this.getAttribute('size')) || DEFAULT_SIZE;
@@ -851,7 +851,7 @@ export class KeyStroke extends HTMLElement {
   }
 
   /**
-   * Gets or sets the fixed viewport position (e.g. "top right", "bottom center").
+   * Gets or sets the fixed viewport or pointer position (e.g. "top right", "pointer bottom right").
    * Returns null if not set or invalid.
    * @returns {string | null}
    */
@@ -1154,7 +1154,6 @@ export class KeyStroke extends HTMLElement {
       this.#fallbackRafId = null;
     }
 
-    const wasActive = this.hasAttribute('active');
     this.#container.replaceChildren();
 
     if (this.#currentKeys.length === 0) {

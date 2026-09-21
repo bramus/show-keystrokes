@@ -1,6 +1,6 @@
 /**
  * Keystroke parsing, normalization, classification, and platform formatting utilities
- * for the <key-stroke> custom element.
+ * for the <show-keystrokes> custom element.
  */
 
 export const DEFAULT_FILTERS = ['shortcuts', 'navigation'];
@@ -677,10 +677,10 @@ export function parseDurationMs(value, defaultValue) {
 }
 
 /**
- * Parses and validates a `size` attribute value ('small' | 'medium' | 'large' | 'x-large').
+ * Parses and validates a `size` attribute value ('small' | 'medium' | 'large' | 'x-large' | 'xx-large').
  *
  * @param {string | null | undefined} sizeAttr
- * @returns {'small' | 'medium' | 'large' | 'x-large' | null}
+ * @returns {'small' | 'medium' | 'large' | 'x-large' | 'xx-large' | null}
  */
 export function parseSize(sizeAttr) {
   if (typeof sizeAttr !== 'string') {
@@ -692,6 +692,3 @@ export function parseSize(sizeAttr) {
   }
   return null;
 }
-
-
-

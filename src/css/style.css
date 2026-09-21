@@ -44,10 +44,10 @@ body {
 /*
  * ==========================================================================
  * PRE-UPGRADE STYLING (FALLBACK)
- * Applied to <key-stroke> before the Custom Element is defined in the browser.
+ * Applied to <show-keystrokes> before the Custom Element is defined in the browser.
  * ==========================================================================
  */
-key-stroke:not(:defined) {
+show-keystrokes:not(:defined) {
   display: inline-block;
   font-family: var(--font-mono);
   padding: 0.4rem 0.75rem;
@@ -467,7 +467,7 @@ micro-lighter::part(copy-button):hover {
 
 /*
  * ==========================================================================
- * KEY-STROKE PLAYGROUND & SHOWCASE STYLES
+ * SHOW-KEYSTROKES PLAYGROUND & SHOWCASE STYLES
  * ==========================================================================
  */
 
@@ -572,8 +572,8 @@ micro-lighter::part(copy-button):hover {
   color: #e4e4e7;
 }
 
-/* Hide the stage prompt when the inline <key-stroke> is actively displaying keys */
-.visualizer-stage:has(key-stroke[active]:not([position])) .stage-prompt {
+/* Hide the stage prompt when the inline <show-keystrokes> is actively displaying keys */
+.visualizer-stage:has(show-keystrokes[active]:not([position])) .stage-prompt {
   display: none;
 }
 
@@ -589,7 +589,7 @@ micro-lighter::part(copy-button):hover {
   color: var(--text-muted);
 }
 
-.filter-demo-stage:has(key-stroke[active]) .filter-demo-hint {
+.filter-demo-stage:has(show-keystrokes[active]) .filter-demo-hint {
   display: none;
 }
 
@@ -783,20 +783,20 @@ micro-lighter::part(copy-button):hover {
 }
 
 /* Custom ::part() Demos */
-key-stroke.custom-neon::part(key) {
+show-keystrokes.custom-neon::part(key) {
   background: #0f172a;
   color: #38bdf8;
   border: 1px solid #0284c7;
   box-shadow: 0 0 12px rgba(56, 189, 248, 0.35), 0 2px 0 #0369a1;
 }
 
-key-stroke.custom-neon::part(modifier) {
+show-keystrokes.custom-neon::part(modifier) {
   color: #f472b6;
   border-color: #db2777;
   box-shadow: 0 0 12px rgba(244, 114, 182, 0.35), 0 2px 0 #9d174d;
 }
 
-key-stroke.custom-pill::part(key) {
+show-keystrokes.custom-pill::part(key) {
   border-radius: 999px;
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: #ffffff;

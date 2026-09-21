@@ -16,7 +16,7 @@ import {
   getModifierLabels,
   formatKeystrokeEvent,
   parseKeystrokeString,
-} from '../../src/js/key-stroke/utils/keystroke.js';
+} from '../../src/js/show-keystrokes/utils/keystroke.js';
 
 describe('keystroke utilities unit tests', () => {
   describe('detectPlatform()', () => {
