@@ -14,7 +14,7 @@ const selectPlatform = document.getElementById('select-platform');
 const selectSize = document.getElementById('select-size');
 const selectPositionAnchor = document.getElementById('select-position-anchor');
 const selectPositionArea = document.getElementById('select-position-area');
-const inputTimeout = document.getElementById('input-timeout');
+const inputHideDelay = document.getElementById('input-hide-delay');
 const inputFadeDuration = document.getElementById('input-fade-duration');
 const selectDisabled = document.getElementById('select-disabled');
 
@@ -75,7 +75,7 @@ function updatePlaygroundAttributes() {
   const sizeVal = selectSize ? selectSize.value : 'large';
   const positionAnchorVal = selectPositionAnchor ? selectPositionAnchor.value : 'normal';
   const positionAreaVal = selectPositionArea ? selectPositionArea.value : 'top right';
-  const timeoutVal = inputTimeout ? inputTimeout.value.trim() : '1500';
+  const hideDelayVal = inputHideDelay ? inputHideDelay.value.trim() : '1250';
   const fadeDurationVal = inputFadeDuration ? inputFadeDuration.value.trim() : '300';
   const isDisabled = selectDisabled ? selectDisabled.value === 'true' : false;
 
@@ -125,10 +125,10 @@ function updatePlaygroundAttributes() {
     visualizer.setAttribute('position', positionVal);
   }
 
-  if (timeoutVal === '' || timeoutVal === '1500') {
-    visualizer.removeAttribute('timeout');
+  if (hideDelayVal === '' || hideDelayVal === '1250') {
+    visualizer.removeAttribute('hide-delay');
   } else {
-    visualizer.setAttribute('timeout', timeoutVal);
+    visualizer.setAttribute('hide-delay', hideDelayVal);
   }
 
   if (fadeDurationVal === '' || fadeDurationVal === '300') {
@@ -145,7 +145,7 @@ function updatePlaygroundAttributes() {
     `theme="${themeVal}"`,
     schemeVal !== 'auto' ? `color-scheme="${schemeVal}"` : '',
     sizeVal && sizeVal !== 'large' ? `size="${sizeVal}"` : '',
-    timeoutVal && timeoutVal !== '1500' ? `timeout="${timeoutVal}"` : '',
+    hideDelayVal && hideDelayVal !== '1250' ? `hide-delay="${hideDelayVal}"` : '',
     fadeDurationVal && fadeDurationVal !== '300' ? `fade-duration="${fadeDurationVal}"` : '',
     platformVal !== 'auto' ? `platform="${platformVal}"` : '',
     isDisabled ? 'disabled' : '',
@@ -177,7 +177,7 @@ selectPlatform?.addEventListener('change', updatePlaygroundAttributes);
 selectSize?.addEventListener('change', updatePlaygroundAttributes);
 selectPositionAnchor?.addEventListener('change', updatePlaygroundAttributes);
 selectPositionArea?.addEventListener('change', updatePlaygroundAttributes);
-inputTimeout?.addEventListener('input', updatePlaygroundAttributes);
+inputHideDelay?.addEventListener('input', updatePlaygroundAttributes);
 inputFadeDuration?.addEventListener('input', updatePlaygroundAttributes);
 selectDisabled?.addEventListener('change', updatePlaygroundAttributes);
 

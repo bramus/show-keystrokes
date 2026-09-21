@@ -6,7 +6,7 @@
 import { ShowKeystrokes } from './components/show-keystrokes.js';
 import {
   DEFAULT_KEYSTROKES,
-  DEFAULT_TIMEOUT,
+  DEFAULT_HIDE_DELAY,
   DEFAULT_FADE_DURATION,
   DEFAULT_SIZE,
   DEFAULT_POSITION,
@@ -37,7 +37,7 @@ const OPTION_TO_ATTR = {
   platform: 'platform',
   size: 'size',
   position: 'position',
-  timeout: 'timeout',
+  hideDelay: 'hide-delay',
   fadeDuration: 'fade-duration',
   notation: 'notation',
   keys: 'keys',
@@ -52,7 +52,7 @@ const BOOLEAN_ATTRIBUTES = new Set(['disabled', 'static']);
  * Dynamically creates and configures a `<show-keystrokes>` element,
  * appending it to `parentElement` (defaults to `document.body`).
  *
- * @param {object} [options={}] - CamelCase options to configure `keystrokes`, `theme`, `colorScheme`, `size`, `position`, `timeout`, `fadeDuration`, `platform`, `disabled`, `static`, `keys`, etc.
+ * @param {object} [options={}] - CamelCase options to configure `keystrokes`, `theme`, `colorScheme`, `size`, `position`, `hideDelay`, `fadeDuration`, `platform`, `disabled`, `static`, `keys`, etc.
  * @param {Element} [parentElement=document.body] - Element to append the newly created `<show-keystrokes>` element to.
  * @returns {ShowKeystrokes}
  */
@@ -118,7 +118,7 @@ export {
   ShowKeystrokes,
   create,
   DEFAULT_KEYSTROKES,
-  DEFAULT_TIMEOUT,
+  DEFAULT_HIDE_DELAY,
   DEFAULT_FADE_DURATION,
   DEFAULT_SIZE,
   DEFAULT_POSITION,

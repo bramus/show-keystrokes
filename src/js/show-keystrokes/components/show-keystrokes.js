@@ -5,7 +5,7 @@
  */
 
 import {
-  DEFAULT_TIMEOUT,
+  DEFAULT_HIDE_DELAY,
   DEFAULT_FADE_DURATION,
   DEFAULT_SIZE,
   DEFAULT_POSITION,
@@ -637,8 +637,7 @@ export class ShowKeystrokes extends HTMLElement {
       'size',
       'notation',
       'keys',
-      'timeout',
-      'hide-timeout',
+      'hide-delay',
       'fade-duration',
       'fade-out',
       'fadeout-duration',
@@ -751,7 +750,7 @@ export class ShowKeystrokes extends HTMLElement {
       return;
     }
 
-    if (name === 'timeout' || name === 'hide-timeout') {
+    if (name === 'hide-delay') {
       if (this.#currentKeys.length > 0) {
         this.#scheduleAutoClear();
       }
@@ -929,22 +928,20 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   /**
-   * Gets or sets the timeout in milliseconds before the displayed keystroke starts fading out.
-   * Defaults to 1500 (ms). Set to 0 to disable auto-hiding.
+   * Gets or sets the delay in milliseconds before the displayed keystroke starts fading out.
+   * Defaults to 1250 (ms). Set to 0 to disable auto-hiding.
    * @returns {number}
    */
-  get timeout() {
-    const raw =
-      this.getAttribute('timeout') ??
-      this.getAttribute('hide-timeout');
-    return parseDurationMs(raw, DEFAULT_TIMEOUT);
+  get hideDelay() {
+    const raw = this.getAttribute('hide-delay');
+    return parseDurationMs(raw, DEFAULT_HIDE_DELAY);
   }
 
-  set timeout(val) {
+  set hideDelay(val) {
     if (val === null || val === undefined || val === '') {
-      this.removeAttribute('timeout');
+      this.removeAttribute('hide-delay');
     } else {
-      this.setAttribute('timeout', String(parseDurationMs(val, DEFAULT_TIMEOUT)));
+      this.setAttribute('hide-delay', String(parseDurationMs(val, DEFAULT_HIDE_DELAY)));
     }
   }
 
@@ -1296,8 +1293,8 @@ export class ShowKeystrokes extends HTMLElement {
       return;
     }
 
-    const timeoutMs = this.timeout;
-    if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
+    const hideDelayMs = this.hideDelay;
+    if (!Number.isFinite(hideDelayMs) || hideDelayMs <= 0) {
       return;
     }
 
@@ -1316,7 +1313,7 @@ export class ShowKeystrokes extends HTMLElement {
       this.#fadeTimer = setTimeout(() => {
         this.clear();
       }, fadeDurationMs);
-    }, timeoutMs);
+    }, hideDelayMs);
   }
 
   #clearTimer() {

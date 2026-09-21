@@ -2,7 +2,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   DEFAULT_KEYSTROKES,
-  DEFAULT_TIMEOUT,
+  DEFAULT_HIDE_DELAY,
   DEFAULT_FADE_DURATION,
   DEFAULT_SIZE,
   detectPlatform,
@@ -360,23 +360,23 @@ describe('keystroke utilities unit tests', () => {
     });
   });
 
-  describe('parseDurationMs() & timeout/fade-out defaults', () => {
-    it('exports sensible default values in milliseconds (1500ms timeout, 300ms fade-out)', () => {
-      assert.equal(DEFAULT_TIMEOUT, 1500);
+  describe('parseDurationMs() & hide-delay/fade-out defaults', () => {
+    it('exports sensible default values in milliseconds (1250ms hide-delay, 300ms fade-out)', () => {
+      assert.equal(DEFAULT_HIDE_DELAY, 1250);
       assert.equal(DEFAULT_FADE_DURATION, 300);
-      assert.equal(parseDurationMs(undefined, DEFAULT_TIMEOUT), 1500);
+      assert.equal(parseDurationMs(undefined, DEFAULT_HIDE_DELAY), 1250);
       assert.equal(parseDurationMs(null, DEFAULT_FADE_DURATION), 300);
-      assert.equal(parseDurationMs('', DEFAULT_TIMEOUT), 1500);
+      assert.equal(parseDurationMs('', DEFAULT_HIDE_DELAY), 1250);
     });
 
     it('parses custom millisecond numbers and numeric strings', () => {
-      assert.equal(parseDurationMs(2500, DEFAULT_TIMEOUT), 2500);
+      assert.equal(parseDurationMs(2500, DEFAULT_HIDE_DELAY), 2500);
       assert.equal(parseDurationMs('500', DEFAULT_FADE_DURATION), 500);
-      assert.equal(parseDurationMs('0', DEFAULT_TIMEOUT), 0);
+      assert.equal(parseDurationMs('0', DEFAULT_HIDE_DELAY), 0);
     });
 
     it('falls back to defaultValue for negative or non-numeric inputs', () => {
-      assert.equal(parseDurationMs(-100, DEFAULT_TIMEOUT), 1500);
+      assert.equal(parseDurationMs(-100, DEFAULT_HIDE_DELAY), 1250);
       assert.equal(parseDurationMs('invalid', DEFAULT_FADE_DURATION), 300);
     });
   });

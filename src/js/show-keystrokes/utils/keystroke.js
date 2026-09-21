@@ -4,7 +4,7 @@
  */
 
 export const DEFAULT_KEYSTROKES = ['shortcuts', 'navigational'];
-export const DEFAULT_TIMEOUT = 1500;
+export const DEFAULT_HIDE_DELAY = 1250;
 export const DEFAULT_FADE_DURATION = 300;
 export const DEFAULT_SIZE = 'large';
 export const DEFAULT_POSITION = 'viewport top right';

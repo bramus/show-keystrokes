@@ -140,16 +140,16 @@ Accepted values:
 - Pointer: `pointer`, `pointer <top|center|bottom> <left|center|right>`
 - Normal: `normal`
 
-### Auto-Hide Timeout & Fade-Out Duration (`timeout` & `fade-duration`)
+### Auto-Hide Delay & Fade-Out Duration (`hide-delay` & `fade-duration`)
 
-By default, a pressed keystroke stays visible for **`1500` ms** (`timeout`) and then fades out smoothly over **`300` ms** (`fade-duration` / `fade-out`). Both values are numbers expressed in milliseconds and can be customized via attributes or JS properties:
+By default, a pressed keystroke stays visible for **`1250` ms** (`hide-delay`) and then fades out smoothly over **`300` ms** (`fade-duration` / `fade-out`). Both values are numbers expressed in milliseconds and can be customized via attributes or JS properties:
 
 ```html
 <!-- Wait 2500ms before fading out over 500ms -->
-<show-keystrokes timeout="2500" fade-duration="500"></show-keystrokes>
+<show-keystrokes hide-delay="2500" fade-duration="500"></show-keystrokes>
 
-<!-- Disable auto-hiding by setting timeout="0" -->
-<show-keystrokes timeout="0"></show-keystrokes>
+<!-- Disable auto-hiding by setting hide-delay="0" -->
+<show-keystrokes hide-delay="0"></show-keystrokes>
 ```
 
 ### Static / Declarative Keycaps
