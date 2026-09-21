@@ -265,7 +265,11 @@
             </div>
             <div class="feature-card">
               <h3>Positioning, Sizes &amp; Auto-Hide</h3>
-              <p>Pin overlays to the viewport or pointer via <code>position="top right"</code> / <code>position="pointer top right"</code>, scale across 5 presets (<code>small</code> to <code>xx-large</code>), and customize fade-out timeouts.</p>
+              <p>Pin overlays to the viewport (default <code>viewport top right</code>), anchor to the pointer via <code>position="pointer"</code>, or render in normal flow with <code>position="normal"</code>.</p>
+            </div>
+            <div class="feature-card">
+              <h3>Declarative HTML or <code>create()</code> API</h3>
+              <p>Drop <code>&lt;show-keystrokes&gt;</code> directly into your HTML or dynamically instantiate and append it from JavaScript using <code>create(options, parentElement)</code>.</p>
             </div>
           </div>
         </section>
@@ -540,7 +544,19 @@ show-keystrokes.custom-neon::part(modifier) {
           <h2>JavaScript API</h2>
           <div class="card">
             <micro-lighter language="javascript" controls="copy">
-              <pre><code>const el = document.querySelector('show-keystrokes');
+              <pre><code>import { create } from 'show-keystrokes';
+
+// Dynamically create &amp; append a &lt;show-keystrokes&gt; element
+const el = create(
+  {
+    show: 'all',
+    theme: 'modern',
+    colorScheme: 'dark',
+    size: 'large',
+    position: 'viewport top right',
+  },
+  document.body
+);
 
 // Programmatically display a keystroke
 el.showKeys('SHIFT + TAB');

@@ -30,8 +30,93 @@ if (typeof customElements !== 'undefined' && !customElements.get('show-keystroke
   customElements.define('show-keystrokes', ShowKeystrokes);
 }
 
+const OPTION_TO_ATTR = {
+  show: 'show',
+  theme: 'theme',
+  colorScheme: 'color-scheme',
+  platform: 'platform',
+  size: 'size',
+  position: 'position',
+  timeout: 'timeout',
+  fadeDuration: 'fade-duration',
+  notation: 'notation',
+  keys: 'keys',
+  target: 'target',
+  disabled: 'disabled',
+  static: 'static',
+};
+
+const BOOLEAN_ATTRIBUTES = new Set(['disabled', 'static']);
+
+/**
+ * Dynamically creates and configures a `<show-keystrokes>` element,
+ * appending it to `parentElement` (defaults to `document.body`).
+ *
+ * @param {object} [options={}] - CamelCase options to configure `show`, `theme`, `colorScheme`, `size`, `position`, `timeout`, `fadeDuration`, `platform`, `disabled`, `static`, `keys`, etc.
+ * @param {Element} [parentElement=document.body] - Element to append the newly created `<show-keystrokes>` element to.
+ * @returns {ShowKeystrokes}
+ */
+function create(options = {}, parentElement = document.body) {
+  if (typeof customElements !== 'undefined' && !customElements.get('show-keystrokes')) {
+    customElements.define('show-keystrokes', ShowKeystrokes);
+  }
+
+  const el = document.createElement('show-keystrokes');
+
+  if (options && typeof options === 'object') {
+    for (const [key, value] of Object.entries(options)) {
+      if (value === undefined || value === null) {
+        continue;
+      }
+
+      if (key === 'id') {
+        el.id = String(value);
+        continue;
+      }
+
+      if (key === 'className') {
+        el.className = String(value);
+        continue;
+      }
+
+      const attrName = OPTION_TO_ATTR[key];
+      if (!attrName) {
+        continue;
+      }
+
+      if (BOOLEAN_ATTRIBUTES.has(attrName)) {
+        if (Boolean(value)) {
+          el.setAttribute(attrName, '');
+        } else {
+          el.removeAttribute(attrName);
+        }
+        continue;
+      }
+
+      if (attrName === 'show' && Array.isArray(value)) {
+        el.setAttribute('show', value.join(' '));
+        continue;
+      }
+
+      if (attrName === 'keys' && Array.isArray(value)) {
+        el.setAttribute('keys', value.join(' + '));
+        continue;
+      }
+
+      el.setAttribute(attrName, String(value));
+    }
+  }
+
+  if (parentElement && typeof parentElement.appendChild === 'function') {
+    parentElement.appendChild(el);
+  }
+
+  return el;
+}
+
 export {
   ShowKeystrokes,
+  create,
   DEFAULT_SHOW,
   DEFAULT_TIMEOUT,
   DEFAULT_FADE_DURATION,

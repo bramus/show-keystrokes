@@ -974,6 +974,40 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   /**
+   * Gets or sets the color scheme ('light', 'dark', or 'auto').
+   */
+  get colorScheme() {
+    return this.getAttribute('color-scheme') || this.getAttribute('variant') || 'auto';
+  }
+
+  set colorScheme(val) {
+    if (val === null || val === undefined || val === '' || val === 'auto') {
+      this.removeAttribute('color-scheme');
+    } else {
+      this.setAttribute('color-scheme', String(val));
+    }
+  }
+
+  /**
+   * Gets or sets whether the component is in static display mode.
+   * Reflects the boolean `static` HTML attribute.
+   * @returns {boolean}
+   */
+  get static() {
+    return this.hasAttribute('static');
+  }
+
+  set static(val) {
+    if (Boolean(val)) {
+      if (!this.hasAttribute('static')) {
+        this.setAttribute('static', '');
+      }
+    } else if (this.hasAttribute('static')) {
+      this.removeAttribute('static');
+    }
+  }
+
+  /**
    * Gets or sets the effective platform ('mac' or 'windows').
    */
   get platform() {

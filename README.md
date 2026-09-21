@@ -176,6 +176,25 @@ el.disabled = true;  // adds `disabled` attribute and detaches all listeners
 el.disabled = false; // removes `disabled` attribute and re-attaches listeners
 ```
 
+### Programmatic Creation (`create`)
+
+Import `create(options, parentElement)` to dynamically create and append a `<show-keystrokes>` element:
+
+```javascript
+import { create } from 'show-keystrokes';
+
+const el = create(
+  {
+    show: 'all',
+    theme: 'modern',
+    colorScheme: 'dark',
+    size: 'large',
+    position: 'viewport top right',
+  },
+  document.body
+);
+```
+
 ---
 
 ## Styling
