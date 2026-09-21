@@ -7,7 +7,7 @@ const stage = document.getElementById('visualizer-stage');
 const stagePromptMain = document.getElementById('stage-prompt-main');
 const playgroundCodeContainer = document.getElementById('playground-code-container');
 
-const selectShow = document.getElementById('select-show');
+const selectKeystrokes = document.getElementById('select-keystrokes');
 const selectTheme = document.getElementById('select-theme');
 const selectScheme = document.getElementById('select-scheme');
 const selectPlatform = document.getElementById('select-platform');
@@ -68,7 +68,7 @@ if (visualizer && typeof MutationObserver === 'function') {
 function updatePlaygroundAttributes() {
   if (!visualizer) return;
 
-  const showVal = selectShow ? selectShow.value : '';
+  const keystrokesVal = selectKeystrokes ? selectKeystrokes.value : '';
   const themeVal = selectTheme.value;
   const schemeVal = selectScheme.value;
   const platformVal = selectPlatform.value;
@@ -92,10 +92,10 @@ function updatePlaygroundAttributes() {
     positionVal = positionAreaVal === 'top right' ? '' : `viewport ${positionAreaVal}`;
   }
 
-  if (!showVal) {
-    visualizer.removeAttribute('show');
+  if (!keystrokesVal) {
+    visualizer.removeAttribute('keystrokes');
   } else {
-    visualizer.setAttribute('show', showVal);
+    visualizer.setAttribute('keystrokes', keystrokesVal);
   }
   visualizer.setAttribute('theme', themeVal);
 
@@ -140,7 +140,7 @@ function updatePlaygroundAttributes() {
   visualizer.disabled = isDisabled;
 
   const attrs = [
-    showVal ? `show="${showVal}"` : '',
+    keystrokesVal ? `keystrokes="${keystrokesVal}"` : '',
     positionVal ? `position="${positionVal}"` : '',
     `theme="${themeVal}"`,
     schemeVal !== 'auto' ? `color-scheme="${schemeVal}"` : '',
@@ -170,7 +170,7 @@ function updatePlaygroundAttributes() {
   syncStagePrompt();
 }
 
-selectShow?.addEventListener('change', updatePlaygroundAttributes);
+selectKeystrokes?.addEventListener('change', updatePlaygroundAttributes);
 selectTheme?.addEventListener('change', updatePlaygroundAttributes);
 selectScheme?.addEventListener('change', updatePlaygroundAttributes);
 selectPlatform?.addEventListener('change', updatePlaygroundAttributes);

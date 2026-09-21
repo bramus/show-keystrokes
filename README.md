@@ -14,12 +14,12 @@
   - Hit `Tab` while holding `Shift` → renders `SHIFT + TAB`
   - Hit `A` while holding `Cmd` (macOS) → renders `CMD + A` (or `CTRL + A` on Windows)
   - Hit `T` while holding `Shift` and `Cmd` → renders `SHIFT + CMD + T`
-- **Configurable Display (`show`)**:
+- **Configurable Content (`keystrokes`)**:
   - **Default (no value)**: Shows keyboard shortcuts (`CMD + A`, `SHIFT + CMD + T`, `SHIFT + ENTER`, `CTRL + C`, …) and navigational keys (`TAB`, `→`, `←`, `↑`, `↓`, `SPACE`, `BACKSPACE`, `DELETE`, `F1`–`F15`, `HOME`, `END`, `PAGE UP`, `PAGE DOWN`, `ENTER`, `ESC`).
-  - **All Keystrokes (`show="all"`)**: Shows every key press including letters, digits, symbols, shortcuts, and navigational keys.
-  - **Shortcuts Only (`show="shortcuts"`)**: Shows only modifier combinations and function keys.
-  - **Navigational Keys Only (`show="navigational"`)**: Shows only navigational and special keys (`TAB`, arrows, `SPACE`, etc.).
-  - **Nothing (`show="none"`)**: Shows nothing.
+  - **All Keystrokes (`keystrokes="all"`)**: Shows every key press including letters, digits, symbols, shortcuts, and navigational keys.
+  - **Shortcuts Only (`keystrokes="shortcuts"`)**: Shows only modifier combinations and function keys.
+  - **Navigational Keys Only (`keystrokes="navigational"`)**: Shows only navigational and special keys (`TAB`, arrows, `SPACE`, etc.).
+  - **Nothing (`keystrokes="none"`)**: Shows nothing.
 - **Cross-Platform (macOS & Windows/Linux)**:
   - Automatically detects macOS (`CMD`, `ALT`, `SHIFT`, `CTRL`) vs. Windows/Linux (`CTRL`, `ALT`, `SHIFT`, `WIN`).
   - Override explicitly with `platform="mac"` or `platform="windows"`.
@@ -63,16 +63,16 @@ import 'show-keystrokes';
 <show-keystrokes></show-keystrokes>
 
 <!-- Show all keystrokes -->
-<show-keystrokes show="all"></show-keystrokes>
+<show-keystrokes keystrokes="all"></show-keystrokes>
 
 <!-- Show only shortcuts -->
-<show-keystrokes show="shortcuts"></show-keystrokes>
+<show-keystrokes keystrokes="shortcuts"></show-keystrokes>
 
 <!-- Show only navigational keys -->
-<show-keystrokes show="navigational"></show-keystrokes>
+<show-keystrokes keystrokes="navigational"></show-keystrokes>
 
 <!-- Show nothing -->
-<show-keystrokes show="none"></show-keystrokes>
+<show-keystrokes keystrokes="none"></show-keystrokes>
 ```
 
 ### Themes & Light/Dark Variants
@@ -185,7 +185,7 @@ import { create } from 'show-keystrokes';
 
 const el = create(
   {
-    show: 'all',
+    keystrokes: 'all',
     theme: 'modern',
     colorScheme: 'dark',
     size: 'large',

@@ -3,7 +3,7 @@
  * for the <show-keystrokes> custom element.
  */
 
-export const DEFAULT_SHOW = ['shortcuts', 'navigational'];
+export const DEFAULT_KEYSTROKES = ['shortcuts', 'navigational'];
 export const DEFAULT_TIMEOUT = 1500;
 export const DEFAULT_FADE_DURATION = 300;
 export const DEFAULT_SIZE = 'large';
@@ -168,22 +168,22 @@ export function detectPlatform(overridePlatform = 'auto', nav = typeof navigator
 }
 
 /**
- * Parses a `show` attribute string (or boolean flags) into a normalized Set of active categories:
+ * Parses a `keystrokes` attribute string (or boolean flags) into a normalized Set of active categories:
  * - (no value / empty): Set(['shortcuts', 'navigational']) (default)
  * - 'all': Set(['all', 'shortcuts', 'navigational'])
  * - 'shortcuts': Set(['shortcuts'])
  * - 'navigational': Set(['navigational'])
  * - 'none': Set() (empty set — shows nothing)
  *
- * @param {string | null | undefined} showAttr
+ * @param {string | null | undefined} keystrokesAttr
  * @param {{ all?: boolean, shortcuts?: boolean, navigational?: boolean, navigation?: boolean }} [booleanFlags={}]
  * @returns {Set<'all' | 'shortcuts' | 'navigational'>}
  */
-export function parseShow(showAttr, booleanFlags = {}) {
+export function parseKeystrokes(keystrokesAttr, booleanFlags = {}) {
   const result = new Set();
 
-  if (typeof showAttr === 'string' && showAttr.trim().length > 0) {
-    const tokens = showAttr
+  if (typeof keystrokesAttr === 'string' && keystrokesAttr.trim().length > 0) {
+    const tokens = keystrokesAttr
       .toLowerCase()
       .split(/[\s,|+/]+/)
       .map((t) => t.trim())
@@ -222,7 +222,7 @@ export function parseShow(showAttr, booleanFlags = {}) {
   }
 
   if (result.size === 0) {
-    return new Set(DEFAULT_SHOW);
+    return new Set(DEFAULT_KEYSTROKES);
   }
 
   return result;
@@ -364,11 +364,11 @@ export function getModifierLabels(event, options = {}) {
 
 /**
  * Classifies a KeyboardEvent into its categories (`isShortcut`, `isNavigation`, `isModifierOnly`)
- * and determines whether it should be displayed under the given `show` Set.
+ * and determines whether it should be displayed under the given `keystrokes` Set.
  *
  * @param {KeyboardEvent | object} event
  * @param {{
- *   show?: Set<string> | string,
+ *   keystrokes?: Set<string> | string,
  *   platform?: 'mac' | 'windows',
  *   notation?: 'text' | 'symbols',
  *   mapMetaToCtrlOnWindows?: boolean
@@ -386,7 +386,7 @@ export function getModifierLabels(event, options = {}) {
  * }}
  */
 export function formatKeystrokeEvent(event, options = {}) {
-  const showSet = options.show instanceof Set ? options.show : parseShow(options.show);
+  const keystrokesSet = options.keystrokes instanceof Set ? options.keystrokes : parseKeystrokes(options.keystrokes);
   const platform = detectPlatform(options.platform);
   const notation = options.notation === 'symbols' ? 'symbols' : 'text';
 
@@ -470,13 +470,13 @@ export function formatKeystrokeEvent(event, options = {}) {
   const label = keys.map((k) => k.label).join(' + ');
 
   let shouldShow = false;
-  if (showSet.has('all')) {
+  if (keystrokesSet.has('all')) {
     shouldShow = true;
   } else {
-    if (showSet.has('shortcuts') && isShortcut) {
+    if (keystrokesSet.has('shortcuts') && isShortcut) {
       shouldShow = true;
     }
-    if ((showSet.has('navigational') || showSet.has('navigation')) && isNavigation) {
+    if ((keystrokesSet.has('navigational') || keystrokesSet.has('navigation')) && isNavigation) {
       shouldShow = true;
     }
   }

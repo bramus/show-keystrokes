@@ -105,8 +105,8 @@
                 <h4 class="controls-subtitle">Base configuration</h4>
                 <div class="controls-grid">
                   <div class="control-group">
-                    <label for="select-show">Show (<code>show</code>)</label>
-                    <select id="select-show">
+                    <label for="select-keystrokes">Keystrokes (<code>keystrokes</code>)</label>
+                    <select id="select-keystrokes">
                       <option value="" selected>Shortcuts &amp; Navigational (Default)</option>
                       <option value="all">All Keystrokes (all)</option>
                       <option value="shortcuts">Shortcuts Only (shortcuts)</option>
@@ -229,7 +229,7 @@
           <div class="features-grid">
             <div class="feature-card">
               <h3>Configurable Keystroke Display</h3>
-              <p>Choose what to show via <code>show</code>: Shortcuts &amp; Navigational (default when omitted), <code>all</code> keystrokes, <code>shortcuts</code> only, <code>navigational</code> keys only, or <code>none</code>.</p>
+              <p>Choose what to show via <code>keystrokes</code>: Shortcuts &amp; Navigational (default when omitted), <code>all</code> keystrokes, <code>shortcuts</code> only, <code>navigational</code> keys only, or <code>none</code>.</p>
             </div>
             <div class="feature-card">
               <h3>macOS &amp; Windows Aware</h3>
@@ -311,7 +311,7 @@
               </thead>
               <tbody>
                 <tr>
-                  <td><code>show</code></td>
+                  <td><code>keystrokes</code></td>
                   <td><em>(no value)</em></td>
                   <td><em>(no value)</em> (Shortcuts &amp; Navigational), <code>"all"</code> (All keystrokes), <code>"shortcuts"</code> (Shortcuts only), <code>"navigational"</code> (Navigational Keys only), or <code>"none"</code> (Nothing)</td>
                 </tr>
@@ -508,7 +508,7 @@ show-keystrokes.custom-neon::part(modifier) {
 // Dynamically create &amp; append a &lt;show-keystrokes&gt; element
 const el = create(
   {
-    show: 'all',
+    keystrokes: 'all',
     theme: 'modern',
     colorScheme: 'dark',
     size: 'large',

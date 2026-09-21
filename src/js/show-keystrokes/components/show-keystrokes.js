@@ -10,7 +10,7 @@ import {
   DEFAULT_SIZE,
   DEFAULT_POSITION,
   detectPlatform,
-  parseShow,
+  parseKeystrokes,
   parsePosition,
   parseDurationMs,
   parseSize,
@@ -624,7 +624,7 @@ function unregisterPointerTracking(instance) {
 export class ShowKeystrokes extends HTMLElement {
   static get observedAttributes() {
     return [
-      'show',
+      'keystrokes',
       'all',
       'shortcuts',
       'navigation',
@@ -787,8 +787,8 @@ export class ShowKeystrokes extends HTMLElement {
       return;
     }
 
-    if (name === 'show') {
-      if (this.activeShow.size === 0 && this.#currentKeys.length > 0) {
+    if (name === 'keystrokes') {
+      if (this.activeKeystrokes.size === 0 && this.#currentKeys.length > 0) {
         this.clear();
       }
       return;
@@ -1014,11 +1014,11 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   /**
-   * Returns the active show Set ('all', 'shortcuts', 'navigational'), or an empty Set for 'none'.
+   * Returns the active keystrokes Set ('all', 'shortcuts', 'navigational'), or an empty Set for 'none'.
    * @returns {Set<'all' | 'shortcuts' | 'navigational'>}
    */
-  get activeShow() {
-    return parseShow(this.getAttribute('show'), {
+  get activeKeystrokes() {
+    return parseKeystrokes(this.getAttribute('keystrokes'), {
       all: this.hasAttribute('all'),
       shortcuts: this.hasAttribute('shortcuts'),
       navigational: this.hasAttribute('navigational') || this.hasAttribute('navigation'),
@@ -1026,22 +1026,22 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   /**
-   * Gets or sets the `show` attribute:
+   * Gets or sets the `keystrokes` attribute:
    * - '' (no value): Shortcuts & Navigational (default)
    * - 'all': All keystrokes
    * - 'shortcuts': Shortcuts only
    * - 'navigational': Navigational Keys only
    * - 'none': Nothing
    */
-  get show() {
-    return this.getAttribute('show') || '';
+  get keystrokes() {
+    return this.getAttribute('keystrokes') || '';
   }
 
-  set show(val) {
+  set keystrokes(val) {
     if (val === null || val === undefined || val === '') {
-      this.removeAttribute('show');
+      this.removeAttribute('keystrokes');
     } else {
-      this.setAttribute('show', String(val));
+      this.setAttribute('keystrokes', String(val));
     }
   }
 
@@ -1142,10 +1142,10 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   /**
-   * Processes a KeyboardEvent directly and updates the display if it matches the active `show` mode.
+   * Processes a KeyboardEvent directly and updates the display if it matches the active `keystrokes` mode.
    *
    * @param {KeyboardEvent | object} event
-   * @returns {boolean} True if the keystroke matched the active `show` mode and was displayed
+   * @returns {boolean} True if the keystroke matched the active `keystrokes` mode and was displayed
    */
   handleKeyEvent(event) {
     if (this.disabled) {
@@ -1159,7 +1159,7 @@ export class ShowKeystrokes extends HTMLElement {
       Boolean(this.getAttribute('platform'));
 
     const result = formatKeystrokeEvent(event, {
-      show: this.activeShow,
+      keystrokes: this.activeKeystrokes,
       platform: effectivePlatform,
       notation: this.getAttribute('notation') || 'text',
       mapMetaToCtrlOnWindows: explicitWindowsOnMac,

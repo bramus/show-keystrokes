@@ -5,7 +5,7 @@
 
 import { ShowKeystrokes } from './components/show-keystrokes.js';
 import {
-  DEFAULT_SHOW,
+  DEFAULT_KEYSTROKES,
   DEFAULT_TIMEOUT,
   DEFAULT_FADE_DURATION,
   DEFAULT_SIZE,
@@ -14,7 +14,7 @@ import {
   VALID_VERTICAL_POSITIONS,
   VALID_HORIZONTAL_POSITIONS,
   detectPlatform,
-  parseShow,
+  parseKeystrokes,
   parsePosition,
   parseDurationMs,
   parseSize,
@@ -31,7 +31,7 @@ if (typeof customElements !== 'undefined' && !customElements.get('show-keystroke
 }
 
 const OPTION_TO_ATTR = {
-  show: 'show',
+  keystrokes: 'keystrokes',
   theme: 'theme',
   colorScheme: 'color-scheme',
   platform: 'platform',
@@ -52,7 +52,7 @@ const BOOLEAN_ATTRIBUTES = new Set(['disabled', 'static']);
  * Dynamically creates and configures a `<show-keystrokes>` element,
  * appending it to `parentElement` (defaults to `document.body`).
  *
- * @param {object} [options={}] - CamelCase options to configure `show`, `theme`, `colorScheme`, `size`, `position`, `timeout`, `fadeDuration`, `platform`, `disabled`, `static`, `keys`, etc.
+ * @param {object} [options={}] - CamelCase options to configure `keystrokes`, `theme`, `colorScheme`, `size`, `position`, `timeout`, `fadeDuration`, `platform`, `disabled`, `static`, `keys`, etc.
  * @param {Element} [parentElement=document.body] - Element to append the newly created `<show-keystrokes>` element to.
  * @returns {ShowKeystrokes}
  */
@@ -93,8 +93,8 @@ function create(options = {}, parentElement = document.body) {
         continue;
       }
 
-      if (attrName === 'show' && Array.isArray(value)) {
-        el.setAttribute('show', value.join(' '));
+      if (attrName === 'keystrokes' && Array.isArray(value)) {
+        el.setAttribute('keystrokes', value.join(' '));
         continue;
       }
 
@@ -117,7 +117,7 @@ function create(options = {}, parentElement = document.body) {
 export {
   ShowKeystrokes,
   create,
-  DEFAULT_SHOW,
+  DEFAULT_KEYSTROKES,
   DEFAULT_TIMEOUT,
   DEFAULT_FADE_DURATION,
   DEFAULT_SIZE,
@@ -126,7 +126,7 @@ export {
   VALID_VERTICAL_POSITIONS,
   VALID_HORIZONTAL_POSITIONS,
   detectPlatform,
-  parseShow,
+  parseKeystrokes,
   parsePosition,
   parseDurationMs,
   parseSize,
