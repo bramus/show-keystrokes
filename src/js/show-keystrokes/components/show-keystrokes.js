@@ -618,6 +618,10 @@ function unregisterPointerTracking(instance) {
     window.removeEventListener('pointermove', updatePointerAnchor, { passive: true, capture: true });
     window.removeEventListener('mousemove', updatePointerAnchor, { passive: true, capture: true });
     window.removeEventListener('pointerdown', updatePointerAnchor, { passive: true, capture: true });
+    if (typeof document !== 'undefined') {
+      document.documentElement?.style.removeProperty('--show-keystrokes-pointer-x');
+      document.documentElement?.style.removeProperty('--show-keystrokes-pointer-y');
+    }
   }
 }
 
@@ -683,10 +687,6 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   connectedCallback() {
-    if (!this.disabled) {
-      ensureKeystrokeAnchor();
-    }
-
     if (!this.hasAttribute('theme')) {
       this.setAttribute('theme', 'modern');
     }
@@ -695,6 +695,7 @@ export class ShowKeystrokes extends HTMLElement {
       this.#syncPositionAttribute(this.getAttribute('position'));
     } else {
       this.#syncPopoverAttribute();
+      this.#syncPointerTracking();
     }
 
     if (this.hasAttribute('size')) {
@@ -757,7 +758,6 @@ export class ShowKeystrokes extends HTMLElement {
           this.clear();
         }
       } else {
-        ensureKeystrokeAnchor();
         this.#attachListeners();
       }
       return;
@@ -792,6 +792,23 @@ export class ShowKeystrokes extends HTMLElement {
 
   #isTopLayerMode() {
     return !this.hasAttribute('static') && this.position !== 'normal';
+  }
+
+  #isPointerMode() {
+    return (
+      this.isConnected &&
+      !this.disabled &&
+      !this.hasAttribute('static') &&
+      parsePosition(this.position)?.anchor === 'pointer'
+    );
+  }
+
+  #syncPointerTracking() {
+    if (this.#isPointerMode()) {
+      registerPointerTracking(this);
+    } else {
+      unregisterPointerTracking(this);
+    }
   }
 
   #syncPopoverAttribute() {
@@ -847,9 +864,6 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   #syncPositionAttribute(rawVal) {
-    if (!this.disabled) {
-      ensureKeystrokeAnchor();
-    }
     if (rawVal) {
       const parsed = parsePosition(rawVal);
       if (parsed && rawVal !== parsed.value) {
@@ -858,6 +872,7 @@ export class ShowKeystrokes extends HTMLElement {
       }
     }
     this.#syncPopoverAttribute();
+    this.#syncPointerTracking();
   }
 
   #syncSizeAttribute(rawVal) {
@@ -1204,11 +1219,11 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   #attachListeners() {
+    this.#syncPointerTracking();
+
     if (this.hasAttribute('static') || this.disabled) {
       return;
     }
-
-    registerPointerTracking(this);
 
     const targetAttr = this.getAttribute('target');
     let target = typeof window !== 'undefined' ? window : null;
