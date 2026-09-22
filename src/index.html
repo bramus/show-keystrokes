@@ -69,6 +69,9 @@
             <li><a href="#features">Features</a></li>
             <li><a href="#installation">Installation</a></li>
             <li><a href="#attributes">Attributes &amp; API</a></li>
+            <li class="sidenav-divider">Stylability</li>
+            <li><a href="#custom-properties">CSS Custom Properties</a></li>
+            <li><a href="#shadow-parts">CSS Shadow Parts</a></li>
             <li class="sidenav-divider">Examples</li>
             <li><a href="#themes">Built-In Themes</a></li>
             <li><a href="#platforms">macOS vs. Windows</a></li>
@@ -114,6 +117,7 @@
                   <div class="control-group">
                     <label for="select-keystrokes">Keystrokes (<code>keystrokes</code>)</label>
                     <select id="select-keystrokes">
+                      <button><selectedcontent></selectedcontent></button>
                       <option value="" selected>Shortcuts &amp; Navigational (Default)</option>
                       <option value="all">All Keystrokes (all)</option>
                       <option value="shortcuts">Shortcuts Only (shortcuts)</option>
@@ -125,6 +129,7 @@
                   <div class="control-group">
                     <label for="select-position-anchor">Position Anchor (<code>position</code>)</label>
                     <select id="select-position-anchor">
+                      <button><selectedcontent></selectedcontent></button>
                       <option value="viewport">Viewport (Default)</option>
                       <option value="pointer">Pointer (pointer)</option>
                       <option value="normal" selected>Normal (normal)</option>
@@ -134,6 +139,7 @@
                   <div class="control-group">
                     <label for="select-position-area">Position Area (<code>position</code>)</label>
                     <select id="select-position-area" disabled>
+                      <button><selectedcontent></selectedcontent></button>
                       <option value="top left">top left</option>
                       <option value="top center">top center</option>
                       <option value="top right" selected>top right (Default)</option>
@@ -154,6 +160,7 @@
                   <div class="control-group">
                     <label for="select-theme">Theme (<code>theme</code>)</label>
                     <select id="select-theme">
+                      <button><selectedcontent></selectedcontent></button>
                       <option value="modern" selected>Modern (modern)</option>
                       <option value="mechanical">Mechanical Keyboard (mechanical)</option>
                     </select>
@@ -162,6 +169,7 @@
                   <div class="control-group">
                     <label for="select-scheme">Variant (<code>color-scheme</code>)</label>
                     <select id="select-scheme">
+                      <button><selectedcontent></selectedcontent></button>
                       <option value="light" selected>Light Mode (light)</option>
                       <option value="dark">Dark Mode (dark)</option>
                       <option value="auto">System Auto (auto)</option>
@@ -171,6 +179,7 @@
                   <div class="control-group">
                     <label for="select-size">Size (<code>size</code>)</label>
                     <select id="select-size">
+                      <button><selectedcontent></selectedcontent></button>
                       <option value="small">Small (small)</option>
                       <option value="medium">Medium (medium)</option>
                       <option value="large" selected>Large (large — Default)</option>
@@ -202,6 +211,7 @@
                   <div class="control-group">
                     <label for="select-platform">Platform (<code>platform</code>)</label>
                     <select id="select-platform">
+                      <button><selectedcontent></selectedcontent></button>
                       <option value="auto" selected>Auto-Detect OS (auto)</option>
                       <option value="mac">macOS (CMD)</option>
                       <option value="windows">Windows / Linux (CTRL)</option>
@@ -211,6 +221,7 @@
                   <div class="control-group">
                     <label for="select-notation">Notation (<code>notation</code>)</label>
                     <select id="select-notation">
+                      <button><selectedcontent></selectedcontent></button>
                       <option value="symbols" selected>Symbol Glyphs (symbols — Default)</option>
                       <option value="text">Text Labels (text)</option>
                     </select>
@@ -219,6 +230,7 @@
                   <div class="control-group">
                     <label for="select-disabled">State (<code>disabled</code>)</label>
                     <select id="select-disabled">
+                      <button><selectedcontent></selectedcontent></button>
                       <option value="false" selected>Enabled (Default)</option>
                       <option value="true">Disabled (disabled)</option>
                     </select>
@@ -358,6 +370,711 @@
                   <td><code>disabled</code></td>
                   <td><code>false</code></td>
                   <td>Boolean attribute (and reflected <code>el.disabled</code> property) that disables the component and detaches all event listeners</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Stylability -->
+        <h2 id="stylability">Stylability</h2>
+        <p class="section-desc">
+          Customize the look and feel of <code>&lt;show-keystrokes&gt;</code> from the outside using <strong>CSS Custom Properties</strong> (<code>--show-keystrokes-*</code>) or by targeting internal elements directly via <strong>CSS Shadow Parts</strong> (<code>::part()</code>). You can also scale the entire component proportionally by omitting the <code>size</code> attribute and setting <code>font-size</code> directly on <code>&lt;show-keystrokes&gt;</code>.
+        </p>
+
+        <section id="custom-properties">
+          <h3>CSS Custom Properties</h3>
+          <p class="section-desc">
+            Use the interactive controls below to tweak the <code>--show-keystrokes-*</code> CSS Custom Properties on a live static instance and copy the generated CSS.
+          </p>
+
+          <div class="card custom-props-card" id="custom-props-playground">
+            <div class="card-header">
+              <span class="card-title">Interactive CSS Custom Properties Styler</span>
+              <div class="card-header-actions">
+                <button type="button" class="btn-reset-props" id="btn-reset-custom-props">Reset to Defaults</button>
+              </div>
+            </div>
+
+            <!-- Static Preview Stage -->
+            <div class="visualizer-stage custom-props-stage" data-stage-scheme="light">
+              <show-keystrokes
+                id="custom-props-visualizer"
+                keys="SHIFT + CMD + K"
+                notation="text"
+                static
+              ></show-keystrokes>
+            </div>
+
+            <!-- Controls Grid by Category -->
+            <div class="controls-section">
+              <h4 class="controls-title">Custom Property Controls</h4>
+
+              <!-- Keycap Colors & Border -->
+              <div class="controls-category">
+                <h5 class="controls-subtitle">Keycap Surface &amp; Colors</h5>
+                <div class="controls-grid">
+                  <div class="control-group">
+                    <label for="cp-key-bg"><code>--show-keystrokes-key-bg</code></label>
+                    <div class="color-control" id="wrap-cp-key-bg">
+                      <input type="color" id="cp-key-bg" value="#ffffff">
+                      <code class="color-hex" id="hex-cp-key-bg">Default</code>
+                    </div>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-key-bg-image"><code>--show-keystrokes-key-bg-image</code></label>
+                    <select id="cp-key-bg-image">
+                      <button><selectedcontent></selectedcontent></button>
+                      <option value="" selected>Theme Gradient (Default)</option>
+                      <option value="none">None (Solid Color)</option>
+                      <option value="linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%)">Soft Slate Gradient</option>
+                      <option value="linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)">Indigo / Violet Gradient</option>
+                    </select>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-key-color"><code>--show-keystrokes-key-color</code></label>
+                    <div class="color-control" id="wrap-cp-key-color">
+                      <input type="color" id="cp-key-color" value="#515154">
+                      <code class="color-hex" id="hex-cp-key-color">Default</code>
+                    </div>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-border-width"><code>--show-keystrokes-key-border</code></label>
+                    <div class="border-control-row">
+                      <div class="input-with-unit">
+                        <input type="number" id="cp-border-width" min="0" step="1" value="1" aria-label="Border width">
+                        <select id="cp-border-unit" class="unit-select" aria-label="Border width unit">
+                          <button><selectedcontent></selectedcontent></button>
+                          <option value="px" selected>px</option>
+                          <option value="em">em</option>
+                          <option value="rem">rem</option>
+                        </select>
+                      </div>
+                      <div class="color-control color-control-compact">
+                        <input type="color" id="cp-border-color" value="#d2d2d7" aria-label="Border color">
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-key-shadow"><code>--show-keystrokes-key-shadow</code></label>
+                    <select id="cp-key-shadow">
+                      <button><selectedcontent></selectedcontent></button>
+                      <option value="" selected>Theme Elevation (Default)</option>
+                      <option value="none">None (Flat)</option>
+                      <option value="0 4px 0 0 #94a3b8, 0 6px 12px rgb(15 23 42 / 0.15)">Deep 3D Keycap</option>
+                      <option value="0 8px 20px -2px rgb(37 99 235 / 0.35)">Soft Blue Glow</option>
+                      <option value="3px 3px 0 0 #0f172a">Brutalist Offset</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dimensions & Spacing (Lengths) -->
+              <div class="controls-category">
+                <h5 class="controls-subtitle">Dimensions &amp; Spacing (Lengths)</h5>
+                <div class="controls-grid">
+                  <div class="control-group">
+                    <label for="cp-min-size-val"><code>--show-keystrokes-key-min-size</code></label>
+                    <div class="input-with-unit">
+                      <input type="number" id="cp-min-size-val" min="0" step="0.05" value="2.75">
+                      <select id="cp-min-size-unit" class="unit-select" aria-label="Min key size unit">
+                        <button><selectedcontent></selectedcontent></button>
+                        <option value="px">px</option>
+                        <option value="em" selected>em</option>
+                        <option value="rem">rem</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-radius-val"><code>--show-keystrokes-key-radius</code></label>
+                    <div class="input-with-unit">
+                      <input type="number" id="cp-radius-val" min="0" step="0.05" value="0.5">
+                      <select id="cp-radius-unit" class="unit-select" aria-label="Border radius unit">
+                        <button><selectedcontent></selectedcontent></button>
+                        <option value="px">px</option>
+                        <option value="em" selected>em</option>
+                        <option value="rem">rem</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-padding-val"><code>--show-keystrokes-key-padding</code></label>
+                    <div class="input-with-unit">
+                      <input type="number" id="cp-padding-val" min="0" step="0.05" value="0.65">
+                      <select id="cp-padding-unit" class="unit-select" aria-label="Horizontal padding unit">
+                        <button><selectedcontent></selectedcontent></button>
+                        <option value="px">px</option>
+                        <option value="em" selected>em</option>
+                        <option value="rem">rem</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-gap-val"><code>--show-keystrokes-gap</code></label>
+                    <div class="input-with-unit">
+                      <input type="number" id="cp-gap-val" min="0" step="0.05" value="0.375">
+                      <select id="cp-gap-unit" class="unit-select" aria-label="Key gap unit">
+                        <button><selectedcontent></selectedcontent></button>
+                        <option value="px">px</option>
+                        <option value="em" selected>em</option>
+                        <option value="rem">rem</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Modifier Keycap Overrides -->
+              <div class="controls-category">
+                <h5 class="controls-subtitle">Modifier Keycap Overrides</h5>
+                <div class="controls-grid">
+                  <div class="control-group">
+                    <label for="cp-mod-bg"><code>--show-keystrokes-modifier-bg</code></label>
+                    <div class="color-control" id="wrap-cp-mod-bg">
+                      <input type="color" id="cp-mod-bg" value="#eff6ff">
+                      <code class="color-hex" id="hex-cp-mod-bg">Default (Inherits)</code>
+                    </div>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-mod-bg-image"><code>--show-keystrokes-modifier-bg-image</code></label>
+                    <select id="cp-mod-bg-image">
+                      <button><selectedcontent></selectedcontent></button>
+                      <option value="" selected>Inherit Key Bg Image (Default)</option>
+                      <option value="none">None (Solid Modifier Color)</option>
+                      <option value="linear-gradient(180deg, #dbeafe 0%, #bfdbfe 100%)">Soft Blue Gradient</option>
+                    </select>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-mod-color"><code>--show-keystrokes-modifier-color</code></label>
+                    <div class="color-control" id="wrap-cp-mod-color">
+                      <input type="color" id="cp-mod-color" value="#1d4ed8">
+                      <code class="color-hex" id="hex-cp-mod-color">Default (Inherits)</code>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Typography & Separator -->
+              <div class="controls-category">
+                <h5 class="controls-subtitle">Typography &amp; Separator (<code>+</code>)</h5>
+                <div class="controls-grid">
+                  <div class="control-group">
+                    <label for="cp-font-family"><code>--show-keystrokes-key-font-family</code></label>
+                    <select id="cp-font-family">
+                      <button><selectedcontent></selectedcontent></button>
+                      <option value="" selected>System UI (Default)</option>
+                      <option value="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace">Monospace</option>
+                      <option value="Georgia, 'Times New Roman', serif">Serif</option>
+                      <option value="ui-rounded, 'SF Pro Rounded', system-ui, sans-serif">Rounded Sans</option>
+                    </select>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-font-size-val"><code>--show-keystrokes-key-font-size</code></label>
+                    <div class="input-with-unit">
+                      <input type="number" id="cp-font-size-val" min="0.25" step="0.05" value="0.875">
+                      <select id="cp-font-size-unit" class="unit-select" aria-label="Key font size unit">
+                        <button><selectedcontent></selectedcontent></button>
+                        <option value="px">px</option>
+                        <option value="em" selected>em</option>
+                        <option value="rem">rem</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-font-weight"><code>--show-keystrokes-key-font-weight</code></label>
+                    <select id="cp-font-weight">
+                      <button><selectedcontent></selectedcontent></button>
+                      <option value="400">400 (Normal)</option>
+                      <option value="500">500 (Medium)</option>
+                      <option value="600" selected>600 (Semi-Bold — Default)</option>
+                      <option value="700">700 (Bold)</option>
+                      <option value="800">800 (Extra Bold)</option>
+                    </select>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-sep-color"><code>--show-keystrokes-separator-color</code></label>
+                    <div class="color-control" id="wrap-cp-sep-color">
+                      <input type="color" id="cp-sep-color" value="#86868b">
+                      <code class="color-hex" id="hex-cp-sep-color">Default</code>
+                    </div>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-sep-size-val"><code>--show-keystrokes-separator-size</code></label>
+                    <div class="input-with-unit">
+                      <input type="number" id="cp-sep-size-val" min="0" step="0.05" value="0.875">
+                      <select id="cp-sep-size-unit" class="unit-select" aria-label="Separator size unit">
+                        <button><selectedcontent></selectedcontent></button>
+                        <option value="px">px</option>
+                        <option value="em" selected>em</option>
+                        <option value="rem">rem</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-sep-display"><code>--show-keystrokes-separator-display</code></label>
+                    <select id="cp-sep-display">
+                      <button><selectedcontent></selectedcontent></button>
+                      <option value="inline-flex" selected>inline-flex (Visible — Default)</option>
+                      <option value="none">none (Hidden)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Positioning and behavior -->
+              <div class="controls-category">
+                <h5 class="controls-subtitle">Positioning and behavior</h5>
+                <div class="controls-grid">
+                  <div class="control-group">
+                    <label for="cp-pos-offset-val"><code>--show-keystrokes-position-offset</code></label>
+                    <div class="input-with-unit">
+                      <input type="number" id="cp-pos-offset-val" min="0" step="0.05" value="1">
+                      <select id="cp-pos-offset-unit" class="unit-select" aria-label="Position offset unit">
+                        <button><selectedcontent></selectedcontent></button>
+                        <option value="px">px</option>
+                        <option value="em">em</option>
+                        <option value="rem" selected>rem</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-pointer-gap-val"><code>--show-keystrokes-pointer-gap</code></label>
+                    <div class="input-with-unit">
+                      <input type="number" id="cp-pointer-gap-val" min="0" step="0.05" value="0.25">
+                      <select id="cp-pointer-gap-unit" class="unit-select" aria-label="Pointer gap unit">
+                        <button><selectedcontent></selectedcontent></button>
+                        <option value="px">px</option>
+                        <option value="em">em</option>
+                        <option value="rem" selected>rem</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-anchor-size-val"><code>--show-keystrokes-anchor-size</code></label>
+                    <div class="input-with-unit">
+                      <input type="number" id="cp-anchor-size-val" min="0" step="0.05" value="1.25">
+                      <select id="cp-anchor-size-unit" class="unit-select" aria-label="Anchor size unit">
+                        <button><selectedcontent></selectedcontent></button>
+                        <option value="px">px</option>
+                        <option value="em">em</option>
+                        <option value="rem" selected>rem</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="control-group">
+                    <label for="cp-pointer-events"><code>--show-keystrokes-pointer-events</code></label>
+                    <select id="cp-pointer-events">
+                      <button><selectedcontent></selectedcontent></button>
+                      <option value="none" selected>none (Pass-Through — Default)</option>
+                      <option value="auto">auto (Interactive)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Live Generated CSS Output -->
+            <div class="code-section">
+              <h4 class="controls-title">Generated CSS</h4>
+              <div id="custom-props-code-container">
+                <micro-lighter language="css" controls="copy">
+                  <pre><code id="custom-props-css-preview">show-keystrokes {
+  /* Adjust any control above to generate custom property overrides */
+}</code></pre>
+                </micro-lighter>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="shadow-parts">
+          <h3>CSS Shadow Parts (<code>::part()</code>) &amp; Anatomy</h3>
+          <p class="section-desc">
+            All internal elements of <code>&lt;show-keystrokes&gt;</code> are exposed for external styling through <code>::part()</code> pseudo-elements (see <a href="#parts-styling">live <code>::part()</code> examples below</a>). Hover any label below to highlight the corresponding part:
+          </p>
+
+          <div class="card" style="padding: 1rem; overflow: hidden; margin-bottom: 1.5rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" width="100%" height="100%" role="img" aria-label="Diagram of show-keystrokes component anatomy and CSS Shadow Parts">
+              <style>
+                @scope {
+                  :scope {
+                    --canvas-bg: #f8fafc;
+                    --container-bg: rgba(255, 255, 255, 0.85);
+                    --container-border: #e2e8f0;
+                    --key-bg-top: #ffffff;
+                    --key-bg-bottom: #f1f5f9;
+                    --key-border: #cbd5e1;
+                    --key-shadow: #94a3b8;
+                    --key-text: #1e293b;
+                    --mod-bg-top: #f8fafc;
+                    --mod-bg-bottom: #e2e8f0;
+                    --mod-text: #334155;
+                    --sep-color: #64748b;
+
+                    /* Annotation Colors */
+                    --c-host: #059669;       /* Emerald */
+                    --c-container: #2563eb;  /* Royal Blue */
+                    --c-modifier: #db2777;   /* Pink / Rose */
+                    --c-key: #9333ea;        /* Purple */
+                    --c-primary: #0284c7;    /* Sky Blue */
+                    --c-separator: #d97706;  /* Amber / Orange */
+
+                    --label-hover-bg: rgba(2, 132, 199, 0.08);
+                  }
+
+                  @media (prefers-color-scheme: dark) {
+                    :scope {
+                      --canvas-bg: #0f172a;
+                      --container-bg: rgba(30, 41, 59, 0.85);
+                      --container-border: #334155;
+                      --key-bg-top: #1e293b;
+                      --key-bg-bottom: #0f172a;
+                      --key-border: #475569;
+                      --key-shadow: #020617;
+                      --key-text: #f8fafc;
+                      --mod-bg-top: #334155;
+                      --mod-bg-bottom: #1e293b;
+                      --mod-text: #e2e8f0;
+                      --sep-color: #94a3b8;
+
+                      /* Annotation Colors (Brighter for Dark Mode) */
+                      --c-host: #34d399;
+                      --c-container: #60a5fa;
+                      --c-modifier: #f472b6;
+                      --c-key: #c084fc;
+                      --c-primary: #38bdf8;
+                      --c-separator: #fbbf24;
+
+                      --label-hover-bg: rgba(255, 255, 255, 0.08);
+                    }
+                  }
+
+                  .canvas { fill: var(--canvas-bg); }
+
+                  .code-label {
+                    cursor: pointer;
+                  }
+
+                  .label-hitbox {
+                    fill: transparent;
+                    pointer-events: all;
+                    transition: fill 0.15s ease;
+                  }
+
+                  .code-label:hover .label-hitbox {
+                    fill: var(--label-hover-bg);
+                  }
+
+                  .label-text {
+                    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+                    font-size: 14.5px;
+                    font-weight: 600;
+                    pointer-events: none;
+                    user-select: none;
+                    transition: font-weight 0.15s ease, opacity 0.2s ease;
+                  }
+
+                  .code-label:hover .label-text {
+                    font-weight: 700;
+                  }
+
+                  .guide-line {
+                    fill: none;
+                    stroke-width: 1.5px;
+                    stroke-dasharray: 6 5;
+                    pointer-events: none;
+                  }
+
+                  .guide-box {
+                    fill: none;
+                    stroke-width: 1.5px;
+                    stroke-dasharray: 7 6;
+                    pointer-events: none;
+                  }
+
+                  .guide-dot {
+                    stroke-width: 1.5px;
+                    pointer-events: none;
+                  }
+
+                  .ui-text {
+                    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                    user-select: none;
+                  }
+
+                  /* Transitions */
+                  .code-label,
+                  .label-hitbox,
+                  .label-text,
+                  .guide-line,
+                  .guide-box,
+                  .guide-dot,
+                  .comp-part {
+                    transition: opacity 0.2s ease, stroke-width 0.2s ease;
+                  }
+
+                  /*
+                   * =====================================================================
+                   * HOVER INTERACTION
+                   * 1. By default lines and labels have opacity 1.
+                   * 2. When hovering the SVG, lines and labels go down to opacity 0.4.
+                   * 3. Hovering a specific label isolates that label and dims the others.
+                   * =====================================================================
+                   */
+
+                  .code-label,
+                  .guide-line,
+                  .guide-box,
+                  .guide-dot {
+                    opacity: 1;
+                  }
+
+                  :scope:hover .code-label,
+                  :scope:hover .guide-line,
+                  :scope:hover .guide-box,
+                  :scope:hover .guide-dot {
+                    opacity: 0.4;
+                  }
+
+                  :scope:has(.code-label:hover) .code-label:not(:hover) {
+                    opacity: 0.18;
+                  }
+
+                  :scope:has(.code-label:hover) .guide-line,
+                  :scope:has(.code-label:hover) .guide-box,
+                  :scope:has(.code-label:hover) .guide-dot {
+                    opacity: 0.05;
+                  }
+
+                  :scope:has(.code-label:hover) .comp-part {
+                    opacity: 0.22;
+                  }
+
+                  /* Specific label hover: keep matching guide line, box, dot, and element at 100% */
+                  :scope:has(.lbl-host:hover) .target-host,
+                  :scope:has(.lbl-container:hover) .target-container,
+                  :scope:has(.lbl-key:hover) .target-key,
+                  :scope:has(.lbl-modifier:hover) .target-modifier,
+                  :scope:has(.lbl-primary:hover) .target-primary,
+                  :scope:has(.lbl-separator:hover) .target-separator {
+                    opacity: 1 !important;
+                  }
+
+                  /* When host or container label is hovered, keep all contained component parts at 100% */
+                  :scope:has(.lbl-host:hover) .comp-part,
+                  :scope:has(.lbl-container:hover) .comp-part {
+                    opacity: 1 !important;
+                  }
+
+                  /* Thicken active guide line and guide box when hovered */
+                  :scope:has(.lbl-host:hover) .target-host.guide-line,
+                  :scope:has(.lbl-container:hover) .target-container.guide-line,
+                  :scope:has(.lbl-key:hover) .target-key.guide-line,
+                  :scope:has(.lbl-modifier:hover) .target-modifier.guide-line,
+                  :scope:has(.lbl-primary:hover) .target-primary.guide-line,
+                  :scope:has(.lbl-separator:hover) .target-separator.guide-line,
+                  :scope:has(.lbl-host:hover) .target-host.guide-box,
+                  :scope:has(.lbl-container:hover) .target-container.guide-box,
+                  :scope:has(.lbl-key:hover) .target-key.guide-box,
+                  :scope:has(.lbl-modifier:hover) .target-modifier.guide-box,
+                  :scope:has(.lbl-primary:hover) .target-primary.guide-box,
+                  :scope:has(.lbl-separator:hover) .target-separator.guide-box {
+                    stroke-width: 2.25px;
+                  }
+
+                  .code-label:hover {
+                    opacity: 1 !important;
+                  }
+                }
+              </style>
+
+              <defs>
+                <linearGradient id="sk-key-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--key-bg-top)"/>
+                  <stop offset="100%" stop-color="var(--key-bg-bottom)"/>
+                </linearGradient>
+                <linearGradient id="sk-mod-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--mod-bg-top)"/>
+                  <stop offset="100%" stop-color="var(--mod-bg-bottom)"/>
+                </linearGradient>
+                <filter id="sk-drop-shadow" x="-12%" y="-12%" width="124%" height="132%">
+                  <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.10"/>
+                </filter>
+              </defs>
+
+              <!-- Background Canvas -->
+              <rect class="canvas" width="960" height="300" rx="14"/>
+
+              <!-- ===================================================================== -->
+              <!-- CENTER COMPONENT RENDERING (<show-keystrokes keys="SHIFT + CMD + K">) -->
+              <!-- ===================================================================== -->
+              <g id="component-preview">
+                <!-- Outer Container Pill: ::part(container) -->
+                <rect class="comp-part target-container" x="284" y="88" width="392" height="124" rx="22" fill="var(--container-bg)" stroke="var(--container-border)" stroke-width="1"/>
+
+                <!-- Keycap 1 (Modifier: ⇧): ::part(key) + ::part(modifier) -->
+                <g class="comp-part target-key target-modifier" filter="url(#sk-drop-shadow)">
+                  <rect x="310" y="116" width="76" height="74" rx="14" fill="var(--key-shadow)"/>
+                  <rect x="310" y="112" width="76" height="74" rx="14" fill="url(#sk-mod-grad)" stroke="var(--key-border)" stroke-width="1.5"/>
+                  <text class="ui-text" x="348" y="159" font-size="28" font-weight="600" text-anchor="middle" fill="var(--mod-text)">⇧</text>
+                </g>
+
+                <!-- Separator 1 (+): ::part(separator) -->
+                <g class="comp-part target-separator">
+                  <text class="ui-text" x="414" y="159" font-size="24" font-weight="600" text-anchor="middle" fill="var(--sep-color)">+</text>
+                </g>
+
+                <!-- Keycap 2 (Modifier: ⌘): ::part(key) + ::part(modifier) -->
+                <g class="comp-part target-key target-modifier" filter="url(#sk-drop-shadow)">
+                  <rect x="442" y="116" width="76" height="74" rx="14" fill="var(--key-shadow)"/>
+                  <rect x="442" y="112" width="76" height="74" rx="14" fill="url(#sk-mod-grad)" stroke="var(--key-border)" stroke-width="1.5"/>
+                  <text class="ui-text" x="480" y="159" font-size="28" font-weight="600" text-anchor="middle" fill="var(--mod-text)">⌘</text>
+                </g>
+
+                <!-- Separator 2 (+): ::part(separator) -->
+                <g class="comp-part target-separator">
+                  <text class="ui-text" x="546" y="159" font-size="24" font-weight="600" text-anchor="middle" fill="var(--sep-color)">+</text>
+                </g>
+
+                <!-- Keycap 3 (Primary: K): ::part(key) + ::part(primary) -->
+                <g class="comp-part target-key target-primary" filter="url(#sk-drop-shadow)">
+                  <rect x="574" y="116" width="76" height="74" rx="14" fill="var(--key-shadow)"/>
+                  <rect x="574" y="112" width="76" height="74" rx="14" fill="url(#sk-key-grad)" stroke="var(--key-border)" stroke-width="1.5"/>
+                  <text class="ui-text" x="612" y="159" font-size="27" font-weight="700" text-anchor="middle" fill="var(--key-text)">K</text>
+                </g>
+              </g>
+
+              <!-- ===================================================================== -->
+              <!-- ANNOTATION GUIDES (LINES, BOXES, DOTS)                                -->
+              <!-- ===================================================================== -->
+
+              <!-- 1. <show-keystrokes> Host Target (Top-Left) -->
+              <path class="guide-line target-host" d="M205 62 L258 62" stroke="var(--c-host)"/>
+              <rect class="guide-box target-host" x="258" y="48" width="444" height="204" rx="30" stroke="var(--c-host)"/>
+              <circle class="guide-dot target-host" cx="258" cy="62" r="4" fill="var(--c-host)"/>
+
+              <!-- 2. ::part(container) Target (Middle-Left) -->
+              <path class="guide-line target-container" d="M205 150 L280 150" stroke="var(--c-container)"/>
+              <rect class="guide-box target-container" x="280" y="84" width="400" height="132" rx="24" stroke="var(--c-container)"/>
+              <circle class="guide-dot target-container" cx="280" cy="150" r="4" fill="var(--c-container)"/>
+
+              <!-- 3. ::part(modifier) Target (Bottom-Left -> ⇧ & ⌘) -->
+              <path class="guide-line target-modifier" d="M195 238 L348 238 L348 194 M390 120 L438 120" stroke="var(--c-modifier)"/>
+              <rect class="guide-box target-modifier" x="306" y="108" width="84" height="86" rx="16" stroke="var(--c-modifier)"/>
+              <rect class="guide-box target-modifier" x="438" y="108" width="84" height="86" rx="16" stroke="var(--c-modifier)"/>
+              <circle class="guide-dot target-modifier" cx="348" cy="194" r="4" fill="var(--c-modifier)"/>
+              <circle class="guide-dot target-modifier" cx="390" cy="120" r="3.5" fill="var(--c-modifier)"/>
+              <circle class="guide-dot target-modifier" cx="438" cy="120" r="3.5" fill="var(--c-modifier)"/>
+
+              <!-- 4. ::part(key) Target (Top-Right -> ⇧, ⌘, and K) -->
+              <path class="guide-line target-key" d="M755 62 L348 62 M348 62 L348 102 M480 62 L480 102 M612 62 L612 102" stroke="var(--c-key)"/>
+              <rect class="guide-box target-key" x="300" y="102" width="96" height="98" rx="20" stroke="var(--c-key)"/>
+              <rect class="guide-box target-key" x="432" y="102" width="96" height="98" rx="20" stroke="var(--c-key)"/>
+              <rect class="guide-box target-key" x="564" y="102" width="96" height="98" rx="20" stroke="var(--c-key)"/>
+              <circle class="guide-dot target-key" cx="348" cy="102" r="4" fill="var(--c-key)"/>
+              <circle class="guide-dot target-key" cx="480" cy="102" r="4" fill="var(--c-key)"/>
+              <circle class="guide-dot target-key" cx="612" cy="102" r="4" fill="var(--c-key)"/>
+
+              <!-- 5. ::part(primary) Target (Middle-Right -> K) -->
+              <path class="guide-line target-primary" d="M755 150 L654 150" stroke="var(--c-primary)"/>
+              <rect class="guide-box target-primary" x="570" y="108" width="84" height="86" rx="16" stroke="var(--c-primary)"/>
+              <circle class="guide-dot target-primary" cx="654" cy="150" r="4" fill="var(--c-primary)"/>
+
+              <!-- 6. ::part(separator) Target (Bottom-Right -> both + separators) -->
+              <path class="guide-line target-separator" d="M755 238 L414 238 M414 238 L414 166 M546 238 L546 166" stroke="var(--c-separator)"/>
+              <rect class="guide-box target-separator" x="400" y="134" width="28" height="32" rx="7" stroke="var(--c-separator)"/>
+              <rect class="guide-box target-separator" x="532" y="134" width="28" height="32" rx="7" stroke="var(--c-separator)"/>
+              <circle class="guide-dot target-separator" cx="414" cy="166" r="4" fill="var(--c-separator)"/>
+              <circle class="guide-dot target-separator" cx="546" cy="166" r="4" fill="var(--c-separator)"/>
+
+              <!-- ===================================================================== -->
+              <!-- CODE LABELS (LEFT SIDE)                                               -->
+              <!-- ===================================================================== -->
+              <g class="code-label lbl-host">
+                <rect class="label-hitbox" x="20" y="47" width="185" height="28" rx="6"/>
+                <text class="label-text" x="30" y="66" fill="var(--c-host)">&lt;show-keystrokes&gt;</text>
+              </g>
+
+              <g class="code-label lbl-container">
+                <rect class="label-hitbox" x="20" y="135" width="185" height="28" rx="6"/>
+                <text class="label-text" x="30" y="154" fill="var(--c-container)">::part(container)</text>
+              </g>
+
+              <g class="code-label lbl-modifier">
+                <rect class="label-hitbox" x="20" y="223" width="175" height="28" rx="6"/>
+                <text class="label-text" x="30" y="242" fill="var(--c-modifier)">::part(modifier)</text>
+              </g>
+
+              <!-- ===================================================================== -->
+              <!-- CODE LABELS (RIGHT SIDE)                                              -->
+              <!-- ===================================================================== -->
+              <g class="code-label lbl-key">
+                <rect class="label-hitbox" x="755" y="47" width="135" height="28" rx="6"/>
+                <text class="label-text" x="765" y="66" fill="var(--c-key)">::part(key)</text>
+              </g>
+
+              <g class="code-label lbl-primary">
+                <rect class="label-hitbox" x="755" y="135" width="170" height="28" rx="6"/>
+                <text class="label-text" x="765" y="154" fill="var(--c-primary)">::part(primary)</text>
+              </g>
+
+              <g class="code-label lbl-separator">
+                <rect class="label-hitbox" x="755" y="223" width="185" height="28" rx="6"/>
+                <text class="label-text" x="765" y="242" fill="var(--c-separator)">::part(separator)</text>
+              </g>
+            </svg>
+          </div>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Shadow Part</th>
+                  <th>Element</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>::part(container)</code></td>
+                  <td><code>&lt;div class="container"&gt;</code></td>
+                  <td>The outer flex container holding all rendered <code>&lt;kbd&gt;</code> keycaps and <code>+</code> separators</td>
+                </tr>
+                <tr>
+                  <td><code>::part(key)</code></td>
+                  <td><code>&lt;kbd class="key"&gt;</code></td>
+                  <td>Every rendered keycap element (matches both modifier keys and primary keys)</td>
+                </tr>
+                <tr>
+                  <td><code>::part(modifier)</code></td>
+                  <td><code>&lt;kbd class="key is-modifier"&gt;</code></td>
+                  <td>Modifier keycap elements (e.g. <code>⌘</code>/<code>CMD</code>, <code>⇧</code>/<code>SHIFT</code>, <code>⌥</code>/<code>OPT</code>/<code>ALT</code>, <code>⌃</code>/<code>CTRL</code>, <code>🌐︎</code>/<code>FN</code>, <code>⊞</code>/<code>WIN</code>). Can also be compounded as <code>::part(key modifier)</code></td>
+                </tr>
+                <tr>
+                  <td><code>::part(primary)</code></td>
+                  <td><code>&lt;kbd class="key"&gt;</code></td>
+                  <td>The non-modifier primary keycap element (e.g. <code>A</code>, <code>K</code>, <code>⇥</code>/<code>TAB</code>, <code>→</code>, <code>SPACE</code>). Can also be compounded as <code>::part(key primary)</code></td>
+                </tr>
+                <tr>
+                  <td><code>::part(separator)</code></td>
+                  <td><code>&lt;span class="separator"&gt;</code></td>
+                  <td>The <code>+</code> separator element between keycaps</td>
                 </tr>
               </tbody>
             </table>

@@ -347,5 +347,460 @@ function setupScrollspy() {
   sections.forEach((sec) => observer.observe(sec));
 }
 
+/**
+ * Interactive CSS Custom Properties Styler in #stylability
+ */
+function setupCustomPropsStyler() {
+  const target = document.getElementById('custom-props-visualizer');
+  const codeContainer = document.getElementById('custom-props-code-container');
+  const resetBtn = document.getElementById('btn-reset-custom-props');
+
+  if (!target) return;
+
+  const cpKeyBg = document.getElementById('cp-key-bg');
+  const cpKeyBgImage = document.getElementById('cp-key-bg-image');
+  const cpKeyColor = document.getElementById('cp-key-color');
+  const cpBorderWidth = document.getElementById('cp-border-width');
+  const cpBorderUnit = document.getElementById('cp-border-unit');
+  const cpBorderColor = document.getElementById('cp-border-color');
+  const cpKeyShadow = document.getElementById('cp-key-shadow');
+
+  const cpModBg = document.getElementById('cp-mod-bg');
+  const cpModBgImage = document.getElementById('cp-mod-bg-image');
+  const cpModColor = document.getElementById('cp-mod-color');
+
+  const cpMinSizeVal = document.getElementById('cp-min-size-val');
+  const cpMinSizeUnit = document.getElementById('cp-min-size-unit');
+  const cpRadiusVal = document.getElementById('cp-radius-val');
+  const cpRadiusUnit = document.getElementById('cp-radius-unit');
+  const cpPaddingVal = document.getElementById('cp-padding-val');
+  const cpPaddingUnit = document.getElementById('cp-padding-unit');
+  const cpGapVal = document.getElementById('cp-gap-val');
+  const cpGapUnit = document.getElementById('cp-gap-unit');
+  const cpPosOffsetVal = document.getElementById('cp-pos-offset-val');
+  const cpPosOffsetUnit = document.getElementById('cp-pos-offset-unit');
+  const cpPointerGapVal = document.getElementById('cp-pointer-gap-val');
+  const cpPointerGapUnit = document.getElementById('cp-pointer-gap-unit');
+  const cpAnchorSizeVal = document.getElementById('cp-anchor-size-val');
+  const cpAnchorSizeUnit = document.getElementById('cp-anchor-size-unit');
+
+  const cpFontFamily = document.getElementById('cp-font-family');
+  const cpFontSizeVal = document.getElementById('cp-font-size-val');
+  const cpFontSizeUnit = document.getElementById('cp-font-size-unit');
+  const cpFontWeight = document.getElementById('cp-font-weight');
+
+  const cpSepColor = document.getElementById('cp-sep-color');
+  const cpSepSizeVal = document.getElementById('cp-sep-size-val');
+  const cpSepSizeUnit = document.getElementById('cp-sep-size-unit');
+  const cpSepDisplay = document.getElementById('cp-sep-display');
+
+  const cpPointerEvents = document.getElementById('cp-pointer-events');
+
+  const DEFAULTS = {
+    keyBg: '#ffffff',
+    keyColor: '#515154',
+    borderWidth: '1',
+    borderUnit: 'px',
+    borderColor: '#d2d2d7',
+    modBg: '#eff6ff',
+    modColor: '#1d4ed8',
+    minSizeVal: '2.75',
+    minSizeUnit: 'em',
+    radiusVal: '0.5',
+    radiusUnit: 'em',
+    paddingVal: '0.65',
+    paddingUnit: 'em',
+    gapVal: '0.375',
+    gapUnit: 'em',
+    posOffsetVal: '1',
+    posOffsetUnit: 'rem',
+    pointerGapVal: '0.25',
+    pointerGapUnit: 'rem',
+    anchorSizeVal: '1.25',
+    anchorSizeUnit: 'rem',
+    fontSizeVal: '0.875',
+    fontSizeUnit: 'em',
+    fontWeight: '600',
+    sepColor: '#86868b',
+    sepSizeVal: '0.875',
+    sepSizeUnit: 'em',
+    sepDisplay: 'inline-flex',
+    pointerEvents: 'none',
+  };
+
+  function markColorCustomized(inputEl, hexId, wrapId) {
+    if (!inputEl) return;
+    inputEl.dataset.customized = 'true';
+    const hexEl = document.getElementById(hexId);
+    const wrapEl = document.getElementById(wrapId);
+    if (hexEl) hexEl.textContent = inputEl.value;
+    if (wrapEl) wrapEl.classList.add('is-customized');
+  }
+
+  function resetColorState(inputEl, defaultHex, defaultLabel, hexId, wrapId) {
+    if (!inputEl) return;
+    delete inputEl.dataset.customized;
+    inputEl.value = defaultHex;
+    const hexEl = document.getElementById(hexId);
+    const wrapEl = document.getElementById(wrapId);
+    if (hexEl) hexEl.textContent = defaultLabel;
+    if (wrapEl) wrapEl.classList.remove('is-customized');
+  }
+
+  function convertLengthValue(numVal, fromUnit, toUnit) {
+    if (!Number.isFinite(numVal) || fromUnit === toUnit) return numVal;
+    const px = fromUnit === 'px' ? numVal : numVal * 16;
+    const converted = toUnit === 'px' ? Math.round(px) : Number((px / 16).toFixed(3));
+    return converted;
+  }
+
+  function bindUnitPair(numInput, unitSelect) {
+    if (!numInput || !unitSelect) return;
+    unitSelect.dataset.prevUnit = unitSelect.value;
+
+    unitSelect.addEventListener('change', () => {
+      const prevUnit = unitSelect.dataset.prevUnit || 'em';
+      const nextUnit = unitSelect.value;
+      const raw = parseFloat(numInput.value);
+      if (Number.isFinite(raw)) {
+        numInput.value = String(convertLengthValue(raw, prevUnit, nextUnit));
+      }
+      numInput.step = nextUnit === 'px' ? '1' : '0.05';
+      unitSelect.dataset.prevUnit = nextUnit;
+      updateCustomProps();
+    });
+
+    numInput.addEventListener('input', updateCustomProps);
+  }
+
+  bindUnitPair(cpBorderWidth, cpBorderUnit);
+  bindUnitPair(cpMinSizeVal, cpMinSizeUnit);
+  bindUnitPair(cpRadiusVal, cpRadiusUnit);
+  bindUnitPair(cpPaddingVal, cpPaddingUnit);
+  bindUnitPair(cpGapVal, cpGapUnit);
+  bindUnitPair(cpPosOffsetVal, cpPosOffsetUnit);
+  bindUnitPair(cpPointerGapVal, cpPointerGapUnit);
+  bindUnitPair(cpAnchorSizeVal, cpAnchorSizeUnit);
+  bindUnitPair(cpFontSizeVal, cpFontSizeUnit);
+  bindUnitPair(cpSepSizeVal, cpSepSizeUnit);
+
+  cpKeyBg?.addEventListener('input', () => {
+    markColorCustomized(cpKeyBg, 'hex-cp-key-bg', 'wrap-cp-key-bg');
+    if (cpKeyBgImage && cpKeyBgImage.value === '') {
+      cpKeyBgImage.value = 'none';
+    }
+    updateCustomProps();
+  });
+
+  cpKeyColor?.addEventListener('input', () => {
+    markColorCustomized(cpKeyColor, 'hex-cp-key-color', 'wrap-cp-key-color');
+    updateCustomProps();
+  });
+
+  cpBorderColor?.addEventListener('input', () => {
+    cpBorderColor.dataset.customized = 'true';
+    cpBorderColor.closest('.color-control')?.classList.add('is-customized');
+    updateCustomProps();
+  });
+
+  cpModBg?.addEventListener('input', () => {
+    markColorCustomized(cpModBg, 'hex-cp-mod-bg', 'wrap-cp-mod-bg');
+    if (cpModBgImage && cpModBgImage.value === '') {
+      cpModBgImage.value = 'none';
+    }
+    updateCustomProps();
+  });
+
+  cpModColor?.addEventListener('input', () => {
+    markColorCustomized(cpModColor, 'hex-cp-mod-color', 'wrap-cp-mod-color');
+    updateCustomProps();
+  });
+
+  cpSepColor?.addEventListener('input', () => {
+    markColorCustomized(cpSepColor, 'hex-cp-sep-color', 'wrap-cp-sep-color');
+    updateCustomProps();
+  });
+
+  [
+    cpKeyBgImage,
+    cpKeyShadow,
+    cpModBgImage,
+    cpFontFamily,
+    cpFontWeight,
+    cpSepDisplay,
+    cpPointerEvents,
+  ].forEach((sel) => sel?.addEventListener('change', updateCustomProps));
+
+  function setOrRemoveProp(propName, value, isDefault) {
+    if (isDefault || value === '' || value === null || value === undefined) {
+      target.style.removeProperty(propName);
+      return null;
+    }
+    target.style.setProperty(propName, value);
+    return `  ${propName}: ${value};`;
+  }
+
+  function updateCustomProps() {
+    const cssLines = [];
+
+    // 1. Key background & bg-image
+    const keyBgCustomized = cpKeyBg?.dataset.customized === 'true';
+    const lineKeyBg = setOrRemoveProp('--show-keystrokes-key-bg', cpKeyBg?.value, !keyBgCustomized);
+    if (lineKeyBg) cssLines.push(lineKeyBg);
+
+    const lineKeyBgImage = setOrRemoveProp(
+      '--show-keystrokes-key-bg-image',
+      cpKeyBgImage?.value,
+      !cpKeyBgImage?.value
+    );
+    if (lineKeyBgImage) cssLines.push(lineKeyBgImage);
+
+    // 2. Key text color
+    const keyColorCustomized = cpKeyColor?.dataset.customized === 'true';
+    const lineKeyColor = setOrRemoveProp(
+      '--show-keystrokes-key-color',
+      cpKeyColor?.value,
+      !keyColorCustomized
+    );
+    if (lineKeyColor) cssLines.push(lineKeyColor);
+
+    // 3. Key border
+    const borderW = cpBorderWidth?.value.trim() ?? '1';
+    const borderU = cpBorderUnit?.value ?? 'px';
+    const borderC = cpBorderColor?.value ?? DEFAULTS.borderColor;
+    const borderCustomized =
+      borderW !== DEFAULTS.borderWidth ||
+      borderU !== DEFAULTS.borderUnit ||
+      cpBorderColor?.dataset.customized === 'true';
+    const borderValue = Number(borderW) === 0 ? 'none' : `${borderW}${borderU} solid ${borderC}`;
+    const lineBorder = setOrRemoveProp('--show-keystrokes-key-border', borderValue, !borderCustomized);
+    if (lineBorder) cssLines.push(lineBorder);
+
+    // 4. Key shadow
+    const lineShadow = setOrRemoveProp(
+      '--show-keystrokes-key-shadow',
+      cpKeyShadow?.value,
+      !cpKeyShadow?.value
+    );
+    if (lineShadow) cssLines.push(lineShadow);
+
+    // 5. Dimensions & Spacing (Lengths)
+    const minSizeW = cpMinSizeVal?.value.trim() ?? DEFAULTS.minSizeVal;
+    const minSizeU = cpMinSizeUnit?.value ?? DEFAULTS.minSizeUnit;
+    const lineMinSize = setOrRemoveProp(
+      '--show-keystrokes-key-min-size',
+      `${minSizeW}${minSizeU}`,
+      minSizeW === DEFAULTS.minSizeVal && minSizeU === DEFAULTS.minSizeUnit
+    );
+    if (lineMinSize) cssLines.push(lineMinSize);
+
+    const radiusW = cpRadiusVal?.value.trim() ?? DEFAULTS.radiusVal;
+    const radiusU = cpRadiusUnit?.value ?? DEFAULTS.radiusUnit;
+    const lineRadius = setOrRemoveProp(
+      '--show-keystrokes-key-radius',
+      `${radiusW}${radiusU}`,
+      radiusW === DEFAULTS.radiusVal && radiusU === DEFAULTS.radiusUnit
+    );
+    if (lineRadius) cssLines.push(lineRadius);
+
+    const padW = cpPaddingVal?.value.trim() ?? DEFAULTS.paddingVal;
+    const padU = cpPaddingUnit?.value ?? DEFAULTS.paddingUnit;
+    const linePadding = setOrRemoveProp(
+      '--show-keystrokes-key-padding',
+      `0 ${padW}${padU}`,
+      padW === DEFAULTS.paddingVal && padU === DEFAULTS.paddingUnit
+    );
+    if (linePadding) cssLines.push(linePadding);
+
+    const gapW = cpGapVal?.value.trim() ?? DEFAULTS.gapVal;
+    const gapU = cpGapUnit?.value ?? DEFAULTS.gapUnit;
+    const lineGap = setOrRemoveProp(
+      '--show-keystrokes-gap',
+      `${gapW}${gapU}`,
+      gapW === DEFAULTS.gapVal && gapU === DEFAULTS.gapUnit
+    );
+    if (lineGap) cssLines.push(lineGap);
+
+    // 6. Modifier overrides
+    const modBgCustomized = cpModBg?.dataset.customized === 'true';
+    const lineModBg = setOrRemoveProp('--show-keystrokes-modifier-bg', cpModBg?.value, !modBgCustomized);
+    if (lineModBg) cssLines.push(lineModBg);
+
+    const lineModBgImage = setOrRemoveProp(
+      '--show-keystrokes-modifier-bg-image',
+      cpModBgImage?.value,
+      !cpModBgImage?.value
+    );
+    if (lineModBgImage) cssLines.push(lineModBgImage);
+
+    const modColorCustomized = cpModColor?.dataset.customized === 'true';
+    const lineModColor = setOrRemoveProp(
+      '--show-keystrokes-modifier-color',
+      cpModColor?.value,
+      !modColorCustomized
+    );
+    if (lineModColor) cssLines.push(lineModColor);
+
+    // 7. Typography & Separator
+    const lineFontFamily = setOrRemoveProp(
+      '--show-keystrokes-key-font-family',
+      cpFontFamily?.value,
+      !cpFontFamily?.value
+    );
+    if (lineFontFamily) cssLines.push(lineFontFamily);
+
+    const fontSizeW = cpFontSizeVal?.value.trim() ?? DEFAULTS.fontSizeVal;
+    const fontSizeU = cpFontSizeUnit?.value ?? DEFAULTS.fontSizeUnit;
+    const lineFontSize = setOrRemoveProp(
+      '--show-keystrokes-key-font-size',
+      `${fontSizeW}${fontSizeU}`,
+      fontSizeW === DEFAULTS.fontSizeVal && fontSizeU === DEFAULTS.fontSizeUnit
+    );
+    if (lineFontSize) cssLines.push(lineFontSize);
+
+    const lineFontWeight = setOrRemoveProp(
+      '--show-keystrokes-key-font-weight',
+      cpFontWeight?.value,
+      cpFontWeight?.value === DEFAULTS.fontWeight
+    );
+    if (lineFontWeight) cssLines.push(lineFontWeight);
+
+    const sepColorCustomized = cpSepColor?.dataset.customized === 'true';
+    const lineSepColor = setOrRemoveProp(
+      '--show-keystrokes-separator-color',
+      cpSepColor?.value,
+      !sepColorCustomized
+    );
+    if (lineSepColor) cssLines.push(lineSepColor);
+
+    const sepSizeW = cpSepSizeVal?.value.trim() ?? DEFAULTS.sepSizeVal;
+    const sepSizeU = cpSepSizeUnit?.value ?? DEFAULTS.sepSizeUnit;
+    const lineSepSize = setOrRemoveProp(
+      '--show-keystrokes-separator-size',
+      `${sepSizeW}${sepSizeU}`,
+      sepSizeW === DEFAULTS.sepSizeVal && sepSizeU === DEFAULTS.sepSizeUnit
+    );
+    if (lineSepSize) cssLines.push(lineSepSize);
+
+    const lineSepDisplay = setOrRemoveProp(
+      '--show-keystrokes-separator-display',
+      cpSepDisplay?.value,
+      cpSepDisplay?.value === DEFAULTS.sepDisplay
+    );
+    if (lineSepDisplay) cssLines.push(lineSepDisplay);
+
+    // 8. Positioning and behavior
+    const posOffsetW = cpPosOffsetVal?.value.trim() ?? DEFAULTS.posOffsetVal;
+    const posOffsetU = cpPosOffsetUnit?.value ?? DEFAULTS.posOffsetUnit;
+    const linePosOffset = setOrRemoveProp(
+      '--show-keystrokes-position-offset',
+      `${posOffsetW}${posOffsetU}`,
+      posOffsetW === DEFAULTS.posOffsetVal && posOffsetU === DEFAULTS.posOffsetUnit
+    );
+    if (linePosOffset) cssLines.push(linePosOffset);
+
+    const pointerGapW = cpPointerGapVal?.value.trim() ?? DEFAULTS.pointerGapVal;
+    const pointerGapU = cpPointerGapUnit?.value ?? DEFAULTS.pointerGapUnit;
+    const linePointerGap = setOrRemoveProp(
+      '--show-keystrokes-pointer-gap',
+      `${pointerGapW}${pointerGapU}`,
+      pointerGapW === DEFAULTS.pointerGapVal && pointerGapU === DEFAULTS.pointerGapUnit
+    );
+    if (linePointerGap) cssLines.push(linePointerGap);
+
+    const anchorSizeW = cpAnchorSizeVal?.value.trim() ?? DEFAULTS.anchorSizeVal;
+    const anchorSizeU = cpAnchorSizeUnit?.value ?? DEFAULTS.anchorSizeUnit;
+    const lineAnchorSize = setOrRemoveProp(
+      '--show-keystrokes-anchor-size',
+      `${anchorSizeW}${anchorSizeU}`,
+      anchorSizeW === DEFAULTS.anchorSizeVal && anchorSizeU === DEFAULTS.anchorSizeUnit
+    );
+    if (lineAnchorSize) cssLines.push(lineAnchorSize);
+
+    const linePointerEvents = setOrRemoveProp(
+      '--show-keystrokes-pointer-events',
+      cpPointerEvents?.value,
+      cpPointerEvents?.value === DEFAULTS.pointerEvents
+    );
+    if (linePointerEvents) cssLines.push(linePointerEvents);
+
+    // Render CSS preview block
+    if (codeContainer) {
+      const cssBody =
+        cssLines.length > 0
+          ? `show-keystrokes {\n${cssLines.join('\n')}\n}`
+          : `show-keystrokes {\n  /* Adjust any control above to generate custom property overrides */\n}`;
+      const lighter = document.createElement('micro-lighter');
+      lighter.setAttribute('language', 'css');
+      lighter.setAttribute('controls', 'copy');
+      const pre = document.createElement('pre');
+      const code = document.createElement('code');
+      code.id = 'custom-props-css-preview';
+      code.textContent = cssBody;
+      pre.appendChild(code);
+      lighter.appendChild(pre);
+      codeContainer.replaceChildren(lighter);
+      setupMicroLighterCopyButtons();
+    }
+  }
+
+  resetBtn?.addEventListener('click', () => {
+    resetColorState(cpKeyBg, DEFAULTS.keyBg, 'Default', 'hex-cp-key-bg', 'wrap-cp-key-bg');
+    if (cpKeyBgImage) cpKeyBgImage.value = '';
+    resetColorState(cpKeyColor, DEFAULTS.keyColor, 'Default', 'hex-cp-key-color', 'wrap-cp-key-color');
+
+    if (cpBorderWidth) {
+      cpBorderWidth.value = DEFAULTS.borderWidth;
+      cpBorderWidth.step = '1';
+    }
+    if (cpBorderUnit) {
+      cpBorderUnit.value = DEFAULTS.borderUnit;
+      cpBorderUnit.dataset.prevUnit = DEFAULTS.borderUnit;
+    }
+    if (cpBorderColor) {
+      delete cpBorderColor.dataset.customized;
+      cpBorderColor.value = DEFAULTS.borderColor;
+      cpBorderColor.closest('.color-control')?.classList.remove('is-customized');
+    }
+    if (cpKeyShadow) cpKeyShadow.value = '';
+
+    resetColorState(cpModBg, DEFAULTS.modBg, 'Default (Inherits)', 'hex-cp-mod-bg', 'wrap-cp-mod-bg');
+    if (cpModBgImage) cpModBgImage.value = '';
+    resetColorState(cpModColor, DEFAULTS.modColor, 'Default (Inherits)', 'hex-cp-mod-color', 'wrap-cp-mod-color');
+
+    const resetPair = (numEl, unitEl, defVal, defUnit, stepVal) => {
+      if (numEl) {
+        numEl.value = defVal;
+        numEl.step = stepVal || (defUnit === 'px' ? '1' : '0.05');
+      }
+      if (unitEl) {
+        unitEl.value = defUnit;
+        unitEl.dataset.prevUnit = defUnit;
+      }
+    };
+
+    resetPair(cpMinSizeVal, cpMinSizeUnit, DEFAULTS.minSizeVal, DEFAULTS.minSizeUnit);
+    resetPair(cpRadiusVal, cpRadiusUnit, DEFAULTS.radiusVal, DEFAULTS.radiusUnit);
+    resetPair(cpPaddingVal, cpPaddingUnit, DEFAULTS.paddingVal, DEFAULTS.paddingUnit);
+    resetPair(cpGapVal, cpGapUnit, DEFAULTS.gapVal, DEFAULTS.gapUnit);
+    resetPair(cpPosOffsetVal, cpPosOffsetUnit, DEFAULTS.posOffsetVal, DEFAULTS.posOffsetUnit);
+    resetPair(cpPointerGapVal, cpPointerGapUnit, DEFAULTS.pointerGapVal, DEFAULTS.pointerGapUnit);
+    resetPair(cpAnchorSizeVal, cpAnchorSizeUnit, DEFAULTS.anchorSizeVal, DEFAULTS.anchorSizeUnit);
+
+    if (cpFontFamily) cpFontFamily.value = '';
+    resetPair(cpFontSizeVal, cpFontSizeUnit, DEFAULTS.fontSizeVal, DEFAULTS.fontSizeUnit);
+    if (cpFontWeight) cpFontWeight.value = DEFAULTS.fontWeight;
+
+    resetColorState(cpSepColor, DEFAULTS.sepColor, 'Default', 'hex-cp-sep-color', 'wrap-cp-sep-color');
+    resetPair(cpSepSizeVal, cpSepSizeUnit, DEFAULTS.sepSizeVal, DEFAULTS.sepSizeUnit);
+    if (cpSepDisplay) cpSepDisplay.value = DEFAULTS.sepDisplay;
+
+    if (cpPointerEvents) cpPointerEvents.value = DEFAULTS.pointerEvents;
+
+    updateCustomProps();
+  });
+}
+
 setupMicroLighterCopyButtons();
 setupScrollspy();
+setupCustomPropsStyler();
