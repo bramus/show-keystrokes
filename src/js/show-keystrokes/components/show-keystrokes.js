@@ -142,11 +142,11 @@ const COMPONENT_STYLES = `
   :host([position~="pointer" i]:not([static])) .anchor {
     display: block;
     position: fixed;
-    top: var(--show-keystrokes-pointer-y, 50vh);
-    left: var(--show-keystrokes-pointer-x, 50vw);
+    top: 0;
+    left: 0;
     width: var(--show-keystrokes-anchor-size, 1.25rem);
     height: var(--show-keystrokes-anchor-size, 1.25rem);
-    translate: -50% -50%;
+    translate: calc(var(--show-keystrokes-pointer-x, 50vw) - 50%) calc(var(--show-keystrokes-pointer-y, 50vh) - 50%);
     anchor-name: --show-keystrokes-anchor;
   }
 
