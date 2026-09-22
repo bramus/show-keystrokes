@@ -201,8 +201,7 @@ const COMPONENT_STYLES = `
     justify-self: start;
   }
 
-  :host([position="center center" i]:not([static])) .container[popover],
-  :host([position="viewport center center" i]:not([static])) .container[popover] {
+  :host([position~="center" i]:not([position~="top" i]):not([position~="bottom" i]):not([position~="left" i]):not([position~="right" i]):not([position~="pointer" i]):not([static])) .container[popover] {
     align-self: center;
     justify-self: center;
   }
@@ -264,7 +263,7 @@ const COMPONENT_STYLES = `
     position-area: center left;
   }
 
-  :host([position="pointer center center" i]) .container[popover] {
+  :host([position~="pointer" i][position~="center" i]:not([position~="top" i]):not([position~="bottom" i]):not([position~="left" i]):not([position~="right" i]):not([static])) .container[popover] {
     position-area: center center;
   }
 

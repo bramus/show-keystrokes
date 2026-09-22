@@ -430,4 +430,100 @@ describe('keystroke utilities unit tests', () => {
       assert.equal(parseSize('xxx-large'), null);
     });
   });
+
+  describe('normalizeKeyLabel()', () => {
+    it('recovers physical key from event.code when Option/Alt produces dead keys or alternate glyphs on macOS', () => {
+      assert.equal(normalizeKeyLabel({ key: '†', code: 'KeyT', altKey: true }), 'T');
+      assert.equal(normalizeKeyLabel({ key: 'Dead', code: 'KeyE', altKey: true }), 'E');
+      assert.equal(normalizeKeyLabel({ key: '¡', code: 'Digit1', altKey: true }), '1');
+      assert.equal(normalizeKeyLabel({ key: 'Unidentified', code: 'Digit5' }), '5');
+      assert.equal(normalizeKeyLabel({ key: 'Unidentified', code: '' }), '');
+    });
+
+    it('maps special keys according to notation="symbols" vs notation="text"', () => {
+      assert.equal(normalizeKeyLabel({ key: 'Escape' }, { notation: 'symbols' }), '⎋');
+      assert.equal(normalizeKeyLabel({ key: 'Escape' }, { notation: 'text' }), 'ESC');
+      assert.equal(normalizeKeyLabel({ key: 'Home' }, { notation: 'symbols' }), '↖');
+      assert.equal(normalizeKeyLabel({ key: 'Home' }, { notation: 'text' }), 'HOME');
+      assert.equal(normalizeKeyLabel({ key: 'End' }, { notation: 'symbols' }), '↘');
+      assert.equal(normalizeKeyLabel({ key: 'End' }, { notation: 'text' }), 'END');
+      assert.equal(normalizeKeyLabel({ key: 'PageUp' }, { notation: 'symbols' }), '⇞');
+      assert.equal(normalizeKeyLabel({ key: 'PageUp' }, { notation: 'text' }), 'PAGE UP');
+      assert.equal(normalizeKeyLabel({ key: 'PageDown' }, { notation: 'symbols' }), '⇟');
+      assert.equal(normalizeKeyLabel({ key: 'PageDown' }, { notation: 'text' }), 'PAGE DOWN');
+      assert.equal(normalizeKeyLabel({ key: 'CapsLock' }, { notation: 'symbols' }), '⇪');
+      assert.equal(normalizeKeyLabel({ key: 'CapsLock' }, { notation: 'text' }), 'CAPS LOCK');
+    });
+  });
+
+  describe('getModifierLabels()', () => {
+    it('orders macOS modifiers as FN -> CTRL -> ALT -> SHIFT -> CMD in both symbols and text notations', () => {
+      const allModsEvent = {
+        fnKey: true,
+        ctrlKey: true,
+        altKey: true,
+        shiftKey: true,
+        metaKey: true,
+      };
+      assert.deepEqual(
+        getModifierLabels(allModsEvent, { platform: 'mac', notation: 'symbols' }),
+        ['🌐\uFE0E', '⌃', '⌥', '⇧', '⌘']
+      );
+      assert.deepEqual(
+        getModifierLabels(allModsEvent, { platform: 'mac', notation: 'text' }),
+        ['FN', 'CTRL', 'ALT', 'SHIFT', 'CMD']
+      );
+    });
+
+    it('orders Windows modifiers as FN -> WIN -> ALT -> SHIFT -> CTRL in both symbols and text notations', () => {
+      const allModsEvent = {
+        fnKey: true,
+        ctrlKey: true,
+        altKey: true,
+        shiftKey: true,
+        metaKey: true,
+      };
+      assert.deepEqual(
+        getModifierLabels(allModsEvent, { platform: 'windows', notation: 'symbols' }),
+        ['FN', '⊞', 'ALT', '⇧', 'CTRL']
+      );
+      assert.deepEqual(
+        getModifierLabels(allModsEvent, { platform: 'windows', notation: 'text' }),
+        ['FN', 'WIN', 'ALT', 'SHIFT', 'CTRL']
+      );
+    });
+
+    it('maps metaKey to CTRL on Windows when mapMetaToCtrlOnWindows is enabled', () => {
+      assert.deepEqual(
+        getModifierLabels(
+          { metaKey: true, shiftKey: true },
+          { platform: 'windows', notation: 'text', mapMetaToCtrlOnWindows: true }
+        ),
+        ['SHIFT', 'CTRL']
+      );
+    });
+  });
+
+  describe('parseKeystrokeString() edge cases', () => {
+    it('handles array inputs, space characters, literal plus keys, and null/empty inputs', () => {
+      assert.deepEqual(parseKeystrokeString(null), { keys: [], label: '' });
+      assert.deepEqual(parseKeystrokeString(''), { keys: [], label: '' });
+      assert.deepEqual(parseKeystrokeString(' '), {
+        keys: [{ label: 'SPACE', type: 'primary' }],
+        label: 'SPACE',
+      });
+      assert.deepEqual(parseKeystrokeString('+'), {
+        keys: [{ label: '+', type: 'primary' }],
+        label: '+',
+      });
+      assert.deepEqual(parseKeystrokeString(['CMD', 'SHIFT', ' '], { notation: 'text' }), {
+        keys: [
+          { label: 'CMD', type: 'modifier' },
+          { label: 'SHIFT', type: 'modifier' },
+          { label: 'SPACE', type: 'primary' },
+        ],
+        label: 'CMD + SHIFT + SPACE',
+      });
+    });
+  });
 });

@@ -16,8 +16,9 @@
     "dev": "npx -y serve src",
     "deploy": "netlify deploy --dir=src --prod",
     "deploy:preview": "netlify deploy --dir=src",
-    "test": "npm run test:unit",
-    "test:unit": "node --test tests/unit/**/*.test.js"
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "node --test tests/unit/**/*.test.js",
+    "test:e2e": "node --test tests/e2e/**/*.test.js"
   },
   "keywords": [
     "show-keystrokes",
@@ -41,5 +42,8 @@
   "bugs": {
     "url": "https://github.com/bramus/show-keystrokes/issues"
   },
-  "homepage": "https://github.com/bramus/show-keystrokes#readme"
+  "homepage": "https://github.com/bramus/show-keystrokes#readme",
+  "devDependencies": {
+    "puppeteer": "^25.11.0"
+  }
 }
