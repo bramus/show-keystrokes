@@ -484,8 +484,12 @@ const updatePointerAnchor = (event) => {
   if (typeof event.clientX !== 'number' || typeof event.clientY !== 'number') {
     return;
   }
-  document.documentElement?.style.setProperty('--show-keystrokes-pointer-x', `${event.clientX}px`);
-  document.documentElement?.style.setProperty('--show-keystrokes-pointer-y', `${event.clientY}px`);
+  const x = `${event.clientX}px`;
+  const y = `${event.clientY}px`;
+  for (const instance of activePointerInstances) {
+    instance.style.setProperty('--show-keystrokes-pointer-x', x);
+    instance.style.setProperty('--show-keystrokes-pointer-y', y);
+  }
 };
 
 function registerPointerTracking(instance) {
@@ -503,15 +507,13 @@ function registerPointerTracking(instance) {
 
 function unregisterPointerTracking(instance) {
   activePointerInstances.delete(instance);
+  instance?.style?.removeProperty('--show-keystrokes-pointer-x');
+  instance?.style?.removeProperty('--show-keystrokes-pointer-y');
   if (activePointerInstances.size === 0 && pointerTrackingAttached && typeof window !== 'undefined') {
     pointerTrackingAttached = false;
     window.removeEventListener('pointermove', updatePointerAnchor, { passive: true, capture: true });
     window.removeEventListener('mousemove', updatePointerAnchor, { passive: true, capture: true });
     window.removeEventListener('pointerdown', updatePointerAnchor, { passive: true, capture: true });
-    if (typeof document !== 'undefined') {
-      document.documentElement?.style.removeProperty('--show-keystrokes-pointer-x');
-      document.documentElement?.style.removeProperty('--show-keystrokes-pointer-y');
-    }
   }
 }
 
@@ -821,14 +823,11 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   #syncHideDurationStyle() {
-    if (!this.#container) {
-      return;
-    }
     const raw = this.getAttribute('hide-duration');
     if (raw !== null && raw !== '') {
-      this.#container.style.setProperty('--_attr-hide-duration', `${parseDurationMs(raw, DEFAULT_HIDE_DURATION)}ms`);
+      this.style.setProperty('--_attr-hide-duration', `${parseDurationMs(raw, DEFAULT_HIDE_DURATION)}ms`);
     } else {
-      this.#container.style.removeProperty('--_attr-hide-duration');
+      this.style.removeProperty('--_attr-hide-duration');
     }
   }
 
