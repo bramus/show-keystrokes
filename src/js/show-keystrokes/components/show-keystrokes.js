@@ -98,10 +98,16 @@ const COMPONENT_STYLES = `
   }
 
   /* ==========================================================================
-   * VIEWPORT POSITIONING (Default, or position="viewport [<top|center|bottom> <left|center|right>]")
-   * Places the inner popover container in the Top Layer fixed to the viewport
-   * with a 1rem gap (--show-keystrokes-position-offset).
-   * Set position="normal" (or static) for normal document flow.
+   * VIEWPORT & POINTER ANCHOR POSITIONING
+   * Places the inner popover container in the Top Layer anchored to .anchor.
+   * - When position="viewport ..." (default), .anchor spans the full viewport
+   *   (position: fixed; inset: 0; width: 100%; height: 100%) and .container[popover]
+   *   is anchored to its inside (position-area: center center) with
+   *   inset: var(--show-keystrokes-position-offset, 1rem) and positioned via
+   *   align-self and justify-self.
+   * - When position="pointer ...", .anchor is sized via --show-keystrokes-anchor-size
+   *   at the pointer coordinates and .container[popover] is anchored around it.
+   * - Set position="normal" (or static) for normal document flow.
    * ========================================================================== */
   :host([position="normal" i]),
   :host([static]) {
@@ -118,16 +124,29 @@ const COMPONENT_STYLES = `
     pointer-events: none;
   }
 
-  .pointer-anchor {
+  .anchor {
+    display: none;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  :host(:not([position="normal" i]):not([static]):not([position~="pointer" i])) .anchor {
+    display: block;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    anchor-name: --show-keystrokes-anchor;
+  }
+
+  :host([position~="pointer" i]:not([static])) .anchor {
+    display: block;
     position: fixed;
     top: var(--show-keystrokes-pointer-y, 50vh);
     left: var(--show-keystrokes-pointer-x, 50vw);
     width: var(--show-keystrokes-anchor-size, 1.25rem);
     height: var(--show-keystrokes-anchor-size, 1.25rem);
     translate: -50% -50%;
-    pointer-events: none;
-    opacity: 0;
-    z-index: -1;
     anchor-name: --show-keystrokes-anchor;
   }
 
@@ -138,7 +157,6 @@ const COMPONENT_STYLES = `
     background: transparent;
     color: inherit;
     overflow: visible;
-    inset: auto;
     width: max-content;
     height: max-content;
     max-width: none;
@@ -150,97 +168,72 @@ const COMPONENT_STYLES = `
     display: none;
   }
 
-  :host([position~="top" i][position~="left" i]:not([position~="pointer" i])) .container[popover] {
+  :host(:not([position="normal" i]):not([static]):not([position~="pointer" i])) .container[popover] {
     position: fixed;
-    top: var(--_position-offset);
-    bottom: auto;
-    left: var(--_position-offset);
-    right: auto;
+    position-anchor: --show-keystrokes-anchor;
+    position-area: center center;
+    inset: var(--_position-offset);
+    margin: 0;
     translate: none;
+    align-self: start;
+    justify-self: end;
   }
 
-  :host([position~="top" i][position~="center" i]:not([position~="pointer" i])) .container[popover] {
-    position: fixed;
-    top: var(--_position-offset);
-    bottom: auto;
-    left: 50%;
-    right: auto;
-    translate: -50% 0;
+  :host([position~="top" i][position~="left" i]:not([position~="pointer" i]):not([static])) .container[popover] {
+    align-self: start;
+    justify-self: start;
+  }
+
+  :host([position~="top" i][position~="center" i]:not([position~="pointer" i]):not([static])) .container[popover] {
+    align-self: start;
+    justify-self: center;
   }
 
   :host(:not([position]):not([static])) .container[popover],
-  :host([position="viewport" i]) .container[popover],
-  :host([position~="top" i][position~="right" i]:not([position~="pointer" i])) .container[popover] {
-    position: fixed;
-    top: var(--_position-offset);
-    bottom: auto;
-    left: auto;
-    right: var(--_position-offset);
-    translate: none;
+  :host([position="viewport" i]:not([static])) .container[popover],
+  :host([position~="top" i][position~="right" i]:not([position~="pointer" i]):not([static])) .container[popover] {
+    align-self: start;
+    justify-self: end;
   }
 
-  :host([position~="center" i][position~="left" i]:not([position~="pointer" i])) .container[popover] {
-    position: fixed;
-    top: 50%;
-    bottom: auto;
-    left: var(--_position-offset);
-    right: auto;
-    translate: 0 -50%;
+  :host([position~="center" i][position~="left" i]:not([position~="pointer" i]):not([static])) .container[popover] {
+    align-self: center;
+    justify-self: start;
   }
 
-  :host([position="center center" i]) .container[popover],
-  :host([position="viewport center center" i]) .container[popover] {
-    position: fixed;
-    top: 50%;
-    bottom: auto;
-    left: 50%;
-    right: auto;
-    translate: -50% -50%;
+  :host([position="center center" i]:not([static])) .container[popover],
+  :host([position="viewport center center" i]:not([static])) .container[popover] {
+    align-self: center;
+    justify-self: center;
   }
 
-  :host([position~="center" i][position~="right" i]:not([position~="pointer" i])) .container[popover] {
-    position: fixed;
-    top: 50%;
-    bottom: auto;
-    left: auto;
-    right: var(--_position-offset);
-    translate: 0 -50%;
+  :host([position~="center" i][position~="right" i]:not([position~="pointer" i]):not([static])) .container[popover] {
+    align-self: center;
+    justify-self: end;
   }
 
-  :host([position~="bottom" i][position~="left" i]:not([position~="pointer" i])) .container[popover] {
-    position: fixed;
-    top: auto;
-    bottom: var(--_position-offset);
-    left: var(--_position-offset);
-    right: auto;
-    translate: none;
+  :host([position~="bottom" i][position~="left" i]:not([position~="pointer" i]):not([static])) .container[popover] {
+    align-self: end;
+    justify-self: start;
   }
 
-  :host([position~="bottom" i][position~="center" i]:not([position~="pointer" i])) .container[popover] {
-    position: fixed;
-    top: auto;
-    bottom: var(--_position-offset);
-    left: 50%;
-    right: auto;
-    translate: -50% 0;
+  :host([position~="bottom" i][position~="center" i]:not([position~="pointer" i]):not([static])) .container[popover] {
+    align-self: end;
+    justify-self: center;
   }
 
-  :host([position~="bottom" i][position~="right" i]:not([position~="pointer" i])) .container[popover] {
-    position: fixed;
-    top: auto;
-    bottom: var(--_position-offset);
-    left: auto;
-    right: var(--_position-offset);
-    translate: none;
+  :host([position~="bottom" i][position~="right" i]:not([position~="pointer" i]):not([static])) .container[popover] {
+    align-self: end;
+    justify-self: end;
   }
 
   /* ==========================================================================
    * POINTER ANCHOR POSITIONING
    * (position="pointer [<top|center|bottom> <left|center|right>]")
-   * Anchors the top-layer popover container to .pointer-anchor tracking the pointer
+   * Anchors the top-layer popover container to .anchor tracking the pointer
    * using CSS Anchor Positioning (position-area & position-try-fallbacks).
    * ========================================================================== */
-  :host([position~="pointer" i]) .container[popover] {
+  :host([position~="pointer" i]:not([static])) .container[popover] {
     position: fixed;
     inset: auto;
     translate: none;
@@ -251,7 +244,7 @@ const COMPONENT_STYLES = `
     margin: var(--show-keystrokes-pointer-gap, 0.25rem);
   }
 
-  :host([position~="pointer" i][active]) .container[popover] {
+  :host([position~="pointer" i][active]:not([static])) .container[popover] {
     position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block;
   }
 
@@ -484,79 +477,6 @@ const COMPONENT_STYLES = `
   }
 `;
 
-const KEYSTROKE_ANCHOR_ID = 'show-keystrokes-anchor';
-const KEYSTROKE_ANCHOR_STYLE_ID = 'show-keystrokes-anchor-styles';
-
-const KEYSTROKE_ANCHOR_STYLES = `
-  #${KEYSTROKE_ANCHOR_ID} {
-    position: fixed;
-    top: var(--show-keystrokes-pointer-y, 50vh);
-    left: var(--show-keystrokes-pointer-x, 50vw);
-    width: var(--show-keystrokes-anchor-size, 1.25rem);
-    height: var(--show-keystrokes-anchor-size, 1.25rem);
-    translate: -50% -50%;
-    pointer-events: none;
-    opacity: 0;
-    z-index: -1;
-    anchor-name: --show-keystrokes-anchor;
-  }
-
-  show-keystrokes[position~="pointer" i] {
-    position: fixed;
-    inset: auto;
-    translate: none;
-    width: max-content;
-    white-space: nowrap;
-    position-anchor: --show-keystrokes-anchor;
-    position-area: bottom right;
-    position-try-fallbacks: none;
-    position-visibility: always;
-    margin: var(--show-keystrokes-pointer-gap, 0.25rem);
-    z-index: var(--show-keystrokes-z-index, 9999);
-    pointer-events: var(--show-keystrokes-pointer-events, none);
-  }
-
-  show-keystrokes[position~="pointer" i][active] {
-    position-try-fallbacks: flip-inline, flip-block, flip-inline flip-block;
-  }
-
-  show-keystrokes[position~="pointer" i][position~="top" i][position~="left" i] {
-    position-area: top left;
-  }
-
-  show-keystrokes[position~="pointer" i][position~="top" i][position~="center" i] {
-    position-area: top center;
-  }
-
-  show-keystrokes[position~="pointer" i][position~="top" i][position~="right" i] {
-    position-area: top right;
-  }
-
-  show-keystrokes[position~="pointer" i][position~="center" i][position~="left" i] {
-    position-area: center left;
-  }
-
-  show-keystrokes[position="pointer center center" i] {
-    position-area: center center;
-  }
-
-  show-keystrokes[position~="pointer" i][position~="center" i][position~="right" i] {
-    position-area: center right;
-  }
-
-  show-keystrokes[position~="pointer" i][position~="bottom" i][position~="left" i] {
-    position-area: bottom left;
-  }
-
-  show-keystrokes[position~="pointer" i][position~="bottom" i][position~="center" i] {
-    position-area: bottom center;
-  }
-
-  show-keystrokes[position~="pointer" i][position~="bottom" i][position~="right" i] {
-    position-area: bottom right;
-  }
-`;
-
 const activePointerInstances = new Set();
 let pointerTrackingAttached = false;
 
@@ -564,44 +484,14 @@ const updatePointerAnchor = (event) => {
   if (typeof event.clientX !== 'number' || typeof event.clientY !== 'number') {
     return;
   }
-  const el = document.getElementById(KEYSTROKE_ANCHOR_ID);
-  if (el) {
-    el.style.left = `${event.clientX}px`;
-    el.style.top = `${event.clientY}px`;
-  }
   document.documentElement?.style.setProperty('--show-keystrokes-pointer-x', `${event.clientX}px`);
   document.documentElement?.style.setProperty('--show-keystrokes-pointer-y', `${event.clientY}px`);
 };
-
-function ensureKeystrokeAnchor() {
-  if (typeof document === 'undefined' || typeof window === 'undefined') {
-    return null;
-  }
-
-  if (document.head && !document.getElementById(KEYSTROKE_ANCHOR_STYLE_ID)) {
-    const styleEl = document.createElement('style');
-    styleEl.id = KEYSTROKE_ANCHOR_STYLE_ID;
-    styleEl.textContent = KEYSTROKE_ANCHOR_STYLES;
-    document.head.appendChild(styleEl);
-  }
-
-  let anchorEl = document.getElementById(KEYSTROKE_ANCHOR_ID);
-  if (!anchorEl && document.body) {
-    anchorEl = document.createElement('div');
-    anchorEl.id = KEYSTROKE_ANCHOR_ID;
-    anchorEl.setAttribute('aria-hidden', 'true');
-    // Prepend as the first child of document.body so it precedes all <show-keystrokes> elements in DOM tree order
-    document.body.prepend(anchorEl);
-  }
-
-  return anchorEl;
-}
 
 function registerPointerTracking(instance) {
   if (typeof window === 'undefined') {
     return;
   }
-  ensureKeystrokeAnchor();
   activePointerInstances.add(instance);
   if (!pointerTrackingAttached) {
     pointerTrackingAttached = true;
@@ -649,6 +539,7 @@ export class ShowKeystrokes extends HTMLElement {
     ];
   }
 
+  #anchor = null;
   #container = null;
   #targetElement = null;
   #boundKeyDown = null;
@@ -667,9 +558,10 @@ export class ShowKeystrokes extends HTMLElement {
     const styleEl = document.createElement('style');
     styleEl.textContent = COMPONENT_STYLES;
 
-    const pointerAnchorEl = document.createElement('div');
-    pointerAnchorEl.className = 'pointer-anchor';
-    pointerAnchorEl.setAttribute('aria-hidden', 'true');
+    const anchorEl = document.createElement('div');
+    anchorEl.className = 'anchor';
+    anchorEl.setAttribute('part', 'anchor');
+    anchorEl.setAttribute('aria-hidden', 'true');
 
     const containerEl = document.createElement('div');
     containerEl.className = 'container is-empty';
@@ -677,7 +569,8 @@ export class ShowKeystrokes extends HTMLElement {
     containerEl.setAttribute('role', 'status');
     containerEl.setAttribute('aria-live', 'polite');
 
-    this.shadowRoot.append(styleEl, pointerAnchorEl, containerEl);
+    this.shadowRoot.append(styleEl, anchorEl, containerEl);
+    this.#anchor = anchorEl;
     this.#container = containerEl;
 
     this.#isPhysicalMac = detectPlatform('auto') === 'mac';
