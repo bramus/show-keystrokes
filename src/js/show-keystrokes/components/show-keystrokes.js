@@ -450,11 +450,9 @@ const COMPONENT_STYLES = `
   .key.is-square {
     width: var(--_key-min-size);
     padding: 0;
-    font-size: calc(var(--_key-font-size) * 1.08);
   }
 
   .key.is-arrow {
-    font-size: calc(var(--_key-font-size) * 1.25);
     font-weight: 500;
   }
 
