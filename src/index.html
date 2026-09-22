@@ -723,207 +723,329 @@
             All internal elements of <code>&lt;show-keystrokes&gt;</code> are exposed for external styling through <code>::part()</code> pseudo-elements (see <a href="#parts-styling">live <code>::part()</code> examples below</a>). Hover any label below to highlight the corresponding part:
           </p>
 
+          <style>
+            @scope (#shadow-parts) {
+              :scope {
+                --canvas-bg: #f8fafc;
+                --container-bg: rgba(255, 255, 255, 0.85);
+                --container-border: #e2e8f0;
+                --key-bg-top: #ffffff;
+                --key-bg-bottom: #f1f5f9;
+                --key-border: #cbd5e1;
+                --key-shadow: #94a3b8;
+                --key-text: #1e293b;
+                --mod-bg-top: #f8fafc;
+                --mod-bg-bottom: #e2e8f0;
+                --mod-text: #334155;
+                --sep-color: #64748b;
+
+                /* Annotation Colors */
+                --c-host: #059669;       /* Emerald */
+                --c-anchor: #0d9488;     /* Teal */
+                --c-container: #2563eb;  /* Royal Blue */
+                --c-modifier: #db2777;   /* Pink / Rose */
+                --c-key: #9333ea;        /* Purple */
+                --c-primary: #0284c7;    /* Sky Blue */
+                --c-separator: #d97706;  /* Amber / Orange */
+
+                --label-hover-bg: rgba(2, 132, 199, 0.08);
+              }
+
+              @media (prefers-color-scheme: dark) {
+                :scope {
+                  --canvas-bg: #0f172a;
+                  --container-bg: rgba(30, 41, 59, 0.85);
+                  --container-border: #334155;
+                  --key-bg-top: #1e293b;
+                  --key-bg-bottom: #0f172a;
+                  --key-border: #475569;
+                  --key-shadow: #020617;
+                  --key-text: #f8fafc;
+                  --mod-bg-top: #334155;
+                  --mod-bg-bottom: #1e293b;
+                  --mod-text: #e2e8f0;
+                  --sep-color: #94a3b8;
+
+                  /* Annotation Colors (Brighter for Dark Mode) */
+                  --c-host: #34d399;
+                  --c-anchor: #2dd4bf;
+                  --c-container: #60a5fa;
+                  --c-modifier: #f472b6;
+                  --c-key: #c084fc;
+                  --c-primary: #38bdf8;
+                  --c-separator: #fbbf24;
+
+                  --label-hover-bg: rgba(255, 255, 255, 0.08);
+                }
+              }
+
+              .canvas { fill: var(--canvas-bg); }
+
+              .code-label,
+              .comp-part,
+              tbody tr[data-part] {
+                cursor: pointer;
+              }
+
+              .label-hitbox {
+                fill: transparent;
+                pointer-events: all;
+                transition: fill 0.15s ease;
+              }
+
+              .label-text {
+                font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+                font-size: 14.5px;
+                font-weight: 600;
+                pointer-events: none;
+                user-select: none;
+                transition: font-weight 0.15s ease, opacity 0.2s ease;
+              }
+
+              .guide-line {
+                fill: none;
+                stroke-width: 1.5px;
+                stroke-dasharray: 6 5;
+                pointer-events: none;
+              }
+
+              .guide-box {
+                fill: none;
+                stroke-width: 1.5px;
+                stroke-dasharray: 7 6;
+                pointer-events: none;
+              }
+
+              .guide-dot {
+                stroke-width: 1.5px;
+                pointer-events: none;
+              }
+
+              .ui-text {
+                font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                user-select: none;
+              }
+
+              /* Transitions */
+              .code-label,
+              .label-hitbox,
+              .label-text,
+              .guide-line,
+              .guide-box,
+              .guide-dot,
+              .comp-part,
+              tbody tr[data-part],
+              tbody tr[data-part] td:first-child code {
+                transition: opacity 0.2s ease, stroke-width 0.2s ease, background-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+              }
+
+              /*
+               * =====================================================================
+               * BIDIRECTIONAL HOVER INTERACTION (VISUAL <-> TABLE)
+               * =====================================================================
+               */
+
+              .code-label,
+              .guide-line,
+              .guide-box,
+              .guide-dot {
+                opacity: 1;
+              }
+
+              svg:hover .code-label,
+              svg:hover .guide-line,
+              svg:hover .guide-box,
+              svg:hover .guide-dot {
+                opacity: 0.4;
+              }
+
+              :scope:has(.code-label:hover, .comp-part:hover, tbody tr[data-part]:hover) {
+                .code-label {
+                  opacity: 0.18;
+                }
+
+                .guide-line,
+                .guide-box,
+                .guide-dot {
+                  opacity: 0.05;
+                }
+
+                .comp-part {
+                  opacity: 0.22;
+                }
+
+                tbody tr[data-part] {
+                  opacity: 0.42;
+                }
+              }
+
+              /* 1. <show-keystrokes> (Host) active state */
+              :scope:has(.lbl-host:hover, tr[data-part="host"]:hover) {
+                .lbl-host,
+                .target-host,
+                .comp-part,
+                tr[data-part="host"] {
+                  opacity: 1 !important;
+                }
+
+                .lbl-host .label-hitbox { fill: var(--label-hover-bg); }
+                .lbl-host .label-text { font-weight: 700; }
+                .target-host.guide-line,
+                .target-host.guide-box { stroke-width: 2.25px; }
+
+                tr[data-part="host"] {
+                  background-color: color-mix(in srgb, var(--c-host) 10%, transparent);
+                  box-shadow: inset 3px 0 0 var(--c-host);
+                }
+                tr[data-part="host"] td:first-child code {
+                  color: var(--c-host);
+                  border-color: color-mix(in srgb, var(--c-host) 40%, transparent);
+                }
+              }
+
+              /* 2. ::part(anchor) active state */
+              :scope:has(.lbl-anchor:hover, .comp-part.target-anchor:hover, tr[data-part="anchor"]:hover) {
+                .lbl-anchor,
+                .target-anchor,
+                tr[data-part="anchor"] {
+                  opacity: 1 !important;
+                }
+
+                .lbl-anchor .label-hitbox { fill: var(--label-hover-bg); }
+                .lbl-anchor .label-text { font-weight: 700; }
+                .target-anchor.guide-line,
+                .target-anchor.guide-box { stroke-width: 2.25px; }
+
+                tr[data-part="anchor"] {
+                  background-color: color-mix(in srgb, var(--c-anchor) 10%, transparent);
+                  box-shadow: inset 3px 0 0 var(--c-anchor);
+                }
+                tr[data-part="anchor"] td:first-child code {
+                  color: var(--c-anchor);
+                  border-color: color-mix(in srgb, var(--c-anchor) 40%, transparent);
+                }
+              }
+
+              /* 3. ::part(container) active state */
+              :scope:has(.lbl-container:hover, .comp-part.target-container:hover, tr[data-part="container"]:hover) {
+                .lbl-container,
+                .target-container,
+                .comp-part:not(.target-anchor),
+                tr[data-part="container"] {
+                  opacity: 1 !important;
+                }
+
+                .lbl-container .label-hitbox { fill: var(--label-hover-bg); }
+                .lbl-container .label-text { font-weight: 700; }
+                .target-container.guide-line,
+                .target-container.guide-box { stroke-width: 2.25px; }
+
+                tr[data-part="container"] {
+                  background-color: color-mix(in srgb, var(--c-container) 10%, transparent);
+                  box-shadow: inset 3px 0 0 var(--c-container);
+                }
+                tr[data-part="container"] td:first-child code {
+                  color: var(--c-container);
+                  border-color: color-mix(in srgb, var(--c-container) 40%, transparent);
+                }
+              }
+
+              /* 4. ::part(key) active state */
+              :scope:has(.lbl-key:hover, .comp-part.target-key:hover, tr[data-part="key"]:hover) {
+                .lbl-key,
+                .target-key,
+                tr[data-part="key"] {
+                  opacity: 1 !important;
+                }
+
+                .lbl-key .label-hitbox { fill: var(--label-hover-bg); }
+                .lbl-key .label-text { font-weight: 700; }
+                .target-key.guide-line,
+                .target-key.guide-box { stroke-width: 2.25px; }
+
+                tr[data-part="key"] {
+                  background-color: color-mix(in srgb, var(--c-key) 10%, transparent);
+                  box-shadow: inset 3px 0 0 var(--c-key);
+                }
+                tr[data-part="key"] td:first-child code {
+                  color: var(--c-key);
+                  border-color: color-mix(in srgb, var(--c-key) 40%, transparent);
+                }
+              }
+
+              /* 5. ::part(modifier) active state */
+              :scope:has(.lbl-modifier:hover, .comp-part.target-modifier:hover, tr[data-part="modifier"]:hover) {
+                .lbl-modifier,
+                .target-modifier,
+                tr[data-part="modifier"] {
+                  opacity: 1 !important;
+                }
+
+                .lbl-modifier .label-hitbox { fill: var(--label-hover-bg); }
+                .lbl-modifier .label-text { font-weight: 700; }
+                .target-modifier.guide-line,
+                .target-modifier.guide-box { stroke-width: 2.25px; }
+
+                tr[data-part="modifier"] {
+                  background-color: color-mix(in srgb, var(--c-modifier) 10%, transparent);
+                  box-shadow: inset 3px 0 0 var(--c-modifier);
+                }
+                tr[data-part="modifier"] td:first-child code {
+                  color: var(--c-modifier);
+                  border-color: color-mix(in srgb, var(--c-modifier) 40%, transparent);
+                }
+              }
+
+              /* 6. ::part(primary) active state */
+              :scope:has(.lbl-primary:hover, .comp-part.target-primary:hover, tr[data-part="primary"]:hover) {
+                .lbl-primary,
+                .target-primary,
+                tr[data-part="primary"] {
+                  opacity: 1 !important;
+                }
+
+                .lbl-primary .label-hitbox { fill: var(--label-hover-bg); }
+                .lbl-primary .label-text { font-weight: 700; }
+                .target-primary.guide-line,
+                .target-primary.guide-box { stroke-width: 2.25px; }
+
+                tr[data-part="primary"] {
+                  background-color: color-mix(in srgb, var(--c-primary) 10%, transparent);
+                  box-shadow: inset 3px 0 0 var(--c-primary);
+                }
+                tr[data-part="primary"] td:first-child code {
+                  color: var(--c-primary);
+                  border-color: color-mix(in srgb, var(--c-primary) 40%, transparent);
+                }
+              }
+
+              /* 7. ::part(separator) active state */
+              :scope:has(.lbl-separator:hover, .comp-part.target-separator:hover, tr[data-part="separator"]:hover) {
+                .lbl-separator,
+                .target-separator,
+                tr[data-part="separator"] {
+                  opacity: 1 !important;
+                }
+
+                .lbl-separator .label-hitbox { fill: var(--label-hover-bg); }
+                .lbl-separator .label-text { font-weight: 700; }
+                .target-separator.guide-line,
+                .target-separator.guide-box { stroke-width: 2.25px; }
+
+                tr[data-part="separator"] {
+                  background-color: color-mix(in srgb, var(--c-separator) 10%, transparent);
+                  box-shadow: inset 3px 0 0 var(--c-separator);
+                }
+                tr[data-part="separator"] td:first-child code {
+                  color: var(--c-separator);
+                  border-color: color-mix(in srgb, var(--c-separator) 40%, transparent);
+                }
+              }
+            }
+          </style>
+
           <div class="card" style="padding: 1rem; overflow: hidden; margin-bottom: 1.5rem;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" width="100%" height="100%" role="img" aria-label="Diagram of show-keystrokes component anatomy and CSS Shadow Parts">
-              <style>
-                @scope {
-                  :scope {
-                    --canvas-bg: #f8fafc;
-                    --container-bg: rgba(255, 255, 255, 0.85);
-                    --container-border: #e2e8f0;
-                    --key-bg-top: #ffffff;
-                    --key-bg-bottom: #f1f5f9;
-                    --key-border: #cbd5e1;
-                    --key-shadow: #94a3b8;
-                    --key-text: #1e293b;
-                    --mod-bg-top: #f8fafc;
-                    --mod-bg-bottom: #e2e8f0;
-                    --mod-text: #334155;
-                    --sep-color: #64748b;
-
-                    /* Annotation Colors */
-                    --c-host: #059669;       /* Emerald */
-                    --c-anchor: #0d9488;     /* Teal */
-                    --c-container: #2563eb;  /* Royal Blue */
-                    --c-modifier: #db2777;   /* Pink / Rose */
-                    --c-key: #9333ea;        /* Purple */
-                    --c-primary: #0284c7;    /* Sky Blue */
-                    --c-separator: #d97706;  /* Amber / Orange */
-
-                    --label-hover-bg: rgba(2, 132, 199, 0.08);
-                  }
-
-                  @media (prefers-color-scheme: dark) {
-                    :scope {
-                      --canvas-bg: #0f172a;
-                      --container-bg: rgba(30, 41, 59, 0.85);
-                      --container-border: #334155;
-                      --key-bg-top: #1e293b;
-                      --key-bg-bottom: #0f172a;
-                      --key-border: #475569;
-                      --key-shadow: #020617;
-                      --key-text: #f8fafc;
-                      --mod-bg-top: #334155;
-                      --mod-bg-bottom: #1e293b;
-                      --mod-text: #e2e8f0;
-                      --sep-color: #94a3b8;
-
-                      /* Annotation Colors (Brighter for Dark Mode) */
-                      --c-host: #34d399;
-                      --c-anchor: #2dd4bf;
-                      --c-container: #60a5fa;
-                      --c-modifier: #f472b6;
-                      --c-key: #c084fc;
-                      --c-primary: #38bdf8;
-                      --c-separator: #fbbf24;
-
-                      --label-hover-bg: rgba(255, 255, 255, 0.08);
-                    }
-                  }
-
-                  .canvas { fill: var(--canvas-bg); }
-
-                  .code-label {
-                    cursor: pointer;
-                  }
-
-                  .label-hitbox {
-                    fill: transparent;
-                    pointer-events: all;
-                    transition: fill 0.15s ease;
-                  }
-
-                  .code-label:hover .label-hitbox {
-                    fill: var(--label-hover-bg);
-                  }
-
-                  .label-text {
-                    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-                    font-size: 14.5px;
-                    font-weight: 600;
-                    pointer-events: none;
-                    user-select: none;
-                    transition: font-weight 0.15s ease, opacity 0.2s ease;
-                  }
-
-                  .code-label:hover .label-text {
-                    font-weight: 700;
-                  }
-
-                  .guide-line {
-                    fill: none;
-                    stroke-width: 1.5px;
-                    stroke-dasharray: 6 5;
-                    pointer-events: none;
-                  }
-
-                  .guide-box {
-                    fill: none;
-                    stroke-width: 1.5px;
-                    stroke-dasharray: 7 6;
-                    pointer-events: none;
-                  }
-
-                  .guide-dot {
-                    stroke-width: 1.5px;
-                    pointer-events: none;
-                  }
-
-                  .ui-text {
-                    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-                    user-select: none;
-                  }
-
-                  /* Transitions */
-                  .code-label,
-                  .label-hitbox,
-                  .label-text,
-                  .guide-line,
-                  .guide-box,
-                  .guide-dot,
-                  .comp-part {
-                    transition: opacity 0.2s ease, stroke-width 0.2s ease;
-                  }
-
-                  /*
-                   * =====================================================================
-                   * HOVER INTERACTION
-                   * 1. By default lines and labels have opacity 1.
-                   * 2. When hovering the SVG, lines and labels go down to opacity 0.4.
-                   * 3. Hovering a specific label isolates that label and dims the others.
-                   * =====================================================================
-                   */
-
-                  .code-label,
-                  .guide-line,
-                  .guide-box,
-                  .guide-dot {
-                    opacity: 1;
-                  }
-
-                  :scope:hover .code-label,
-                  :scope:hover .guide-line,
-                  :scope:hover .guide-box,
-                  :scope:hover .guide-dot {
-                    opacity: 0.4;
-                  }
-
-                  :scope:has(.code-label:hover) .code-label:not(:hover) {
-                    opacity: 0.18;
-                  }
-
-                  :scope:has(.code-label:hover) .guide-line,
-                  :scope:has(.code-label:hover) .guide-box,
-                  :scope:has(.code-label:hover) .guide-dot {
-                    opacity: 0.05;
-                  }
-
-                  :scope:has(.code-label:hover) .comp-part {
-                    opacity: 0.22;
-                  }
-
-                  /* Specific label hover: keep matching guide line, box, dot, and element at 100% */
-                  :scope:has(.lbl-host:hover) .target-host,
-                  :scope:has(.lbl-anchor:hover) .target-anchor,
-                  :scope:has(.lbl-container:hover) .target-container,
-                  :scope:has(.lbl-key:hover) .target-key,
-                  :scope:has(.lbl-modifier:hover) .target-modifier,
-                  :scope:has(.lbl-primary:hover) .target-primary,
-                  :scope:has(.lbl-separator:hover) .target-separator {
-                    opacity: 1 !important;
-                  }
-
-                  /* When host label is hovered, keep all component parts at 100%.
-                   * When container label is hovered, keep container and its child parts at 100% (but dim sibling anchor). */
-                  :scope:has(.lbl-host:hover) .comp-part,
-                  :scope:has(.lbl-container:hover) .comp-part:not(.target-anchor) {
-                    opacity: 1 !important;
-                  }
-
-                  /* Thicken active guide line and guide box when hovered */
-                  :scope:has(.lbl-host:hover) .target-host.guide-line,
-                  :scope:has(.lbl-anchor:hover) .target-anchor.guide-line,
-                  :scope:has(.lbl-container:hover) .target-container.guide-line,
-                  :scope:has(.lbl-key:hover) .target-key.guide-line,
-                  :scope:has(.lbl-modifier:hover) .target-modifier.guide-line,
-                  :scope:has(.lbl-primary:hover) .target-primary.guide-line,
-                  :scope:has(.lbl-separator:hover) .target-separator.guide-line,
-                  :scope:has(.lbl-host:hover) .target-host.guide-box,
-                  :scope:has(.lbl-anchor:hover) .target-anchor.guide-box,
-                  :scope:has(.lbl-container:hover) .target-container.guide-box,
-                  :scope:has(.lbl-key:hover) .target-key.guide-box,
-                  :scope:has(.lbl-modifier:hover) .target-modifier.guide-box,
-                  :scope:has(.lbl-primary:hover) .target-primary.guide-box,
-                  :scope:has(.lbl-separator:hover) .target-separator.guide-box {
-                    stroke-width: 2.25px;
-                  }
-
-                  .code-label:hover {
-                    opacity: 1 !important;
-                  }
-                }
-              </style>
-
               <defs>
                 <linearGradient id="sk-key-grad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stop-color="var(--key-bg-top)"/>
@@ -964,6 +1086,7 @@
 
                 <!-- Separator 1 (+): ::part(separator) -->
                 <g class="comp-part target-separator">
+                  <rect x="428" y="134" width="28" height="32" rx="7" fill="transparent"/>
                   <text class="ui-text" x="442" y="159" font-size="24" font-weight="600" text-anchor="middle" fill="var(--sep-color)">+</text>
                 </g>
 
@@ -976,6 +1099,7 @@
 
                 <!-- Separator 2 (+): ::part(separator) -->
                 <g class="comp-part target-separator">
+                  <rect x="560" y="134" width="28" height="32" rx="7" fill="transparent"/>
                   <text class="ui-text" x="574" y="159" font-size="24" font-weight="600" text-anchor="middle" fill="var(--sep-color)">+</text>
                 </g>
 
@@ -1081,38 +1205,43 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Shadow Part</th>
+                  <th>Selector / Shadow Part</th>
                   <th>Element</th>
                   <th>Description</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
+                <tr data-part="host">
+                  <td><code>&lt;show-keystrokes&gt;</code></td>
+                  <td><code>&lt;show-keystrokes&gt;</code></td>
+                  <td>The custom element host itself, containing both <code>::part(anchor)</code> and <code>::part(container)</code> inside its Shadow DOM</td>
+                </tr>
+                <tr data-part="anchor">
                   <td><code>::part(anchor)</code></td>
                   <td><code>&lt;div class="anchor"&gt;</code></td>
                   <td>The positioning anchor element used when <code>position</code> is set to <code>viewport</code> (spans the full viewport) or <code>pointer</code> (tracks the cursor with <code>--show-keystrokes-anchor-size</code>)</td>
                 </tr>
-                <tr>
+                <tr data-part="container">
                   <td><code>::part(container)</code></td>
                   <td><code>&lt;div class="container"&gt;</code></td>
                   <td>The top-layer popover flex container holding all rendered <code>&lt;kbd&gt;</code> keycaps and <code>+</code> separators</td>
                 </tr>
-                <tr>
+                <tr data-part="key">
                   <td><code>::part(key)</code></td>
                   <td><code>&lt;kbd class="key"&gt;</code></td>
                   <td>Every rendered keycap element (matches both modifier keys and primary keys)</td>
                 </tr>
-                <tr>
+                <tr data-part="modifier">
                   <td><code>::part(modifier)</code></td>
                   <td><code>&lt;kbd class="key is-modifier"&gt;</code></td>
                   <td>Modifier keycap elements (e.g. <code>⌘</code>/<code>CMD</code>, <code>⇧</code>/<code>SHIFT</code>, <code>⌥</code>/<code>OPT</code>/<code>ALT</code>, <code>⌃</code>/<code>CTRL</code>, <code>🌐︎</code>/<code>FN</code>, <code>⊞</code>/<code>WIN</code>). Can also be compounded as <code>::part(key modifier)</code></td>
                 </tr>
-                <tr>
+                <tr data-part="primary">
                   <td><code>::part(primary)</code></td>
                   <td><code>&lt;kbd class="key"&gt;</code></td>
                   <td>The non-modifier primary keycap element (e.g. <code>A</code>, <code>K</code>, <code>⇥</code>/<code>TAB</code>, <code>→</code>, <code>SPACE</code>). Can also be compounded as <code>::part(key primary)</code></td>
                 </tr>
-                <tr>
+                <tr data-part="separator">
                   <td><code>::part(separator)</code></td>
                   <td><code>&lt;span class="separator"&gt;</code></td>
                   <td>The <code>+</code> separator element between keycaps</td>
