@@ -1,6 +1,6 @@
 {
   "name": "show-keystrokes",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A zero-dependency custom element that visualizes keystrokes, keyboard shortcuts, and navigational keys with macOS & Windows support and stylable themes.",
   "type": "module",
   "main": "./dist/index.js",
