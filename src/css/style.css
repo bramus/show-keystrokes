@@ -903,6 +903,16 @@ select option::checkmark {
   vertical-align: bottom;
 }
 
+.control-hint {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
+
+.control-hint code {
+  font-size: 0.7rem;
+}
+
 .custom-props-stage {
   cursor: default;
   border-style: solid;

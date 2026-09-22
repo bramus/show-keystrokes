@@ -686,6 +686,19 @@
                       <option value="auto">auto (Interactive)</option>
                     </select>
                   </div>
+
+                  <div class="control-group">
+                    <label for="cp-hide-duration-val"><code>--show-keystrokes-hide-duration</code></label>
+                    <div class="input-with-unit">
+                      <input type="number" id="cp-hide-duration-val" min="0" step="10" value="200">
+                      <select id="cp-hide-duration-unit" class="unit-select" aria-label="Hide duration unit">
+                        <button><selectedcontent></selectedcontent></button>
+                        <option value="ms" selected>ms</option>
+                        <option value="s">s</option>
+                      </select>
+                    </div>
+                    <span class="control-hint">Note: Overrides the <code>hide-duration</code> attribute if set.</span>
+                  </div>
                 </div>
               </div>
             </div>

@@ -395,6 +395,8 @@ function setupCustomPropsStyler() {
   const cpSepDisplay = document.getElementById('cp-sep-display');
 
   const cpPointerEvents = document.getElementById('cp-pointer-events');
+  const cpHideDurationVal = document.getElementById('cp-hide-duration-val');
+  const cpHideDurationUnit = document.getElementById('cp-hide-duration-unit');
 
   const DEFAULTS = {
     keyBg: '#ffffff',
@@ -426,6 +428,8 @@ function setupCustomPropsStyler() {
     sepSizeUnit: 'em',
     sepDisplay: 'inline-flex',
     pointerEvents: 'none',
+    hideDurationVal: '200',
+    hideDurationUnit: 'ms',
   };
 
   function markColorCustomized(inputEl, hexId, wrapId) {
@@ -449,6 +453,12 @@ function setupCustomPropsStyler() {
 
   function convertLengthValue(numVal, fromUnit, toUnit) {
     if (!Number.isFinite(numVal) || fromUnit === toUnit) return numVal;
+    if (fromUnit === 'ms' && toUnit === 's') {
+      return Number((numVal / 1000).toFixed(3));
+    }
+    if (fromUnit === 's' && toUnit === 'ms') {
+      return Math.round(numVal * 1000);
+    }
     const px = fromUnit === 'px' ? numVal : numVal * 16;
     const converted = toUnit === 'px' ? Math.round(px) : Number((px / 16).toFixed(3));
     return converted;
@@ -465,7 +475,7 @@ function setupCustomPropsStyler() {
       if (Number.isFinite(raw)) {
         numInput.value = String(convertLengthValue(raw, prevUnit, nextUnit));
       }
-      numInput.step = nextUnit === 'px' ? '1' : '0.05';
+      numInput.step = nextUnit === 'px' ? '1' : nextUnit === 'ms' ? '10' : '0.05';
       unitSelect.dataset.prevUnit = nextUnit;
       updateCustomProps();
     });
@@ -483,6 +493,7 @@ function setupCustomPropsStyler() {
   bindUnitPair(cpAnchorSizeVal, cpAnchorSizeUnit);
   bindUnitPair(cpFontSizeVal, cpFontSizeUnit);
   bindUnitPair(cpSepSizeVal, cpSepSizeUnit);
+  bindUnitPair(cpHideDurationVal, cpHideDurationUnit);
 
   cpKeyBg?.addEventListener('input', () => {
     markColorCustomized(cpKeyBg, 'hex-cp-key-bg', 'wrap-cp-key-bg');
@@ -724,6 +735,15 @@ function setupCustomPropsStyler() {
     );
     if (linePointerEvents) cssLines.push(linePointerEvents);
 
+    const hideDurW = cpHideDurationVal?.value.trim() ?? DEFAULTS.hideDurationVal;
+    const hideDurU = cpHideDurationUnit?.value ?? DEFAULTS.hideDurationUnit;
+    const lineHideDuration = setOrRemoveProp(
+      '--show-keystrokes-hide-duration',
+      `${hideDurW}${hideDurU}`,
+      hideDurW === DEFAULTS.hideDurationVal && hideDurU === DEFAULTS.hideDurationUnit
+    );
+    if (lineHideDuration) cssLines.push(lineHideDuration);
+
     // Render CSS preview block
     if (codeContainer) {
       const cssBody =
@@ -771,7 +791,7 @@ function setupCustomPropsStyler() {
     const resetPair = (numEl, unitEl, defVal, defUnit, stepVal) => {
       if (numEl) {
         numEl.value = defVal;
-        numEl.step = stepVal || (defUnit === 'px' ? '1' : '0.05');
+        numEl.step = stepVal || (defUnit === 'px' ? '1' : defUnit === 'ms' ? '10' : '0.05');
       }
       if (unitEl) {
         unitEl.value = defUnit;
@@ -796,6 +816,7 @@ function setupCustomPropsStyler() {
     if (cpSepDisplay) cpSepDisplay.value = DEFAULTS.sepDisplay;
 
     if (cpPointerEvents) cpPointerEvents.value = DEFAULTS.pointerEvents;
+    resetPair(cpHideDurationVal, cpHideDurationUnit, DEFAULTS.hideDurationVal, DEFAULTS.hideDurationUnit, '10');
 
     updateCustomProps();
   });

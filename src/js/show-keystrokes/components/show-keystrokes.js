@@ -31,7 +31,7 @@ const COMPONENT_STYLES = `
     --_key-font-weight: var(--show-keystrokes-key-font-weight, 600);
     --_gap: var(--show-keystrokes-gap, 0.375em);
     --_position-offset: var(--show-keystrokes-position-offset, 1rem);
-    --_hide-duration: var(--show-keystrokes-hide-duration, ${DEFAULT_HIDE_DURATION}ms);
+    --_hide-duration: var(--show-keystrokes-hide-duration, var(--_attr-hide-duration, ${DEFAULT_HIDE_DURATION}ms));
 
     /* Default Theme: Modern Keyboard (Light & Dark via light-dark()) */
     color-scheme: light dark;
@@ -410,6 +410,7 @@ const COMPONENT_STYLES = `
     gap: var(--_gap);
     box-sizing: border-box;
     min-height: var(--_key-min-size);
+    --_hide-duration: var(--show-keystrokes-hide-duration, var(--_attr-hide-duration, ${DEFAULT_HIDE_DURATION}ms));
     transition: opacity var(--_hide-duration) ease, transform var(--_hide-duration) ease;
   }
 
@@ -930,7 +931,12 @@ export class ShowKeystrokes extends HTMLElement {
     if (!this.#container) {
       return;
     }
-    this.#container.style.setProperty('--_hide-duration', `${this.hideDuration}ms`);
+    const raw = this.getAttribute('hide-duration');
+    if (raw !== null && raw !== '') {
+      this.#container.style.setProperty('--_attr-hide-duration', `${parseDurationMs(raw, DEFAULT_HIDE_DURATION)}ms`);
+    } else {
+      this.#container.style.removeProperty('--_attr-hide-duration');
+    }
   }
 
   /**
@@ -953,10 +959,23 @@ export class ShowKeystrokes extends HTMLElement {
 
   /**
    * Gets or sets the duration of the fade-out transition in milliseconds.
-   * Defaults to 200 (ms).
+   * Defaults to 200 (ms). The `--show-keystrokes-hide-duration` CSS custom property
+   * takes precedence over the `hide-duration` attribute.
    * @returns {number}
    */
   get hideDuration() {
+    if (typeof getComputedStyle === 'function') {
+      const cssVal = getComputedStyle(this).getPropertyValue('--show-keystrokes-hide-duration').trim();
+      if (cssVal) {
+        if (cssVal.endsWith('ms')) {
+          return parseDurationMs(parseFloat(cssVal), DEFAULT_HIDE_DURATION);
+        }
+        if (cssVal.endsWith('s')) {
+          return parseDurationMs(parseFloat(cssVal) * 1000, DEFAULT_HIDE_DURATION);
+        }
+        return parseDurationMs(cssVal, DEFAULT_HIDE_DURATION);
+      }
+    }
     const raw = this.getAttribute('hide-duration');
     return parseDurationMs(raw, DEFAULT_HIDE_DURATION);
   }
