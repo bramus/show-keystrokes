@@ -142,12 +142,18 @@ const COMPONENT_STYLES = `
   :host([position~="pointer" i]:not([static])) .anchor {
     display: block;
     position: fixed;
-    top: 0;
-    left: 0;
+    top: var(--show-keystrokes-pointer-y, 50vh);
+    left: var(--show-keystrokes-pointer-x, 50vw);
     width: var(--show-keystrokes-anchor-size, 1.25rem);
     height: var(--show-keystrokes-anchor-size, 1.25rem);
-    translate: calc(var(--show-keystrokes-pointer-x, 50vw) - 50%) calc(var(--show-keystrokes-pointer-y, 50vh) - 50%);
+    translate: -50% -50%;
     anchor-name: --show-keystrokes-anchor;
+
+    @supports named-feature(anchor-position-follows-transforms) {
+      top: 0;
+      left: 0;
+      translate: calc(var(--show-keystrokes-pointer-x, 50vw) - 50%) calc(var(--show-keystrokes-pointer-y, 50vh) - 50%);
+    }
   }
 
   .container[popover] {

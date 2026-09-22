@@ -322,7 +322,7 @@ describe('<show-keystrokes> End-to-End Browser Tests (Puppeteer + WebDriver BiDi
     assert.equal(measurements.rects['viewport bottom right'].rightGap, OFFSET);
   });
 
-  it('promotes ::part(container) to the Top Layer via Popover API in pointer mode, sets pointer coordinates on the <show-keystrokes> host, and positions ::part(anchor) at the mouse position via translate', async () => {
+  it('promotes ::part(container) to the Top Layer via Popover API in pointer mode, sets pointer coordinates on the <show-keystrokes> host, and positions ::part(anchor) at the mouse position', async () => {
     const client = await page.createCDPSession();
     await client.send('DOM.enable');
     await client.send('DOM.getDocument', { depth: -1, pierce: true });
@@ -372,6 +372,7 @@ describe('<show-keystrokes> End-to-End Browser Tests (Puppeteer + WebDriver BiDi
       const hostPointerY = el.style.getPropertyValue('--show-keystrokes-pointer-y');
       const htmlPointerX = document.documentElement.style.getPropertyValue('--show-keystrokes-pointer-x');
       const htmlPointerY = document.documentElement.style.getPropertyValue('--show-keystrokes-pointer-y');
+      const supportsNamedFeature = CSS.supports('named-feature(anchor-position-follows-transforms)');
 
       return {
         isPopoverOpen: container.matches(':popover-open'),
@@ -381,6 +382,7 @@ describe('<show-keystrokes> End-to-End Browser Tests (Puppeteer + WebDriver BiDi
         hostPointerY,
         htmlPointerX,
         htmlPointerY,
+        supportsNamedFeature,
         anchorTop,
         anchorLeft,
         anchorTranslate,
@@ -443,10 +445,17 @@ describe('<show-keystrokes> End-to-End Browser Tests (Puppeteer + WebDriver BiDi
     assert.equal(pointerData.htmlPointerX, '');
     assert.equal(pointerData.htmlPointerY, '');
 
-    // Verify ::part(anchor) is centered at (320, 240) with 20x20 (1.25rem) size using translate
-    assert.equal(pointerData.anchorTop, '0px');
-    assert.equal(pointerData.anchorLeft, '0px');
-    assert.notEqual(pointerData.anchorTranslate, 'none');
+    // Verify ::part(anchor) CSS properties according to @supports named-feature(anchor-position-follows-transforms)
+    if (pointerData.supportsNamedFeature) {
+      assert.equal(pointerData.anchorTop, '0px');
+      assert.equal(pointerData.anchorLeft, '0px');
+    } else {
+      assert.equal(pointerData.anchorTop, '240px');
+      assert.equal(pointerData.anchorLeft, '320px');
+      assert.equal(pointerData.anchorTranslate, '-50% -50%');
+    }
+
+    // Verify ::part(anchor) is centered at (320, 240) with 20x20 (1.25rem) size
     assert.deepEqual(pointerData.anchorRect, {
       left: 310,
       top: 230,
