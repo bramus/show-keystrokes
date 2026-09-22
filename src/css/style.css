@@ -775,6 +775,91 @@ micro-lighter::part(copy-button):hover {
   color: var(--text-color);
   font-family: var(--font-sans);
   font-size: 0.875rem;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.control-group select:hover,
+.control-group input[type="number"]:hover {
+  border-color: var(--primary-color);
+  background: var(--bg-surface);
+}
+
+.control-group select:focus-visible,
+.control-group select:open,
+.control-group input[type="number"]:focus-visible {
+  outline: none;
+  border-color: var(--primary-color);
+  background: var(--bg-surface);
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.2);
+}
+
+/* Customizable Select (appearance: base-select) */
+select,
+::picker(select) {
+  appearance: base-select;
+}
+
+select {
+  cursor: pointer;
+  align-items: center;
+}
+
+select::picker-icon {
+  color: var(--text-muted);
+  transition: rotate 0.2s ease, color 0.15s ease;
+}
+
+select:hover::picker-icon,
+select:open::picker-icon {
+  color: var(--primary-color);
+}
+
+select:open::picker-icon {
+  rotate: 180deg;
+}
+
+::picker(select) {
+  margin-block: 0.35rem;
+  padding: 0.35rem;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-surface);
+  color: var(--text-color);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  box-shadow: var(--card-shadow-lg);
+}
+
+select option {
+  padding: 0.45rem 0.65rem;
+  border-radius: 6px;
+  color: var(--text-color);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+select option + option {
+  margin-top: 0.125rem;
+}
+
+select option:hover,
+select option:focus-visible {
+  outline: none;
+  background: var(--bg-surface-elevated);
+  color: var(--text-color);
+}
+
+select option:checked {
+  background: rgb(37 99 235 / 0.08);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+select option::checkmark {
+  color: var(--primary-color);
+  font-weight: 700;
 }
 
 .showcase-row {
