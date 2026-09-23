@@ -239,6 +239,25 @@ const el = create(
 
 ---
 
+## Browser Extension
+
+`<show-keystrokes>` is also available as a browser extension for when you want to inject it onto any webpage without modifying the page’s code—perfect for live demos, talks, and screen casting.
+
+The extension is available on the [**Chrome Web Store**](https://chromewebstore.google.com/detail/show-keystrokes/djfbngdmoohldepblnidecjhmgommdmh) and on the [**Firefox Add-ons website**](https://addons.mozilla.org/en-US/firefox/addon/show-keystrokes/) *(Pending Review)*.
+
+<p>
+  <a href="https://chromewebstore.google.com/detail/show-keystrokes/djfbngdmoohldepblnidecjhmgommdmh"><img src="https://raw.githubusercontent.com/bramus/show-keystrokes/main/src/images/chrome-webstore.svg" alt="Available in the Chrome Web Store" height="62"></a>
+  <a href="https://addons.mozilla.org/en-US/firefox/addon/show-keystrokes/"><img src="https://raw.githubusercontent.com/bramus/show-keystrokes/main/src/images/firefox-addons.svg" alt="Available on the Firefox Add-ons Website (Pending Review)" height="62"></a>
+</p>
+
+- **Persists across navigations:** Automatically re-injects `<show-keystrokes>` as you navigate between pages on an enabled origin—no need to re-inject on every page load.
+- **Per-origin configuration & overrides:** Customize `keystrokes`, `position`, `positionArea`, and `size` for individual websites directly from the extension popup, with your settings saved and restored automatically on future visits.
+- **Configurable global defaults:** Set your preferred default options (`keystrokes`, `position`, `size`, `theme`, `color-scheme`, `hide-delay`, and `hide-duration`), preview them live, and manage saved per-origin configurations from the extension’s Settings page.
+- **Quick keyboard shortcut & status indicator:** Press `SHIFT + CMD + K` (macOS) or `SHIFT + CTRL + K` (Windows/Linux) to toggle `<show-keystrokes>` on or off at any time, with a green status badge on the toolbar icon showing when it is active.
+- **Works on strict CSP websites:** Bundles `<show-keystrokes>` locally inside the extension so it works reliably even on websites whose Content Security Policy blocks external CDN scripts.
+
+---
+
 ## License
 
 MIT © [Bramus Van Damme](https://www.bram.us/)
