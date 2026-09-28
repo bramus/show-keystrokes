@@ -252,6 +252,11 @@
                   </div>
 
                   <div class="control-group">
+                    <label for="input-trail">Trailing characters (<code>trail</code>)</label>
+                    <input type="number" id="input-trail" min="0" step="1" value="0">
+                  </div>
+
+                  <div class="control-group">
                     <label for="select-disabled">State (<code>disabled</code>)</label>
                     <select id="select-disabled">
                       <button><selectedcontent></selectedcontent></button>
@@ -344,6 +349,11 @@
                   <td><code>ignore</code></td>
                   <td><em>(no value)</em></td>
                   <td><em>(no value)</em> or <code>"sensitive"</code> (ignores keystrokes when <code>&lt;input type="password"&gt;</code> is focused), <code>"editable"</code> (ignores keystrokes when any text-editable element such as <code>&lt;input type="text|number|email|…"&gt;</code>, <code>&lt;textarea&gt;</code>, or <code>[contenteditable]</code> is focused), or <code>"none"</code> (ignores nothing, showing keystrokes even in password fields)</td>
+                </tr>
+                <tr>
+                  <td><code>trail</code></td>
+                  <td><code>0</code></td>
+                  <td>Maximum number of recent keys shown in a sequence (<code>0</code> by default, showing only the single most recent keystroke without animating evicted characters; set to e.g. <code>5</code> to retain up to 5 keys in a sequence and slide/fade out evicted characters). Consecutive identical navigational keys or shortcuts collapse into a single keycap with a repeat count badge (e.g. <code>×2</code>).</td>
                 </tr>
                 <tr>
                   <td><code>theme</code></td>
@@ -772,10 +782,14 @@
                 --c-host: #059669;       /* Emerald */
                 --c-anchor: #0d9488;     /* Teal */
                 --c-container: #2563eb;  /* Royal Blue */
+                --c-item: #4f46e5;       /* Indigo */
+                --c-old: #64748b;        /* Slate */
+                --c-current: #16a34a;    /* Green */
                 --c-modifier: #db2777;   /* Pink / Rose */
                 --c-key: #9333ea;        /* Purple */
                 --c-primary: #0284c7;    /* Sky Blue */
                 --c-separator: #d97706;  /* Amber / Orange */
+                --c-comma: #ea580c;      /* Deep Orange */
 
                 --label-hover-bg: rgba(2, 132, 199, 0.08);
               }
@@ -799,10 +813,14 @@
                   --c-host: #34d399;
                   --c-anchor: #2dd4bf;
                   --c-container: #60a5fa;
+                  --c-item: #818cf8;
+                  --c-old: #94a3b8;
+                  --c-current: #4ade80;
                   --c-modifier: #f472b6;
                   --c-key: #c084fc;
                   --c-primary: #38bdf8;
                   --c-separator: #fbbf24;
+                  --c-comma: #fb923c;
 
                   --label-hover-bg: rgba(255, 255, 255, 0.08);
                 }
@@ -824,7 +842,7 @@
 
               .label-text {
                 font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-                font-size: 14.5px;
+                font-size: 14px;
                 font-weight: 600;
                 pointer-events: none;
                 user-select: none;
@@ -979,7 +997,79 @@
                 }
               }
 
-              /* 4. ::part(key) active state */
+              /* 4. ::part(item) active state */
+              :scope:has(.lbl-item:hover, tr[data-part="item"]:hover) {
+                .lbl-item,
+                .target-item,
+                .target-item .comp-part,
+                tr[data-part="item"] {
+                  opacity: 1 !important;
+                }
+
+                .lbl-item .label-hitbox { fill: var(--label-hover-bg); }
+                .lbl-item .label-text { font-weight: 700; }
+                .target-item.guide-line,
+                .target-item.guide-box { stroke-width: 2.25px; }
+
+                tr[data-part="item"] {
+                  background-color: color-mix(in srgb, var(--c-item) 10%, transparent);
+                  box-shadow: inset 3px 0 0 var(--c-item);
+                }
+                tr[data-part="item"] td:first-child code {
+                  color: var(--c-item);
+                  border-color: color-mix(in srgb, var(--c-item) 40%, transparent);
+                }
+              }
+
+              /* 5. ::part(old) active state */
+              :scope:has(.lbl-old:hover, tr[data-part="old"]:hover) {
+                .lbl-old,
+                .target-old,
+                .target-old .comp-part,
+                tr[data-part="old"] {
+                  opacity: 1 !important;
+                }
+
+                .lbl-old .label-hitbox { fill: var(--label-hover-bg); }
+                .lbl-old .label-text { font-weight: 700; }
+                .target-old.guide-line,
+                .target-old.guide-box { stroke-width: 2.25px; }
+
+                tr[data-part="old"] {
+                  background-color: color-mix(in srgb, var(--c-old) 10%, transparent);
+                  box-shadow: inset 3px 0 0 var(--c-old);
+                }
+                tr[data-part="old"] td:first-child code {
+                  color: var(--c-old);
+                  border-color: color-mix(in srgb, var(--c-old) 40%, transparent);
+                }
+              }
+
+              /* 6. ::part(current) active state */
+              :scope:has(.lbl-current:hover, tr[data-part="current"]:hover) {
+                .lbl-current,
+                .target-current,
+                .target-current .comp-part,
+                tr[data-part="current"] {
+                  opacity: 1 !important;
+                }
+
+                .lbl-current .label-hitbox { fill: var(--label-hover-bg); }
+                .lbl-current .label-text { font-weight: 700; }
+                .target-current.guide-line,
+                .target-current.guide-box { stroke-width: 2.25px; }
+
+                tr[data-part="current"] {
+                  background-color: color-mix(in srgb, var(--c-current) 10%, transparent);
+                  box-shadow: inset 3px 0 0 var(--c-current);
+                }
+                tr[data-part="current"] td:first-child code {
+                  color: var(--c-current);
+                  border-color: color-mix(in srgb, var(--c-current) 40%, transparent);
+                }
+              }
+
+              /* 7. ::part(key) active state */
               :scope:has(.lbl-key:hover, .comp-part.target-key:hover, tr[data-part="key"]:hover) {
                 .lbl-key,
                 .target-key,
@@ -1002,7 +1092,7 @@
                 }
               }
 
-              /* 5. ::part(modifier) active state */
+              /* 8. ::part(modifier) active state */
               :scope:has(.lbl-modifier:hover, .comp-part.target-modifier:hover, tr[data-part="modifier"]:hover) {
                 .lbl-modifier,
                 .target-modifier,
@@ -1025,7 +1115,7 @@
                 }
               }
 
-              /* 6. ::part(primary) active state */
+              /* 9. ::part(primary) active state */
               :scope:has(.lbl-primary:hover, .comp-part.target-primary:hover, tr[data-part="primary"]:hover) {
                 .lbl-primary,
                 .target-primary,
@@ -1048,7 +1138,7 @@
                 }
               }
 
-              /* 7. ::part(separator) active state */
+              /* 10. ::part(separator) active state */
               :scope:has(.lbl-separator:hover, .comp-part.target-separator:hover, tr[data-part="separator"]:hover) {
                 .lbl-separator,
                 .target-separator,
@@ -1070,11 +1160,34 @@
                   border-color: color-mix(in srgb, var(--c-separator) 40%, transparent);
                 }
               }
+
+              /* 11. ::part(comma) active state */
+              :scope:has(.lbl-comma:hover, .comp-part.target-comma:hover, tr[data-part="comma"]:hover) {
+                .lbl-comma,
+                .target-comma,
+                tr[data-part="comma"] {
+                  opacity: 1 !important;
+                }
+
+                .lbl-comma .label-hitbox { fill: var(--label-hover-bg); }
+                .lbl-comma .label-text { font-weight: 700; }
+                .target-comma.guide-line,
+                .target-comma.guide-box { stroke-width: 2.25px; }
+
+                tr[data-part="comma"] {
+                  background-color: color-mix(in srgb, var(--c-comma) 10%, transparent);
+                  box-shadow: inset 3px 0 0 var(--c-comma);
+                }
+                tr[data-part="comma"] td:first-child code {
+                  color: var(--c-comma);
+                  border-color: color-mix(in srgb, var(--c-comma) 40%, transparent);
+                }
+              }
             }
           </style>
 
           <div class="card" style="padding: 1rem; overflow: hidden; margin-bottom: 1.5rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" width="100%" height="100%" role="img" aria-label="Diagram of show-keystrokes component anatomy and CSS Shadow Parts">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 370" width="100%" height="100%" role="img" aria-label="Diagram of show-keystrokes component anatomy and CSS Shadow Parts">
               <defs>
                 <linearGradient id="sk-key-grad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stop-color="var(--key-bg-top)"/>
@@ -1090,53 +1203,72 @@
               </defs>
 
               <!-- Background Canvas -->
-              <rect class="canvas" width="960" height="300" rx="14"/>
+              <rect class="canvas" width="1000" height="370" rx="14"/>
 
               <!-- ===================================================================== -->
-              <!-- CENTER COMPONENT RENDERING (<show-keystrokes keys="SHIFT + CMD + K">) -->
+              <!-- CENTER COMPONENT RENDERING (<show-keystrokes keys="SPACE, SHIFT+CMD+L">) -->
               <!-- ===================================================================== -->
               <g id="component-preview">
                 <!-- Sibling 1: Anchor Element ::part(anchor) -->
                 <g class="comp-part target-anchor">
-                  <rect x="256" y="90" width="40" height="40" rx="10" fill="var(--container-bg)" stroke="var(--container-border)" stroke-width="1.5" stroke-dasharray="4 3"/>
-                  <circle cx="276" cy="110" r="5" fill="none" stroke="var(--sep-color)" stroke-width="1.5"/>
-                  <path d="M276 99 L276 103 M276 117 L276 121 M265 110 L269 110 M283 110 L287 110" stroke="var(--sep-color)" stroke-width="1.5" stroke-linecap="round"/>
+                  <rect x="228" y="132" width="36" height="36" rx="9" fill="var(--container-bg)" stroke="var(--container-border)" stroke-width="1.5" stroke-dasharray="4 3"/>
+                  <circle cx="246" cy="150" r="4.5" fill="none" stroke="var(--sep-color)" stroke-width="1.5"/>
+                  <path d="M246 140 L246 143.5 M246 156.5 L246 160 M236 150 L239.5 150 M252.5 150 L256 150" stroke="var(--sep-color)" stroke-width="1.5" stroke-linecap="round"/>
                 </g>
 
                 <!-- Sibling 2: Outer Container Pill ::part(container) -->
-                <rect class="comp-part target-container" x="316" y="88" width="384" height="124" rx="22" fill="var(--container-bg)" stroke="var(--container-border)" stroke-width="1"/>
+                <rect class="comp-part target-container" x="280" y="126" width="492" height="118" rx="22" fill="var(--container-bg)" stroke="var(--container-border)" stroke-width="1"/>
 
-                <!-- Keycap 1 (Modifier: ⇧): ::part(key) + ::part(modifier) -->
-                <g class="comp-part target-key target-modifier" filter="url(#sk-drop-shadow)">
-                  <rect x="338" y="116" width="76" height="74" rx="14" fill="var(--key-shadow)"/>
-                  <rect x="338" y="112" width="76" height="74" rx="14" fill="url(#sk-mod-grad)" stroke="var(--key-border)" stroke-width="1.5"/>
-                  <text class="ui-text" x="376" y="159" font-size="28" font-weight="600" text-anchor="middle" fill="var(--mod-text)">⇧</text>
+                <!-- Item 1 (Old: SPACE): ::part(item) + ::part(old) -->
+                <g class="target-item target-old">
+                  <!-- Keycap 1 (Primary: SPACE): ::part(key) + ::part(primary) -->
+                  <g class="comp-part target-key target-primary" filter="url(#sk-drop-shadow)">
+                    <rect x="302" y="152" width="100" height="70" rx="13" fill="var(--key-shadow)"/>
+                    <rect x="302" y="148" width="100" height="70" rx="13" fill="url(#sk-key-grad)" stroke="var(--key-border)" stroke-width="1.5"/>
+                    <text class="ui-text" x="352" y="191" font-size="20" font-weight="700" text-anchor="middle" fill="var(--key-text)">SPACE</text>
+                  </g>
                 </g>
 
-                <!-- Separator 1 (+): ::part(separator) -->
-                <g class="comp-part target-separator">
-                  <rect x="428" y="134" width="28" height="32" rx="7" fill="transparent"/>
-                  <text class="ui-text" x="442" y="159" font-size="24" font-weight="600" text-anchor="middle" fill="var(--sep-color)">+</text>
+                <!-- Comma Separator (,): ::part(separator) + ::part(comma) -->
+                <g class="comp-part target-separator target-comma">
+                  <rect x="415" y="170" width="28" height="36" rx="8" fill="transparent"/>
+                  <text class="ui-text" x="429" y="196" font-size="26" font-weight="700" text-anchor="middle" fill="var(--sep-color)">,</text>
                 </g>
 
-                <!-- Keycap 2 (Modifier: ⌘): ::part(key) + ::part(modifier) -->
-                <g class="comp-part target-key target-modifier" filter="url(#sk-drop-shadow)">
-                  <rect x="470" y="116" width="76" height="74" rx="14" fill="var(--key-shadow)"/>
-                  <rect x="470" y="112" width="76" height="74" rx="14" fill="url(#sk-mod-grad)" stroke="var(--key-border)" stroke-width="1.5"/>
-                  <text class="ui-text" x="508" y="159" font-size="28" font-weight="600" text-anchor="middle" fill="var(--mod-text)">⌘</text>
-                </g>
+                <!-- Item 2 (Current: ⇧ + ⌘ + L): ::part(item) + ::part(current) -->
+                <g class="target-item target-current">
+                  <!-- Keycap 2 (Modifier: ⇧): ::part(key) + ::part(modifier) -->
+                  <g class="comp-part target-key target-modifier" filter="url(#sk-drop-shadow)">
+                    <rect x="455" y="152" width="60" height="70" rx="13" fill="var(--key-shadow)"/>
+                    <rect x="455" y="148" width="60" height="70" rx="13" fill="url(#sk-mod-grad)" stroke="var(--key-border)" stroke-width="1.5"/>
+                    <text class="ui-text" x="485" y="192" font-size="24" font-weight="600" text-anchor="middle" fill="var(--mod-text)">⇧</text>
+                  </g>
 
-                <!-- Separator 2 (+): ::part(separator) -->
-                <g class="comp-part target-separator">
-                  <rect x="560" y="134" width="28" height="32" rx="7" fill="transparent"/>
-                  <text class="ui-text" x="574" y="159" font-size="24" font-weight="600" text-anchor="middle" fill="var(--sep-color)">+</text>
-                </g>
+                  <!-- Separator 1 (+): ::part(separator) -->
+                  <g class="comp-part target-separator">
+                    <rect x="526" y="170" width="28" height="36" rx="8" fill="transparent"/>
+                    <text class="ui-text" x="540" y="195" font-size="22" font-weight="600" text-anchor="middle" fill="var(--sep-color)">+</text>
+                  </g>
 
-                <!-- Keycap 3 (Primary: K): ::part(key) + ::part(primary) -->
-                <g class="comp-part target-key target-primary" filter="url(#sk-drop-shadow)">
-                  <rect x="602" y="116" width="76" height="74" rx="14" fill="var(--key-shadow)"/>
-                  <rect x="602" y="112" width="76" height="74" rx="14" fill="url(#sk-key-grad)" stroke="var(--key-border)" stroke-width="1.5"/>
-                  <text class="ui-text" x="640" y="159" font-size="27" font-weight="700" text-anchor="middle" fill="var(--key-text)">K</text>
+                  <!-- Keycap 3 (Modifier: ⌘): ::part(key) + ::part(modifier) -->
+                  <g class="comp-part target-key target-modifier" filter="url(#sk-drop-shadow)">
+                    <rect x="565" y="152" width="60" height="70" rx="13" fill="var(--key-shadow)"/>
+                    <rect x="565" y="148" width="60" height="70" rx="13" fill="url(#sk-mod-grad)" stroke="var(--key-border)" stroke-width="1.5"/>
+                    <text class="ui-text" x="595" y="192" font-size="24" font-weight="600" text-anchor="middle" fill="var(--mod-text)">⌘</text>
+                  </g>
+
+                  <!-- Separator 2 (+): ::part(separator) -->
+                  <g class="comp-part target-separator">
+                    <rect x="636" y="170" width="28" height="36" rx="8" fill="transparent"/>
+                    <text class="ui-text" x="650" y="195" font-size="22" font-weight="600" text-anchor="middle" fill="var(--sep-color)">+</text>
+                  </g>
+
+                  <!-- Keycap 4 (Primary: L): ::part(key) + ::part(primary) -->
+                  <g class="comp-part target-key target-primary" filter="url(#sk-drop-shadow)">
+                    <rect x="675" y="152" width="60" height="70" rx="13" fill="var(--key-shadow)"/>
+                    <rect x="675" y="148" width="60" height="70" rx="13" fill="url(#sk-key-grad)" stroke="var(--key-border)" stroke-width="1.5"/>
+                    <text class="ui-text" x="705" y="192" font-size="24" font-weight="700" text-anchor="middle" fill="var(--key-text)">L</text>
+                  </g>
                 </g>
               </g>
 
@@ -1144,89 +1276,137 @@
               <!-- ANNOTATION GUIDES (LINES, BOXES, DOTS)                                -->
               <!-- ===================================================================== -->
 
-              <!-- 1. <show-keystrokes> Host Target (Top-Left) -->
-              <path class="guide-line target-host" d="M205 48 L236 48" stroke="var(--c-host)"/>
-              <rect class="guide-box target-host" x="236" y="34" width="484" height="232" rx="32" stroke="var(--c-host)"/>
-              <circle class="guide-dot target-host" cx="236" cy="48" r="4" fill="var(--c-host)"/>
+              <!-- 1. <show-keystrokes> Host Target (Left 1) -->
+              <path class="guide-line target-host" d="M196 42 L212 42" stroke="var(--c-host)"/>
+              <rect class="guide-box target-host" x="212" y="28" width="576" height="314" rx="32" stroke="var(--c-host)"/>
+              <circle class="guide-dot target-host" cx="212" cy="42" r="4" fill="var(--c-host)"/>
 
-              <!-- 2. ::part(anchor) Target (Upper-Middle-Left -> Sibling 1 inside host) -->
-              <path class="guide-line target-anchor" d="M185 110 L252 110" stroke="var(--c-anchor)"/>
-              <rect class="guide-box target-anchor" x="252" y="86" width="48" height="48" rx="14" stroke="var(--c-anchor)"/>
-              <circle class="guide-dot target-anchor" cx="252" cy="110" r="4" fill="var(--c-anchor)"/>
+              <!-- 2. ::part(anchor) Target (Left 2 -> Sibling 1 inside host) -->
+              <path class="guide-line target-anchor" d="M172 98 L246 98 L246 128" stroke="var(--c-anchor)"/>
+              <rect class="guide-box target-anchor" x="224" y="128" width="44" height="44" rx="12" stroke="var(--c-anchor)"/>
+              <circle class="guide-dot target-anchor" cx="246" cy="128" r="4" fill="var(--c-anchor)"/>
 
-              <!-- 3. ::part(container) Target (Lower-Middle-Left -> Sibling 2 inside host) -->
-              <path class="guide-line target-container" d="M205 168 L312 168" stroke="var(--c-container)"/>
-              <rect class="guide-box target-container" x="312" y="84" width="392" height="132" rx="24" stroke="var(--c-container)"/>
-              <circle class="guide-dot target-container" cx="312" cy="168" r="4" fill="var(--c-container)"/>
+              <!-- 3. ::part(container) Target (Left 3 -> Sibling 2 inside host) -->
+              <path class="guide-line target-container" d="M196 154 L276 154" stroke="var(--c-container)"/>
+              <rect class="guide-box target-container" x="276" y="122" width="500" height="126" rx="24" stroke="var(--c-container)"/>
+              <circle class="guide-dot target-container" cx="276" cy="154" r="4" fill="var(--c-container)"/>
 
-              <!-- 4. ::part(modifier) Target (Bottom-Left -> ⇧ & ⌘) -->
-              <path class="guide-line target-modifier" d="M195 238 L376 238 L376 194 M418 120 L466 120" stroke="var(--c-modifier)"/>
-              <rect class="guide-box target-modifier" x="334" y="108" width="84" height="86" rx="16" stroke="var(--c-modifier)"/>
-              <rect class="guide-box target-modifier" x="466" y="108" width="84" height="86" rx="16" stroke="var(--c-modifier)"/>
-              <circle class="guide-dot target-modifier" cx="376" cy="194" r="4" fill="var(--c-modifier)"/>
-              <circle class="guide-dot target-modifier" cx="418" cy="120" r="3.5" fill="var(--c-modifier)"/>
-              <circle class="guide-dot target-modifier" cx="466" cy="120" r="3.5" fill="var(--c-modifier)"/>
+              <!-- 4. ::part(old) Target (Left 4 -> Item 1 wrapper around SPACE) -->
+              <path class="guide-line target-old" d="M152 210 L294 210" stroke="var(--c-old)"/>
+              <rect class="guide-box target-old" x="294" y="142" width="116" height="86" rx="16" stroke="var(--c-old)"/>
+              <circle class="guide-dot target-old" cx="294" cy="210" r="4" fill="var(--c-old)"/>
 
-              <!-- 5. ::part(key) Target (Top-Right -> ⇧, ⌘, and K) -->
-              <path class="guide-line target-key" d="M755 62 L376 62 M376 62 L376 102 M508 62 L508 102 M640 62 L640 102" stroke="var(--c-key)"/>
-              <rect class="guide-box target-key" x="328" y="102" width="96" height="98" rx="20" stroke="var(--c-key)"/>
-              <rect class="guide-box target-key" x="460" y="102" width="96" height="98" rx="20" stroke="var(--c-key)"/>
-              <rect class="guide-box target-key" x="592" y="102" width="96" height="98" rx="20" stroke="var(--c-key)"/>
-              <circle class="guide-dot target-key" cx="376" cy="102" r="4" fill="var(--c-key)"/>
-              <circle class="guide-dot target-key" cx="508" cy="102" r="4" fill="var(--c-key)"/>
-              <circle class="guide-dot target-key" cx="640" cy="102" r="4" fill="var(--c-key)"/>
+              <!-- 5. ::part(comma) Target (Left 5 -> Comma separator) -->
+              <path class="guide-line target-comma" d="M168 266 L429 266 L429 204" stroke="var(--c-comma)"/>
+              <rect class="guide-box target-comma" x="417" y="172" width="24" height="32" rx="7" stroke="var(--c-comma)"/>
+              <circle class="guide-dot target-comma" cx="429" cy="204" r="4" fill="var(--c-comma)"/>
 
-              <!-- 6. ::part(primary) Target (Middle-Right -> K) -->
-              <path class="guide-line target-primary" d="M755 150 L682 150" stroke="var(--c-primary)"/>
-              <rect class="guide-box target-primary" x="598" y="108" width="84" height="86" rx="16" stroke="var(--c-primary)"/>
-              <circle class="guide-dot target-primary" cx="682" cy="150" r="4" fill="var(--c-primary)"/>
+              <!-- 6. ::part(modifier) Target (Left 6 -> ⇧ & ⌘) -->
+              <path class="guide-line target-modifier" d="M186 322 L595 322 M485 322 L485 228 M595 322 L595 228" stroke="var(--c-modifier)"/>
+              <rect class="guide-box target-modifier" x="447" y="142" width="76" height="86" rx="16" stroke="var(--c-modifier)"/>
+              <rect class="guide-box target-modifier" x="557" y="142" width="76" height="86" rx="16" stroke="var(--c-modifier)"/>
+              <circle class="guide-dot target-modifier" cx="485" cy="228" r="4" fill="var(--c-modifier)"/>
+              <circle class="guide-dot target-modifier" cx="595" cy="228" r="4" fill="var(--c-modifier)"/>
 
-              <!-- 7. ::part(separator) Target (Bottom-Right -> both + separators) -->
-              <path class="guide-line target-separator" d="M755 238 L442 238 M442 238 L442 166 M574 238 L574 166" stroke="var(--c-separator)"/>
-              <rect class="guide-box target-separator" x="428" y="134" width="28" height="32" rx="7" stroke="var(--c-separator)"/>
-              <rect class="guide-box target-separator" x="560" y="134" width="28" height="32" rx="7" stroke="var(--c-separator)"/>
-              <circle class="guide-dot target-separator" cx="442" cy="166" r="4" fill="var(--c-separator)"/>
-              <circle class="guide-dot target-separator" cx="574" cy="166" r="4" fill="var(--c-separator)"/>
+              <!-- 7. ::part(item) Target (Right 1 -> Both sequence item wrappers) -->
+              <path class="guide-line target-item" d="M804 42 L352 42 M352 42 L352 136 M604 42 L604 136" stroke="var(--c-item)"/>
+              <rect class="guide-box target-item" x="288" y="136" width="128" height="98" rx="18" stroke="var(--c-item)"/>
+              <rect class="guide-box target-item" x="441" y="136" width="326" height="98" rx="18" stroke="var(--c-item)"/>
+              <circle class="guide-dot target-item" cx="352" cy="136" r="4" fill="var(--c-item)"/>
+              <circle class="guide-dot target-item" cx="604" cy="136" r="4" fill="var(--c-item)"/>
+
+              <!-- 8. ::part(current) Target (Right 2 -> Item 2 wrapper around ⇧ + ⌘ + L) -->
+              <path class="guide-line target-current" d="M804 98 L660 98 L660 142" stroke="var(--c-current)"/>
+              <rect class="guide-box target-current" x="447" y="142" width="314" height="86" rx="16" stroke="var(--c-current)"/>
+              <circle class="guide-dot target-current" cx="660" cy="142" r="4" fill="var(--c-current)"/>
+
+              <!-- 9. ::part(key) Target (Right 3 -> SPACE, ⇧, ⌘, and L) -->
+              <path class="guide-line target-key" d="M804 154 L780 154 L780 80 L352 80 M352 80 L352 146 M485 80 L485 146 M595 80 L595 146 M705 80 L705 146" stroke="var(--c-key)"/>
+              <rect class="guide-box target-key" x="298" y="146" width="108" height="78" rx="14" stroke="var(--c-key)"/>
+              <rect class="guide-box target-key" x="451" y="146" width="68" height="78" rx="14" stroke="var(--c-key)"/>
+              <rect class="guide-box target-key" x="561" y="146" width="68" height="78" rx="14" stroke="var(--c-key)"/>
+              <rect class="guide-box target-key" x="671" y="146" width="68" height="78" rx="14" stroke="var(--c-key)"/>
+              <circle class="guide-dot target-key" cx="352" cy="146" r="4" fill="var(--c-key)"/>
+              <circle class="guide-dot target-key" cx="485" cy="146" r="4" fill="var(--c-key)"/>
+              <circle class="guide-dot target-key" cx="595" cy="146" r="4" fill="var(--c-key)"/>
+              <circle class="guide-dot target-key" cx="705" cy="146" r="4" fill="var(--c-key)"/>
+
+              <!-- 10. ::part(primary) Target (Right 4 -> SPACE and L) -->
+              <path class="guide-line target-primary" d="M804 210 L743 210 M705 228 L705 254 L352 254 L352 228" stroke="var(--c-primary)"/>
+              <rect class="guide-box target-primary" x="294" y="142" width="116" height="86" rx="16" stroke="var(--c-primary)"/>
+              <rect class="guide-box target-primary" x="667" y="142" width="76" height="86" rx="16" stroke="var(--c-primary)"/>
+              <circle class="guide-dot target-primary" cx="743" cy="210" r="4" fill="var(--c-primary)"/>
+              <circle class="guide-dot target-primary" cx="705" cy="228" r="3.5" fill="var(--c-primary)"/>
+              <circle class="guide-dot target-primary" cx="352" cy="228" r="3.5" fill="var(--c-primary)"/>
+
+              <!-- 11. ::part(separator) Target (Right 5 -> , and both + separators) -->
+              <path class="guide-line target-separator" d="M804 284 L429 284 M429 284 L429 206 M540 284 L540 206 M650 284 L650 206" stroke="var(--c-separator)"/>
+              <rect class="guide-box target-separator" x="415" y="170" width="28" height="36" rx="8" stroke="var(--c-separator)"/>
+              <rect class="guide-box target-separator" x="526" y="170" width="28" height="36" rx="8" stroke="var(--c-separator)"/>
+              <rect class="guide-box target-separator" x="636" y="170" width="28" height="36" rx="8" stroke="var(--c-separator)"/>
+              <circle class="guide-dot target-separator" cx="429" cy="206" r="4" fill="var(--c-separator)"/>
+              <circle class="guide-dot target-separator" cx="540" cy="206" r="4" fill="var(--c-separator)"/>
+              <circle class="guide-dot target-separator" cx="650" cy="206" r="4" fill="var(--c-separator)"/>
 
               <!-- ===================================================================== -->
               <!-- CODE LABELS (LEFT SIDE)                                               -->
               <!-- ===================================================================== -->
               <g class="code-label lbl-host">
-                <rect class="label-hitbox" x="20" y="33" width="185" height="28" rx="6"/>
-                <text class="label-text" x="30" y="52" fill="var(--c-host)">&lt;show-keystrokes&gt;</text>
+                <rect class="label-hitbox" x="16" y="28" width="180" height="28" rx="6"/>
+                <text class="label-text" x="24" y="47" fill="var(--c-host)">&lt;show-keystrokes&gt;</text>
               </g>
 
               <g class="code-label lbl-anchor">
-                <rect class="label-hitbox" x="20" y="95" width="165" height="28" rx="6"/>
-                <text class="label-text" x="30" y="114" fill="var(--c-anchor)">::part(anchor)</text>
+                <rect class="label-hitbox" x="16" y="84" width="156" height="28" rx="6"/>
+                <text class="label-text" x="24" y="103" fill="var(--c-anchor)">::part(anchor)</text>
               </g>
 
               <g class="code-label lbl-container">
-                <rect class="label-hitbox" x="20" y="153" width="185" height="28" rx="6"/>
-                <text class="label-text" x="30" y="172" fill="var(--c-container)">::part(container)</text>
+                <rect class="label-hitbox" x="16" y="140" width="180" height="28" rx="6"/>
+                <text class="label-text" x="24" y="159" fill="var(--c-container)">::part(container)</text>
+              </g>
+
+              <g class="code-label lbl-old">
+                <rect class="label-hitbox" x="16" y="196" width="136" height="28" rx="6"/>
+                <text class="label-text" x="24" y="215" fill="var(--c-old)">::part(old)</text>
+              </g>
+
+              <g class="code-label lbl-comma">
+                <rect class="label-hitbox" x="16" y="252" width="152" height="28" rx="6"/>
+                <text class="label-text" x="24" y="271" fill="var(--c-comma)">::part(comma)</text>
               </g>
 
               <g class="code-label lbl-modifier">
-                <rect class="label-hitbox" x="20" y="223" width="175" height="28" rx="6"/>
-                <text class="label-text" x="30" y="242" fill="var(--c-modifier)">::part(modifier)</text>
+                <rect class="label-hitbox" x="16" y="308" width="170" height="28" rx="6"/>
+                <text class="label-text" x="24" y="327" fill="var(--c-modifier)">::part(modifier)</text>
               </g>
 
               <!-- ===================================================================== -->
               <!-- CODE LABELS (RIGHT SIDE)                                              -->
               <!-- ===================================================================== -->
+              <g class="code-label lbl-item">
+                <rect class="label-hitbox" x="804" y="28" width="140" height="28" rx="6"/>
+                <text class="label-text" x="812" y="47" fill="var(--c-item)">::part(item)</text>
+              </g>
+
+              <g class="code-label lbl-current">
+                <rect class="label-hitbox" x="804" y="84" width="165" height="28" rx="6"/>
+                <text class="label-text" x="812" y="103" fill="var(--c-current)">::part(current)</text>
+              </g>
+
               <g class="code-label lbl-key">
-                <rect class="label-hitbox" x="755" y="47" width="135" height="28" rx="6"/>
-                <text class="label-text" x="765" y="66" fill="var(--c-key)">::part(key)</text>
+                <rect class="label-hitbox" x="804" y="140" width="135" height="28" rx="6"/>
+                <text class="label-text" x="812" y="159" fill="var(--c-key)">::part(key)</text>
               </g>
 
               <g class="code-label lbl-primary">
-                <rect class="label-hitbox" x="755" y="135" width="170" height="28" rx="6"/>
-                <text class="label-text" x="765" y="154" fill="var(--c-primary)">::part(primary)</text>
+                <rect class="label-hitbox" x="804" y="196" width="165" height="28" rx="6"/>
+                <text class="label-text" x="812" y="215" fill="var(--c-primary)">::part(primary)</text>
               </g>
 
               <g class="code-label lbl-separator">
-                <rect class="label-hitbox" x="755" y="223" width="185" height="28" rx="6"/>
-                <text class="label-text" x="765" y="242" fill="var(--c-separator)">::part(separator)</text>
+                <rect class="label-hitbox" x="804" y="270" width="180" height="28" rx="6"/>
+                <text class="label-text" x="812" y="289" fill="var(--c-separator)">::part(separator)</text>
               </g>
             </svg>
           </div>
@@ -1253,7 +1433,22 @@
                 <tr data-part="container">
                   <td><code>::part(container)</code></td>
                   <td><code>&lt;div class="container"&gt;</code></td>
-                  <td>The top-layer popover flex container holding all rendered <code>&lt;kbd&gt;</code> keycaps and <code>+</code> separators</td>
+                  <td>The top-layer popover flex container holding all sequence items and <code>,</code> separators</td>
+                </tr>
+                <tr data-part="item">
+                  <td><code>::part(item)</code></td>
+                  <td><code>&lt;span class="item"&gt;</code></td>
+                  <td>Wrapper element around each sequence item (e.g. a single key or a multi-key shortcut like <code>⌘ + B</code>)</td>
+                </tr>
+                <tr data-part="old">
+                  <td><code>::part(old)</code></td>
+                  <td><code>&lt;span class="item is-old"&gt;</code></td>
+                  <td>Previously typed sequence item wrappers in a multi-item sequence. Can also be compounded as <code>::part(item old)</code></td>
+                </tr>
+                <tr data-part="current">
+                  <td><code>::part(current)</code></td>
+                  <td><code>&lt;span class="item is-current"&gt;</code></td>
+                  <td>The most recently typed sequence item wrapper. Can also be compounded as <code>::part(item current)</code></td>
                 </tr>
                 <tr data-part="key">
                   <td><code>::part(key)</code></td>
@@ -1270,10 +1465,20 @@
                   <td><code>&lt;kbd class="key"&gt;</code></td>
                   <td>The non-modifier primary keycap element (e.g. <code>A</code>, <code>K</code>, <code>⇥</code>/<code>TAB</code>, <code>→</code>, <code>SPACE</code>). Can also be compounded as <code>::part(key primary)</code></td>
                 </tr>
+                <tr data-part="count">
+                  <td><code>::part(count)</code></td>
+                  <td><code>&lt;span class="count"&gt;</code></td>
+                  <td>Superscript repeat count badge (<code>×2</code>, <code>×3</code>, …) rendered on repeated navigational or shortcut keys</td>
+                </tr>
                 <tr data-part="separator">
                   <td><code>::part(separator)</code></td>
                   <td><code>&lt;span class="separator"&gt;</code></td>
-                  <td>The <code>+</code> separator element between keycaps</td>
+                  <td>Separator elements (both the <code>+</code> between combo keys and the <code>,</code> between sequence items)</td>
+                </tr>
+                <tr data-part="comma">
+                  <td><code>::part(comma)</code></td>
+                  <td><code>&lt;span class="separator is-comma"&gt;</code></td>
+                  <td>The <code>,</code> separator element between sequence items. Can also be compounded as <code>::part(separator comma)</code></td>
                 </tr>
               </tbody>
             </table>
@@ -1382,7 +1587,7 @@
         <section id="parts-styling">
           <h3>Custom Styling via CSS <code>::part()</code> &amp; Variables</h3>
           <p class="section-desc">
-            Style keys using CSS Custom Properties or target <code>::part(key)</code>, <code>::part(modifier)</code>, and <code>::part(separator)</code> directly.
+            Style keys using CSS Custom Properties or target <code>::part(item)</code>, <code>::part(old)</code>, <code>::part(current)</code>, <code>::part(key)</code>, <code>::part(modifier)</code>, and <code>::part(separator)</code> directly.
           </p>
 
           <div class="card">
@@ -1394,6 +1599,10 @@
               <div class="showcase-item">
                 <span class="showcase-caption">Pill Gradient Custom Style</span>
                 <show-keystrokes class="custom-pill" keys="CTRL + ENTER" static></show-keystrokes>
+              </div>
+              <div class="showcase-item">
+                <span class="showcase-caption">Dimmed &amp; Scaled History (<code>::part(old)</code>)</span>
+                <show-keystrokes class="custom-sequence-focus" keys="CMD + B, K" static></show-keystrokes>
               </div>
             </div>
             <micro-lighter language="css" controls="copy">
@@ -1407,6 +1616,11 @@
 show-keystrokes.custom-neon::part(modifier) {
   color: #f472b6;
   border-color: #db2777;
+}
+
+show-keystrokes.custom-sequence-focus::part(old) {
+  opacity: 0.5;
+  font-size: 0.8em;
 }</code></pre>
             </micro-lighter>
           </div>

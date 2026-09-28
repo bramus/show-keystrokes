@@ -18,6 +18,7 @@ const selectPositionArea = document.getElementById('select-position-area');
 const inputHideDelay = document.getElementById('input-hide-delay');
 const inputHideDuration = document.getElementById('input-hide-duration');
 const selectIgnore = document.getElementById('select-ignore');
+const inputTrail = document.getElementById('input-trail');
 const selectDisabled = document.getElementById('select-disabled');
 
 function renderDefaultStagePromptMain() {
@@ -81,6 +82,7 @@ function updatePlaygroundAttributes() {
   const hideDelayVal = inputHideDelay ? inputHideDelay.value.trim() : '1250';
   const hideDurationVal = inputHideDuration ? inputHideDuration.value.trim() : '200';
   const ignoreVal = selectIgnore ? selectIgnore.value : '';
+  const trailVal = inputTrail ? inputTrail.value.trim() : '0';
   const isDisabled = selectDisabled ? selectDisabled.value === 'true' : false;
 
   if (selectPositionArea) {
@@ -153,11 +155,18 @@ function updatePlaygroundAttributes() {
     visualizer.setAttribute('ignore', ignoreVal);
   }
 
+  if (trailVal === '' || trailVal === '0') {
+    visualizer.removeAttribute('trail');
+  } else {
+    visualizer.setAttribute('trail', trailVal);
+  }
+
   visualizer.disabled = isDisabled;
 
   const attrs = [
     keystrokesVal ? `keystrokes="${keystrokesVal}"` : '',
     ignoreVal ? `ignore="${ignoreVal}"` : '',
+    trailVal && trailVal !== '0' ? `trail="${trailVal}"` : '',
     positionVal ? `position="${positionVal}"` : '',
     `theme="${themeVal}"`,
     schemeVal !== 'auto' ? `color-scheme="${schemeVal}"` : '',
@@ -199,6 +208,7 @@ selectPositionArea?.addEventListener('change', updatePlaygroundAttributes);
 inputHideDelay?.addEventListener('input', updatePlaygroundAttributes);
 inputHideDuration?.addEventListener('input', updatePlaygroundAttributes);
 selectIgnore?.addEventListener('change', updatePlaygroundAttributes);
+inputTrail?.addEventListener('input', updatePlaygroundAttributes);
 selectDisabled?.addEventListener('change', updatePlaygroundAttributes);
 
 // Click-to-capture keystrokes on the playground stage:

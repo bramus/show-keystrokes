@@ -5,6 +5,7 @@
 
 export const DEFAULT_KEYSTROKES = ['shortcuts', 'navigational'];
 export const DEFAULT_IGNORE = ['sensitive'];
+export const DEFAULT_TRAIL = 0;
 export const DEFAULT_HIDE_DELAY = 1250;
 export const DEFAULT_HIDE_DURATION = 200;
 export const DEFAULT_SIZE = 'large';
@@ -1003,3 +1004,309 @@ export function parseSize(sizeAttr) {
   }
   return null;
 }
+
+const NAVIGATIONAL_NORMALIZED_LABELS = new Set([
+  ...Object.values(KEY_LABELS_TEXT),
+  ...Object.values(KEY_LABELS_SYMBOLS),
+]);
+
+/**
+ * Parses a `trail` value (number or string) and returns a non-negative integer (>= 0),
+ * falling back to `defaultValue` (`DEFAULT_TRAIL = 0`) when null, empty, or invalid.
+ *
+ * @param {string | number | null | undefined} value
+ * @param {number} [defaultValue=DEFAULT_TRAIL]
+ * @returns {number}
+ */
+export function parseTrail(value, defaultValue = DEFAULT_TRAIL) {
+  if (value === null || value === undefined || String(value).trim() === '') {
+    return defaultValue;
+  }
+  const num = Number(value);
+  if (!Number.isFinite(num) || num < 0) {
+    return defaultValue;
+  }
+  return Math.max(0, Math.round(num));
+}
+
+/**
+ * Classifies a parsed key array into `'shortcut' | 'navigational' | 'keystroke'`.
+ *
+ * @param {Array<{ label: string, type: 'modifier' | 'primary' }>} keys
+ * @returns {'shortcut' | 'navigational' | 'keystroke'}
+ */
+function classifyParsedKeys(keys) {
+  if (!Array.isArray(keys) || keys.length === 0) {
+    return 'keystroke';
+  }
+  if (keys.length > 1) {
+    return 'shortcut';
+  }
+  const primaryLabel = keys[0]?.label || '';
+  if (isFunctionKey(primaryLabel)) {
+    return 'shortcut';
+  }
+  if (NAVIGATIONAL_NORMALIZED_LABELS.has(primaryLabel)) {
+    return 'navigational';
+  }
+  return 'keystroke';
+}
+
+/**
+ * Determines whether a comma separator should be placed between two adjacent sequence items.
+ * Consecutive plain characters (`category === 'keystroke'`) sit side-by-side without commas
+ * (e.g. `H`, `E`, `L`, `L`, `O`), whereas shortcuts and navigational keys are separated by a comma
+ * (e.g. `⌘ + B, K` or `⇥, →`).
+ *
+ * @param {{ category?: string }} prevItem
+ * @param {{ category?: string }} nextItem
+ * @returns {boolean}
+ */
+export function needsCommaSeparator(prevItem, nextItem) {
+  if (!prevItem || !nextItem) {
+    return false;
+  }
+  const prevCat = prevItem.category || 'keystroke';
+  const nextCat = nextItem.category || 'keystroke';
+  return prevCat !== 'keystroke' || nextCat !== 'keystroke';
+}
+
+/**
+ * Formats an array of sequence items into a combined display label string.
+ * - Repeated navigational/shortcut items include a `×N` suffix (e.g. `⇥×2`).
+ * - Adjacent items separated by a comma use `', '` (e.g. `⌘ + B, K`).
+ * - Consecutive plain characters are joined by `' '` (e.g. `H E L L O`).
+ *
+ * @param {Array<{ label: string, category?: string, count?: number }>} sequence
+ * @returns {string}
+ */
+export function formatSequenceLabel(sequence) {
+  if (!Array.isArray(sequence) || sequence.length === 0) {
+    return '';
+  }
+
+  let result = '';
+  for (let i = 0; i < sequence.length; i++) {
+    const item = sequence[i];
+    if (!item || !item.label) {
+      continue;
+    }
+    const itemText = item.count && item.count > 1 ? `${item.label}×${item.count}` : item.label;
+    if (i === 0 || !result) {
+      result = itemText;
+    } else if (needsCommaSeparator(sequence[i - 1], item)) {
+      result += `, ${itemText}`;
+    } else {
+      result += ` ${itemText}`;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Counts the total number of individual keys across a sequence of items.
+ *
+ * @param {Array<{ keys?: Array<any> }>} sequence
+ * @returns {number}
+ */
+function countSequenceKeys(sequence) {
+  let total = 0;
+  for (const entry of sequence) {
+    total += Array.isArray(entry?.keys) && entry.keys.length > 0 ? entry.keys.length : 1;
+  }
+  return total;
+}
+
+/**
+ * Trims oldest sequence items from the front until the total number of individual keys
+ * across the sequence is at most `maxKeys` (always retaining at least the latest item).
+ *
+ * @param {Array<{ keys: Array<{ label: string, type: 'modifier' | 'primary' }>, label: string, category: 'shortcut' | 'navigational' | 'keystroke', count: number }>} sequence
+ * @param {number} maxKeys
+ * @returns {Array<{ keys: Array<{ label: string, type: 'modifier' | 'primary' }>, label: string, category: 'shortcut' | 'navigational' | 'keystroke', count: number }>}
+ */
+function trimSequenceToTrail(sequence, maxKeys) {
+  if (!Number.isFinite(maxKeys)) {
+    return sequence;
+  }
+  let totalKeys = countSequenceKeys(sequence);
+  let startIndex = 0;
+  while (totalKeys > maxKeys && sequence.length - startIndex > 1) {
+    const evicted = sequence[startIndex];
+    const evictedKeyCount =
+      Array.isArray(evicted?.keys) && evicted.keys.length > 0 ? evicted.keys.length : 1;
+    totalKeys -= evictedKeyCount;
+    startIndex++;
+  }
+  return startIndex > 0 ? sequence.slice(startIndex) : sequence;
+}
+
+/**
+ * Appends a new keystroke item to an existing sequence buffer while enforcing `trail`:
+ * - Consecutive identical navigational keys or shortcuts (e.g. `TAB` then `TAB`, or `⌘ + Z` then `⌘ + Z`)
+ *   collapse into the last item and increment its `count` (`2`, `3`, ...).
+ * - Plain character keystrokes (`category === 'keystroke'`, e.g. the two `L`s in `"hello"`)
+ *   never collapse and always append as separate items.
+ * - `trail` counts individual keys (e.g. `⌘ + B` counts as 2 keys) rather than groups of keystrokes.
+ *
+ * @param {Array<{ keys: Array<{ label: string, type: 'modifier' | 'primary' }>, label: string, category: 'shortcut' | 'navigational' | 'keystroke', count: number }>} sequence
+ * @param {{ keys: Array<{ label: string, type: 'modifier' | 'primary' }>, label: string, category?: 'shortcut' | 'navigational' | 'keystroke', isShortcut?: boolean, isNavigation?: boolean, count?: number }} item
+ * @param {number | string} [trail=DEFAULT_TRAIL]
+ * @returns {Array<{ keys: Array<{ label: string, type: 'modifier' | 'primary' }>, label: string, category: 'shortcut' | 'navigational' | 'keystroke', count: number }>}
+ */
+export function appendKeystrokeToSequence(sequence, item, trail = DEFAULT_TRAIL) {
+  const maxKeys = trail === Infinity ? Infinity : parseTrail(trail, DEFAULT_TRAIL);
+  const next = Array.isArray(sequence)
+    ? sequence.map((entry) => ({
+        ...entry,
+        keys: Array.isArray(entry.keys) ? [...entry.keys] : [],
+        count: entry.count && entry.count > 1 ? entry.count : 1,
+      }))
+    : [];
+
+  if (!item || !item.label || !Array.isArray(item.keys) || item.keys.length === 0) {
+    return trimSequenceToTrail(next, maxKeys);
+  }
+
+  const category =
+    item.category ||
+    (item.isShortcut ? 'shortcut' : item.isNavigation ? 'navigational' : classifyParsedKeys(item.keys));
+  const itemCount = item.count && item.count > 1 ? item.count : 1;
+  const isCollapsible = category === 'shortcut' || category === 'navigational';
+
+  const last = next[next.length - 1];
+  if (
+    last &&
+    isCollapsible &&
+    (last.category === 'shortcut' || last.category === 'navigational') &&
+    last.label === item.label
+  ) {
+    last.count = (last.count || 1) + itemCount;
+  } else {
+    next.push({
+      ...(item.id !== undefined ? { id: item.id } : {}),
+      keys: item.keys,
+      label: item.label,
+      category,
+      count: itemCount,
+    });
+  }
+
+  return trimSequenceToTrail(next, maxKeys);
+}
+
+/**
+ * Parses a static keystroke or sequence string/array (e.g. `"SHIFT + CMD + K"`, `"CMD + B, K"`,
+ * `"H E L L O"`, `"TAB×2"`, or `['SHIFT', 'TAB']`) into a normalized sequence of items.
+ *
+ * @param {string | string[]} input
+ * @param {{ platform?: 'mac' | 'windows', notation?: 'text' | 'symbols', trail?: number | string }} [options={}]
+ * @returns {{
+ *   sequence: Array<{ keys: Array<{ label: string, type: 'modifier' | 'primary' }>, label: string, category: 'shortcut' | 'navigational' | 'keystroke', count: number }>,
+ *   keys: Array<{ label: string, type: 'modifier' | 'primary' }>,
+ *   label: string
+ * }}
+ */
+export function parseKeystrokeSequence(input, options = {}) {
+  if (input === null || input === undefined) {
+    return { sequence: [], keys: [], label: '' };
+  }
+
+  const trail =
+    options.trail !== undefined && options.trail !== null
+      ? parseTrail(options.trail, DEFAULT_TRAIL)
+      : Infinity;
+
+  let sequence = [];
+
+  const appendParsedToken = (rawToken, explicitCount = 1) => {
+    const parsed = parseKeystrokeString(rawToken, options);
+    if (parsed.keys.length === 0) {
+      return;
+    }
+    const category = classifyParsedKeys(parsed.keys);
+    sequence = appendKeystrokeToSequence(
+      sequence,
+      {
+        keys: parsed.keys,
+        label: parsed.label,
+        category,
+        count: explicitCount,
+      },
+      trail
+    );
+  };
+
+  if (Array.isArray(input)) {
+    if (input.length === 0) {
+      return { sequence: [], keys: [], label: '' };
+    }
+    const parsedCombo = parseKeystrokeString(input, options);
+    const allLeadingAreModifiers =
+      parsedCombo.keys.length > 1 &&
+      parsedCombo.keys.slice(0, -1).every((k) => k.type === 'modifier');
+
+    if (allLeadingAreModifiers || input.length === 1) {
+      if (parsedCombo.keys.length > 0) {
+        sequence = appendKeystrokeToSequence(
+          sequence,
+          {
+            keys: parsedCombo.keys,
+            label: parsedCombo.label,
+            category: classifyParsedKeys(parsedCombo.keys),
+            count: 1,
+          },
+          trail
+        );
+      }
+    } else {
+      for (const part of input) {
+        appendParsedToken(part, 1);
+      }
+    }
+  } else {
+    const rawStr = String(input);
+    if (!rawStr) {
+      return { sequence: [], keys: [], label: '' };
+    }
+
+    const trimmed = rawStr.trim();
+    if (trimmed === '') {
+      appendParsedToken('SPACE', 1);
+    } else if (trimmed === ',' || trimmed === '+') {
+      appendParsedToken(trimmed, 1);
+    } else {
+      // Split on commas that are not preceded by '+' (so "CMD + ," remains intact)
+      const commaSegments = trimmed.split(/(?<!\+\s*),/).map((s) => s.trim()).filter(Boolean);
+
+      for (const seg of commaSegments) {
+        const countMatch = seg.match(/^(.+?)×(\d+)$/);
+        const baseSeg = countMatch ? countMatch[1].trim() : seg;
+        const explicitCount = countMatch ? Math.max(1, parseInt(countMatch[2], 10)) : 1;
+
+        const isMultiWordSpecial = /^(page\s+up|page\s+down|caps\s+lock)$/i.test(baseSeg);
+        if (!baseSeg.includes('+') && !isMultiWordSpecial && /\s+/.test(baseSeg)) {
+          const tokens = baseSeg.split(/\s+/).filter(Boolean);
+          for (const tok of tokens) {
+            const tokMatch = tok.match(/^(.+?)×(\d+)$/);
+            if (tokMatch) {
+              appendParsedToken(tokMatch[1], Math.max(1, parseInt(tokMatch[2], 10)));
+            } else {
+              appendParsedToken(tok, 1);
+            }
+          }
+        } else {
+          appendParsedToken(baseSeg, explicitCount);
+        }
+      }
+    }
+  }
+
+  return {
+    sequence,
+    keys: sequence.flatMap((item) => item.keys),
+    label: formatSequenceLabel(sequence),
+  };
+}
+

@@ -76,6 +76,25 @@ import 'show-keystrokes';
 <show-keystrokes keystrokes="none"></show-keystrokes>
 ```
 
+### Trailing characters (`trail`)
+
+By default (`trail="0"`), `<show-keystrokes>` shows only the single most recent keystroke without animating evicted characters. Set `trail` to a positive integer (e.g. `trail="5"`) to show up to the last `N` keys in a sequence:
+- **Plain character sequences** (when `keystrokes="all"`): With `trail="5"`, typing `"hello"` shows `H`, `E`, `L`, `L`, and `O` side-by-side without commas. Typing a longer word like `"supercalifragilisticexpialidocious"` keeps only the last 5 characters (`C`, `I`, `O`, `U`, `S`) while sliding and fading out the evicted character.
+- **Comma-separated shortcuts & navigational keys**: Hitting `CMD + B` followed by `K` shows `⌘ + B, K`.
+- **Repeat count indicator**: Hitting the same navigational key or shortcut consecutively (e.g. `TAB` followed by `TAB`) collapses into a single keycap with a superscript repeat count badge (`⇥` with `×2`).
+- **Per-item auto-hide timeout**: Each sequence item has its own auto-hide timeout (`hide-delay` + `hide-duration`).
+
+```html
+<!-- Default (trail="0"): shows only the single most recent keystroke -->
+<show-keystrokes></show-keystrokes>
+
+<!-- Show up to the last 5 keys in a sequence -->
+<show-keystrokes trail="5"></show-keystrokes>
+
+<!-- Show up to the last 10 keys -->
+<show-keystrokes keystrokes="all" trail="10"></show-keystrokes>
+```
+
 ### Ignored Elements (`ignore`)
 
 By default, `<show-keystrokes>` ignores any detected keystroke (including shortcuts and navigational keys) when a sensitive input (`<input type="password">`) is focused. Use the `ignore` attribute (or `el.ignore`) to customize which focused elements are ignored:
@@ -219,6 +238,7 @@ import { create } from 'show-keystrokes';
 const el = create(
   {
     keystrokes: 'all',
+    trail: 5,
     theme: 'modern',
     colorScheme: 'dark',
     size: 'large',
@@ -236,11 +256,24 @@ const el = create(
 
 | Part | Description |
 | :--- | :--- |
-| `::part(container)` | Outer flex wrapper containing the keycaps and `+` separators |
+| `::part(container)` | Outer flex wrapper containing the sequence items and `,` separators |
+| `::part(item)` | Wrapper `<span>` around each sequence item (e.g. a single key or a multi-key shortcut like `⌘ + B`) |
+| `::part(old)` | Previously typed sequence item wrappers (`part="item old"`); can also be targeted as `::part(item old)` |
+| `::part(current)` | The most recently typed sequence item wrapper (`part="item current"`); can also be targeted as `::part(item current)` |
 | `::part(key)` | Every `<kbd>` keycap element |
 | `::part(modifier)` | Modifier `<kbd>` elements (`CMD`, `SHIFT`, `CTRL`, `ALT`, `WIN`) |
 | `::part(primary)` | The primary non-modifier `<kbd>` element (`A`, `TAB`, `→`) |
-| `::part(separator)` | The `+` separator `<span>` between keys |
+| `::part(count)` | Superscript repeat count pill badge (`×2`, `×3`, …) on repeated navigational/shortcut keys |
+| `::part(separator)` | Every separator `<span>` (`+` between combo keys and `,` between sequence items) |
+| `::part(comma)` | The `,` separator `<span>` between sequence items |
+
+```css
+/* Example: Dim and shrink previously typed keystrokes so the latest one stands out */
+show-keystrokes::part(old) {
+  opacity: 0.55;
+  font-size: 0.8em;
+}
+```
 
 ### CSS Custom Properties
 
@@ -254,7 +287,9 @@ const el = create(
 | `--show-keystrokes-key-min-size` | Minimum width and height of square keycaps (default `2.75rem`) |
 | `--show-keystrokes-modifier-bg` | Background override for modifier keys |
 | `--show-keystrokes-modifier-color` | Text color override for modifier keys |
-| `--show-keystrokes-separator-color` | Color of the `+` separator |
+| `--show-keystrokes-separator-color` | Color of the `+` and `,` separators |
+| `--show-keystrokes-count-bg` | Background color of the `::part(count)` repeat badge |
+| `--show-keystrokes-count-color` | Text color of the `::part(count)` repeat badge |
 | `--show-keystrokes-position-offset` | Viewport edge gap when `position` is set (default `1rem`) |
 
 ---

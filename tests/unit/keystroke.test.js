@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   DEFAULT_KEYSTROKES,
   DEFAULT_IGNORE,
+  DEFAULT_TRAIL,
   DEFAULT_HIDE_DELAY,
   DEFAULT_HIDE_DURATION,
   DEFAULT_SIZE,
@@ -16,12 +17,17 @@ import {
   parsePosition,
   parseDurationMs,
   parseSize,
+  parseTrail,
+  needsCommaSeparator,
+  formatSequenceLabel,
+  appendKeystrokeToSequence,
   isModifierKey,
   isFunctionKey,
   normalizeKeyLabel,
   getModifierLabels,
   formatKeystrokeEvent,
   parseKeystrokeString,
+  parseKeystrokeSequence,
 } from '../../src/js/show-keystrokes/utils/keystroke.js';
 
 describe('keystroke utilities unit tests', () => {
@@ -688,18 +694,31 @@ describe('keystroke utilities unit tests', () => {
     });
   });
 
-  describe('Keystroke sequence & limit utilities (parseLimit, appendKeystrokeToSequence, formatSequenceLabel, parseKeystrokeSequence)', () => {
-    it('parses limit values and defaults to DEFAULT_LIMIT (5)', () => {
-      assert.equal(DEFAULT_LIMIT, 5);
-      assert.equal(parseLimit(undefined), 5);
-      assert.equal(parseLimit(null), 5);
-      assert.equal(parseLimit(''), 5);
-      assert.equal(parseLimit('invalid'), 5);
-      assert.equal(parseLimit(0), 5);
-      assert.equal(parseLimit(-3), 5);
-      assert.equal(parseLimit(1), 1);
-      assert.equal(parseLimit('1'), 1);
-      assert.equal(parseLimit('8'), 8);
+  describe('Trailing characters & trail utilities (parseTrail, appendKeystrokeToSequence, formatSequenceLabel, parseKeystrokeSequence)', () => {
+    it('parses trail values and defaults to DEFAULT_TRAIL (0)', () => {
+      assert.equal(DEFAULT_TRAIL, 0);
+      assert.equal(parseTrail(undefined), 0);
+      assert.equal(parseTrail(null), 0);
+      assert.equal(parseTrail(''), 0);
+      assert.equal(parseTrail('invalid'), 0);
+      assert.equal(parseTrail(0), 0);
+      assert.equal(parseTrail('0'), 0);
+      assert.equal(parseTrail(-3), 0);
+      assert.equal(parseTrail(1), 1);
+      assert.equal(parseTrail('1'), 1);
+      assert.equal(parseTrail('8'), 8);
+
+      // When trail is 0 (default), only the single most recent keystroke item is retained
+      let seq = [];
+      for (const ch of ['a', 'b', 'c']) {
+        const res = formatKeystrokeEvent(
+          { key: ch, code: `Key${ch.toUpperCase()}` },
+          { keystrokes: 'all', platform: 'mac' }
+        );
+        seq = appendKeystrokeToSequence(seq, res, 0);
+      }
+      assert.equal(seq.length, 1);
+      assert.equal(formatSequenceLabel(seq), 'C');
     });
 
     it('appends plain characters in "hello" without collapsing repeated letters ("L", "L") and without commas', () => {
@@ -784,7 +803,6 @@ describe('keystroke utilities unit tests', () => {
       assert.equal(parsedSeq.sequence.length, 2);
       assert.equal(parsedSeq.sequence[0].count, 2);
     });
-
     it('ignores lone SHIFT on character keys (e.g. SHIFT+? -> "?" and SHIFT+> -> ">") while keeping SHIFT on special keys (e.g. SHIFT+DEL -> "⇧ + ⌦") and multi-modifier combos', () => {
       const shiftQuestion = formatKeystrokeEvent(
         { key: '?', code: 'Slash', shiftKey: true },
@@ -832,5 +850,35 @@ describe('keystroke utilities unit tests', () => {
       assert.deepEqual(shiftCmdQuestion.modifiers, ['⇧', '⌘']);
       assert.equal(shiftCmdQuestion.label, '⇧ + ⌘ + ?');
     });
+
+    it('counts individual keys instead of groups of keystrokes when enforcing trail', () => {
+      let seq = [];
+      const cmdB = formatKeystrokeEvent(
+        { key: 'b', code: 'KeyB', metaKey: true },
+        { keystrokes: 'all', platform: 'mac' }
+      ); // 2 keys: ⌘, B
+
+      for (const ch of ['a', 's', 'd']) {
+        const res = formatKeystrokeEvent(
+          { key: ch, code: `Key${ch.toUpperCase()}` },
+          { keystrokes: 'all', platform: 'mac' }
+        );
+        seq = appendKeystrokeToSequence(seq, res, 5);
+      }
+      // Currently 3 keys: A, S, D. Adding CMD+B (2 keys) reaches exactly 5 keys: A, S, D, ⌘, B.
+      seq = appendKeystrokeToSequence(seq, cmdB, 5);
+      assert.equal(formatSequenceLabel(seq), 'A S D, ⌘ + B');
+      assert.equal(seq.flatMap((item) => item.keys).length, 5);
+
+      // Adding one more character (F, 1 key) would make 6 keys (> 5), evicting A so 5 keys remain: S, D, ⌘, B, F.
+      const keyF = formatKeystrokeEvent(
+        { key: 'f', code: 'KeyF' },
+        { keystrokes: 'all', platform: 'mac' }
+      );
+      seq = appendKeystrokeToSequence(seq, keyF, 5);
+      assert.equal(formatSequenceLabel(seq), 'S D, ⌘ + B, F');
+      assert.equal(seq.flatMap((item) => item.keys).length, 5);
+    });
   });
 });
+

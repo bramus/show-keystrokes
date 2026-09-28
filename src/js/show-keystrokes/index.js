@@ -7,6 +7,7 @@ import { ShowKeystrokes } from './components/show-keystrokes.js';
 import {
   DEFAULT_KEYSTROKES,
   DEFAULT_IGNORE,
+  DEFAULT_TRAIL,
   DEFAULT_HIDE_DELAY,
   DEFAULT_HIDE_DURATION,
   DEFAULT_SIZE,
@@ -26,12 +27,17 @@ import {
   parsePosition,
   parseDurationMs,
   parseSize,
+  parseTrail,
+  needsCommaSeparator,
+  formatSequenceLabel,
+  appendKeystrokeToSequence,
   isModifierKey,
   isFunctionKey,
   normalizeKeyLabel,
   getModifierLabels,
   formatKeystrokeEvent,
   parseKeystrokeString,
+  parseKeystrokeSequence,
 } from './utils/keystroke.js';
 
 if (typeof customElements !== 'undefined' && !customElements.get('show-keystrokes')) {
@@ -41,6 +47,7 @@ if (typeof customElements !== 'undefined' && !customElements.get('show-keystroke
 const OPTION_TO_ATTR = {
   keystrokes: 'keystrokes',
   ignore: 'ignore',
+  trail: 'trail',
   theme: 'theme',
   colorScheme: 'color-scheme',
   platform: 'platform',
@@ -61,7 +68,7 @@ const BOOLEAN_ATTRIBUTES = new Set(['disabled', 'static']);
  * Dynamically creates and configures a `<show-keystrokes>` element,
  * appending it to `parentElement` (defaults to `document.body`).
  *
- * @param {object} [options={}] - CamelCase options to configure `keystrokes`, `ignore`, `theme`, `colorScheme`, `size`, `position`, `hideDelay`, `hideDuration`, `platform`, `disabled`, `static`, `keys`, etc.
+ * @param {object} [options={}] - CamelCase options to configure `keystrokes`, `ignore`, `trail`, `theme`, `colorScheme`, `size`, `position`, `hideDelay`, `hideDuration`, `platform`, `disabled`, `static`, `keys`, etc.
  * @param {Element} [parentElement=document.body] - Element to append the newly created `<show-keystrokes>` element to.
  * @returns {ShowKeystrokes}
  */
@@ -128,6 +135,7 @@ export {
   create,
   DEFAULT_KEYSTROKES,
   DEFAULT_IGNORE,
+  DEFAULT_TRAIL,
   DEFAULT_HIDE_DELAY,
   DEFAULT_HIDE_DURATION,
   DEFAULT_SIZE,
@@ -147,12 +155,17 @@ export {
   parsePosition,
   parseDurationMs,
   parseSize,
+  parseTrail,
+  needsCommaSeparator,
+  formatSequenceLabel,
+  appendKeystrokeToSequence,
   isModifierKey,
   isFunctionKey,
   normalizeKeyLabel,
   getModifierLabels,
   formatKeystrokeEvent,
   parseKeystrokeString,
+  parseKeystrokeSequence,
 };
 
 export default ShowKeystrokes;

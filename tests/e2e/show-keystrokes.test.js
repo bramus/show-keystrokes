@@ -112,23 +112,27 @@ describe('<show-keystrokes> End-to-End Browser Tests (Puppeteer + WebDriver BiDi
       document.body.appendChild(el);
 
       const container = el.shadowRoot.querySelector('[part="container"]');
-      const symbolsParts = Array.from(container.children).map((node) => ({
+      const itemEl = container.querySelector('[part~="item"]');
+      const itemPart = itemEl?.getAttribute('part');
+      const symbolsParts = Array.from(itemEl.children).map((node) => ({
         text: node.textContent,
         part: node.getAttribute('part'),
       }));
       const hasPopoverWhenStatic = container.hasAttribute('popover');
 
       el.setAttribute('notation', 'text');
-      const textParts = Array.from(container.children).map((node) => ({
+      const textItemEl = container.querySelector('[part~="item"]');
+      const textParts = Array.from(textItemEl.children).map((node) => ({
         text: node.textContent,
         part: node.getAttribute('part'),
       }));
 
       el.remove();
-      return { symbolsParts, textParts, hasPopoverWhenStatic };
+      return { itemPart, symbolsParts, textParts, hasPopoverWhenStatic };
     });
 
     assert.equal(result.hasPopoverWhenStatic, false);
+    assert.equal(result.itemPart, 'item current');
     assert.deepEqual(result.symbolsParts, [
       { text: '⇧', part: 'key modifier' },
       { text: ' + ', part: 'separator' },
@@ -617,12 +621,14 @@ describe('<show-keystrokes> End-to-End Browser Tests (Puppeteer + WebDriver BiDi
     assert.equal(created.platform, 'windows');
   });
 
-  it('allows external CSS styling via ::part(anchor), ::part(container), ::part(key), ::part(modifier), ::part(primary), and ::part(separator)', async () => {
+  it('allows external CSS styling via ::part(anchor), ::part(container), ::part(item), ::part(old), ::part(current), ::part(key), ::part(modifier), ::part(primary), and ::part(separator)', async () => {
     const styled = await page.evaluate(() => {
       const style = document.createElement('style');
       style.textContent = `
         #part-test-el::part(anchor) { outline: 2px dashed rgb(13, 148, 136); }
         #part-test-el::part(container) { background-color: rgb(30, 41, 59); }
+        #part-test-el::part(old) { opacity: 0.5; font-size: 0.75em; }
+        #part-test-el::part(current) { opacity: 1; font-size: 1.25em; }
         #part-test-el::part(key) { border-radius: 14px; }
         #part-test-el::part(modifier) { color: rgb(219, 39, 119); }
         #part-test-el::part(primary) { color: rgb(2, 132, 199); }
@@ -633,18 +639,26 @@ describe('<show-keystrokes> End-to-End Browser Tests (Puppeteer + WebDriver BiDi
       const el = document.createElement('show-keystrokes');
       el.id = 'part-test-el';
       el.setAttribute('static', '');
-      el.setAttribute('keys', 'CMD + K');
+      el.setAttribute('keys', 'CMD + B, K');
       document.body.appendChild(el);
 
       const anchor = el.shadowRoot.querySelector('[part="anchor"]');
       const container = el.shadowRoot.querySelector('[part="container"]');
+      const oldItem = el.shadowRoot.querySelector('[part="item old"]');
+      const currentItem = el.shadowRoot.querySelector('[part="item current"]');
       const modifier = el.shadowRoot.querySelector('[part~="modifier"]');
       const primary = el.shadowRoot.querySelector('[part~="primary"]');
       const separator = el.shadowRoot.querySelector('[part="separator"]');
+      const oldPrimaryKbd = oldItem.querySelector('[part~="primary"]');
+      const currentPrimaryKbd = currentItem.querySelector('[part~="primary"]');
 
       const computed = {
         anchorOutlineColor: getComputedStyle(anchor).outlineColor,
         containerBg: getComputedStyle(container).backgroundColor,
+        oldItemOpacity: getComputedStyle(oldItem).opacity,
+        currentItemOpacity: getComputedStyle(currentItem).opacity,
+        oldKeyHeight: oldPrimaryKbd.getBoundingClientRect().height,
+        currentKeyHeight: currentPrimaryKbd.getBoundingClientRect().height,
         keyRadius: getComputedStyle(primary).borderRadius,
         modifierColor: getComputedStyle(modifier).color,
         primaryColor: getComputedStyle(primary).color,
@@ -658,6 +672,9 @@ describe('<show-keystrokes> End-to-End Browser Tests (Puppeteer + WebDriver BiDi
 
     assert.equal(styled.anchorOutlineColor, 'rgb(13, 148, 136)');
     assert.equal(styled.containerBg, 'rgb(30, 41, 59)');
+    assert.equal(styled.oldItemOpacity, '0.5');
+    assert.equal(styled.currentItemOpacity, '1');
+    assert.ok(styled.currentKeyHeight > styled.oldKeyHeight);
     assert.equal(styled.keyRadius, '14px');
     assert.equal(styled.modifierColor, 'rgb(219, 39, 119)');
     assert.equal(styled.primaryColor, 'rgb(2, 132, 199)');
@@ -847,4 +864,336 @@ describe('<show-keystrokes> End-to-End Browser Tests (Puppeteer + WebDriver BiDi
     assert.equal(result.labelAfterTypingInPassword, '');
     assert.equal(result.isActiveAfterTypingInPassword, false);
   });
+
+  it('defaults to trail="0" (single keystroke without exit animation) and shows the last X keystrokes in a sequence when trail="5", separating shortcuts/navigational keys with commas and collapsing repeated navigational/shortcut keys with a ::part(count) badge', async () => {
+    const seqResult = await page.evaluate(async () => {
+      const el = document.createElement('show-keystrokes');
+      el.setAttribute('keystrokes', 'all');
+      el.setAttribute('platform', 'mac');
+      el.setAttribute('position', 'normal');
+      el.setAttribute('hide-delay', '70');
+      el.setAttribute('hide-duration', '30');
+      document.body.appendChild(el);
+
+      const container = el.shadowRoot.querySelector('[part="container"]');
+      const fireKey = (init) => {
+        window.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, ...init }));
+      };
+
+      // 0. Default trail is 0: only shows the single most recent keystroke and does not animate evicted items
+      const defaultTrail = el.trail;
+      fireKey({ key: 'a', code: 'KeyA' });
+      fireKey({ key: 'b', code: 'KeyB' });
+      const defaultTrailLabel = el.keys;
+      const defaultTrailChildren = Array.from(container.children).map((node) => ({
+        tag: node.tagName,
+        text: node.textContent,
+        part: node.getAttribute('part'),
+        isExiting: node.classList.contains('is-exiting'),
+      }));
+
+      // Enable trail="5" for multi-keystroke sequence checks
+      el.clear();
+      el.setAttribute('trail', '5');
+
+      // 1. Typing "hello" shows H, E, L, L, O side-by-side without commas
+      for (const ch of 'hello') {
+        fireKey({ key: ch, code: `Key${ch.toUpperCase()}` });
+      }
+      const helloLabel = el.keys;
+      const helloChildren = Array.from(container.children).map((node) => ({
+        tag: node.tagName,
+        text: node.textContent,
+        part: node.getAttribute('part'),
+      }));
+
+      // 2. Typing "supercalifragilisticexpialidocious" shows only the last 5 active characters (C, I, O, U, S)
+      //    while at most 1 evicted character slides out (never exceeding trail + 1)
+      el.clear();
+      for (const ch of 'supercalifragilisticexpialidocious') {
+        fireKey({ key: ch, code: `Key${ch.toUpperCase()}` });
+      }
+      const superLabel = el.keys;
+      const superKeyTexts = Array.from(
+        container.querySelectorAll('.item:not(.is-exiting) kbd')
+      ).map((n) => n.textContent);
+
+      // 3. Hitting "CMD+B" followed by "K" shows CMD+B, a comma, and K
+      el.clear();
+      fireKey({ key: 'b', code: 'KeyB', metaKey: true });
+      fireKey({ key: 'k', code: 'KeyK' });
+      const cmdBThenKLabel = el.keys;
+      const cmdBThenKChildren = Array.from(container.children).map((node) => ({
+        tag: node.tagName,
+        text: node.textContent,
+        part: node.getAttribute('part'),
+      }));
+
+      // 4. Hitting "CMD+A" followed by a pause (the clear timeout) and then "K" shows first CMD+A and later only K
+      el.clear();
+      fireKey({ key: 'a', code: 'KeyA', metaKey: true });
+      const beforePauseLabel = el.keys;
+      await new Promise((r) => setTimeout(r, 150));
+      const duringPauseLabel = el.keys;
+      fireKey({ key: 'k', code: 'KeyK' });
+      const afterPauseKLabel = el.keys;
+
+      // 5. Hitting TAB and TAB collapses into a single TAB keycap with a ::part(count) indicator (×2)
+      el.clear();
+      fireKey({ key: 'Tab', code: 'Tab' });
+      fireKey({ key: 'Tab', code: 'Tab' });
+      const doubleTabLabel = el.keys;
+      const doubleTabChildren = Array.from(container.children).map((node) => ({
+        tag: node.tagName,
+        text: node.textContent,
+        part: node.getAttribute('part'),
+        countPartText: node.querySelector('[part="count"]')?.textContent || null,
+      }));
+
+      // 6. Setting trail="1" only keeps the single most recent keystroke
+      el.trail = 1;
+      fireKey({ key: 'a', code: 'KeyA' });
+      fireKey({ key: 'b', code: 'KeyB' });
+      const trailOneLabel = el.keys;
+
+      el.remove();
+      return {
+        defaultTrail,
+        defaultTrailLabel,
+        defaultTrailChildren,
+        helloLabel,
+        helloChildren,
+        superLabel,
+        superKeyTexts,
+        cmdBThenKLabel,
+        cmdBThenKChildren,
+        beforePauseLabel,
+        duringPauseLabel,
+        afterPauseKLabel,
+        doubleTabLabel,
+        doubleTabChildren,
+        trailOneLabel,
+      };
+    });
+
+    assert.equal(seqResult.defaultTrail, 0);
+    assert.equal(seqResult.defaultTrailLabel, 'B');
+    assert.deepEqual(seqResult.defaultTrailChildren, [
+      { tag: 'SPAN', text: 'B', part: 'item current', isExiting: false },
+    ]);
+
+    assert.equal(seqResult.helloLabel, 'H E L L O');
+    assert.deepEqual(seqResult.helloChildren, [
+      { tag: 'SPAN', text: 'H', part: 'item old' },
+      { tag: 'SPAN', text: 'E', part: 'item old' },
+      { tag: 'SPAN', text: 'L', part: 'item old' },
+      { tag: 'SPAN', text: 'L', part: 'item old' },
+      { tag: 'SPAN', text: 'O', part: 'item current' },
+    ]);
+
+    assert.equal(seqResult.superLabel, 'C I O U S');
+    assert.deepEqual(seqResult.superKeyTexts, ['C', 'I', 'O', 'U', 'S']);
+
+    assert.equal(seqResult.cmdBThenKLabel, '⌘ + B, K');
+    assert.deepEqual(seqResult.cmdBThenKChildren, [
+      { tag: 'SPAN', text: '⌘ + B', part: 'item old' },
+      { tag: 'SPAN', text: ', ', part: 'separator comma' },
+      { tag: 'SPAN', text: 'K', part: 'item current' },
+    ]);
+
+    assert.equal(seqResult.beforePauseLabel, '⌘ + A');
+    assert.equal(seqResult.duringPauseLabel, '');
+    assert.equal(seqResult.afterPauseKLabel, 'K');
+
+    assert.equal(seqResult.doubleTabLabel, '⇥×2');
+    assert.deepEqual(seqResult.doubleTabChildren, [
+      {
+        tag: 'SPAN',
+        text: '⇥×2',
+        part: 'item current',
+        countPartText: '×2',
+      },
+    ]);
+
+    assert.equal(seqResult.trailOneLabel, 'B');
+  });
+
+  it('applies the auto-hide timeout per sequence item so hitting K followed by hitting TAB 10 times expires K while TAB×10 stays visible', async () => {
+    const perItemTimeoutResult = await page.evaluate(async () => {
+      const el = document.createElement('show-keystrokes');
+      el.setAttribute('keystrokes', 'all');
+      el.setAttribute('trail', '5');
+      el.setAttribute('platform', 'mac');
+      el.setAttribute('position', 'normal');
+      el.setAttribute('hide-delay', '110');
+      el.setAttribute('hide-duration', '30');
+      document.body.appendChild(el);
+
+      const container = el.shadowRoot.querySelector('[part="container"]');
+      const tapKey = (init) => {
+        window.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, ...init }));
+        window.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, ...init }));
+      };
+
+      // 1. Hit K at t = 0
+      tapKey({ key: 'k', code: 'KeyK' });
+      const labelAfterK = el.keys;
+
+      // 2. Hit TAB 10 times, spaced 25ms apart (250ms total > K's 110ms + 30ms = 140ms timeout)
+      let labelAfterFirstTab = '';
+      for (let i = 0; i < 10; i++) {
+        await new Promise((r) => setTimeout(r, 25));
+        tapKey({ key: 'Tab', code: 'Tab' });
+        if (i === 0) {
+          labelAfterFirstTab = el.keys;
+        }
+      }
+
+      // Immediately after the 10th TAB, K's own timeout has already elapsed and removed K (and the comma),
+      // while TAB's timeout was reset on each TAB press so only ⇥×10 remains visible.
+      const labelAfterTenTabs = el.keys;
+      const childrenAfterTenTabs = Array.from(container.children).map((node) => ({
+        tag: node.tagName,
+        text: node.textContent,
+        part: node.getAttribute('part'),
+        countPartText: node.querySelector('[part="count"]')?.textContent || null,
+      }));
+      const activeAfterTenTabs = el.hasAttribute('active');
+
+      // 3. Wait for TAB×10's own timeout (110ms + 30ms) to elapse
+      await new Promise((r) => setTimeout(r, 180));
+      const labelAfterFinalTimeout = el.keys;
+      const activeAfterFinalTimeout = el.hasAttribute('active');
+
+      el.remove();
+      return {
+        labelAfterK,
+        labelAfterFirstTab,
+        labelAfterTenTabs,
+        childrenAfterTenTabs,
+        activeAfterTenTabs,
+        labelAfterFinalTimeout,
+        activeAfterFinalTimeout,
+      };
+    });
+
+    assert.equal(perItemTimeoutResult.labelAfterK, 'K');
+    assert.equal(perItemTimeoutResult.labelAfterFirstTab, 'K, ⇥');
+    assert.equal(perItemTimeoutResult.labelAfterTenTabs, '⇥×10');
+    assert.deepEqual(perItemTimeoutResult.childrenAfterTenTabs, [
+      {
+        tag: 'SPAN',
+        text: '⇥×10',
+        part: 'item current',
+        countPartText: '×10',
+      },
+    ]);
+    assert.equal(perItemTimeoutResult.activeAfterTenTabs, true);
+    assert.equal(perItemTimeoutResult.labelAfterFinalTimeout, '');
+    assert.equal(perItemTimeoutResult.activeAfterFinalTimeout, false);
+  });
+
+  it('slides and fades out the evicted character when exceeding trail > 0 (HELLO -> W slides out H, and hitting O right after W replaces H with E so DOM never exceeds trail+1), and does not animate evicted characters when trail="0"', async () => {
+    const slideOutResult = await page.evaluate(async () => {
+      const el = document.createElement('show-keystrokes');
+      el.setAttribute('keystrokes', 'all');
+      el.setAttribute('trail', '5');
+      el.setAttribute('platform', 'mac');
+      el.setAttribute('position', 'normal');
+      el.setAttribute('hide-delay', '500');
+      el.setAttribute('hide-duration', '80');
+      document.body.appendChild(el);
+
+      const container = el.shadowRoot.querySelector('[part="container"]');
+      const fireKey = (ch) => {
+        window.dispatchEvent(
+          new KeyboardEvent('keydown', { key: ch, code: `Key${ch.toUpperCase()}`, bubbles: true })
+        );
+      };
+
+      // 1. Type HELLO (5 characters = trail)
+      for (const ch of 'hello') {
+        fireKey(ch);
+      }
+
+      // 2. Hit W -> H slides out and fades out; total items in DOM is 6 (trail + 1)
+      fireKey('w');
+      const afterWItems = Array.from(container.children).map((node) => ({
+        text: node.textContent,
+        part: node.getAttribute('part'),
+        isExiting: node.classList.contains('is-exiting'),
+      }));
+
+      // 3. Immediately hit O right after W -> H is immediately removed, E slides out and fades out instead of H;
+      //    total items in DOM remains 6 (never exceeding trail + 1)
+      fireKey('o');
+      const afterOItems = Array.from(container.children).map((node) => ({
+        text: node.textContent,
+        part: node.getAttribute('part'),
+        isExiting: node.classList.contains('is-exiting'),
+      }));
+
+      // 4. After hide-duration (80ms) elapses, the exiting E is removed from the DOM, leaving 5 items (L, L, O, W, O)
+      await new Promise((r) => setTimeout(r, 110));
+      const afterSlideCompleteItems = Array.from(container.children).map((node) => ({
+        text: node.textContent,
+        part: node.getAttribute('part'),
+        isExiting: node.classList.contains('is-exiting'),
+      }));
+
+      // 5. When trail="0", evicted characters are NOT animated out at all
+      el.trail = 0;
+      fireKey('x');
+      fireKey('y');
+      const afterTrailZeroItems = Array.from(container.children).map((node) => ({
+        text: node.textContent,
+        part: node.getAttribute('part'),
+        isExiting: node.classList.contains('is-exiting'),
+      }));
+
+      el.remove();
+      return {
+        afterWItems,
+        afterOItems,
+        afterSlideCompleteItems,
+        afterTrailZeroItems,
+      };
+    });
+
+    assert.equal(slideOutResult.afterWItems.length, 6);
+    assert.deepEqual(slideOutResult.afterWItems, [
+      { text: 'H', part: 'item old exiting', isExiting: true },
+      { text: 'E', part: 'item old', isExiting: false },
+      { text: 'L', part: 'item old', isExiting: false },
+      { text: 'L', part: 'item old', isExiting: false },
+      { text: 'O', part: 'item old', isExiting: false },
+      { text: 'W', part: 'item current', isExiting: false },
+    ]);
+
+    assert.equal(slideOutResult.afterOItems.length, 6);
+    assert.deepEqual(slideOutResult.afterOItems, [
+      { text: 'E', part: 'item old exiting', isExiting: true },
+      { text: 'L', part: 'item old', isExiting: false },
+      { text: 'L', part: 'item old', isExiting: false },
+      { text: 'O', part: 'item old', isExiting: false },
+      { text: 'W', part: 'item old', isExiting: false },
+      { text: 'O', part: 'item current', isExiting: false },
+    ]);
+
+    assert.equal(slideOutResult.afterSlideCompleteItems.length, 5);
+    assert.deepEqual(slideOutResult.afterSlideCompleteItems, [
+      { text: 'L', part: 'item old', isExiting: false },
+      { text: 'L', part: 'item old', isExiting: false },
+      { text: 'O', part: 'item old', isExiting: false },
+      { text: 'W', part: 'item old', isExiting: false },
+      { text: 'O', part: 'item current', isExiting: false },
+    ]);
+
+    assert.equal(slideOutResult.afterTrailZeroItems.length, 1);
+    assert.deepEqual(slideOutResult.afterTrailZeroItems, [
+      { text: 'Y', part: 'item current', isExiting: false },
+    ]);
+  });
 });
+
+

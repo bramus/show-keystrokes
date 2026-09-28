@@ -1176,6 +1176,11 @@ show-keystrokes.custom-pill::part(key) {
   box-shadow: 0 4px 10px rgba(99, 102, 241, 0.35);
 }
 
+show-keystrokes.custom-sequence-focus::part(old) {
+  opacity: 0.5;
+  font-size: 0.8em;
+}
+
 footer {
   margin-top: 4rem;
   padding-top: 2rem;

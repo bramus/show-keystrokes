@@ -5,6 +5,7 @@
  */
 
 import {
+  DEFAULT_TRAIL,
   DEFAULT_HIDE_DELAY,
   DEFAULT_HIDE_DURATION,
   DEFAULT_SIZE,
@@ -18,8 +19,13 @@ import {
   parsePosition,
   parseDurationMs,
   parseSize,
+  parseTrail,
+  needsCommaSeparator,
+  formatSequenceLabel,
+  appendKeystrokeToSequence,
   formatKeystrokeEvent,
   parseKeystrokeString,
+  parseKeystrokeSequence,
 } from '../utils/keystroke.js';
 
 const COMPONENT_STYLES = `
@@ -424,7 +430,41 @@ const COMPONENT_STYLES = `
     transform: translateY(2px);
   }
 
+  .item {
+    --_key-min-size: var(--show-keystrokes-key-min-size, 2.75em);
+    --_key-radius: var(--show-keystrokes-key-radius, 0.5em);
+    --_key-padding: var(--show-keystrokes-key-padding, 0 0.65em);
+    --_key-font-size: var(--show-keystrokes-key-font-size, 0.875em);
+    --_gap: var(--show-keystrokes-gap, 0.375em);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    gap: var(--_gap);
+    margin-inline-start: 0;
+    scale: 1;
+    transition: opacity 0.15s ease, transform 0.15s ease, scale 0.15s ease, font-size 0.15s ease;
+
+    @starting-style {
+      scale: 1.1;
+    }
+  }
+
+  :host([static]) .item {
+    transition: none;
+  }
+
+  :host([theme="mechanical"]) .item,
+  :host([theme="mechanical-light"]) .item,
+  :host([theme="mechanical-dark"]) .item,
+  :host([theme="classic"]) .item,
+  :host([theme="classic-light"]) .item,
+  :host([theme="classic-dark"]) .item {
+    --_key-radius: var(--show-keystrokes-key-radius, 0.4375em);
+  }
+
   .key {
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -466,7 +506,36 @@ const COMPONENT_STYLES = `
     color: var(--_modifier-color);
   }
 
-  :host([pressed]) .key {
+  .key.has-count {
+    margin-inline-end: 0.2em;
+  }
+
+  .count {
+    position: absolute;
+    top: -0.45em;
+    right: -0.45em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5em;
+    height: 1.5em;
+    padding: 0 0.35em;
+    border-radius: 999px;
+    background: var(--show-keystrokes-count-bg, light-dark(#1d1d1f, #f5f5f7));
+    color: var(--show-keystrokes-count-color, light-dark(#ffffff, #1d1d1f));
+    border: var(--show-keystrokes-count-border, 1.5px solid light-dark(#ffffff, #1c1c1e));
+    box-shadow: var(--show-keystrokes-count-shadow, 0 1px 3px rgba(0, 0, 0, 0.25));
+    font-family: var(--_key-font-family);
+    font-size: var(--show-keystrokes-count-size, 0.65em);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0;
+    pointer-events: none;
+    box-sizing: border-box;
+    z-index: 1;
+  }
+
+  :host([pressed]) .item.is-current .key {
     transform: translateY(1px);
   }
 
@@ -482,6 +551,31 @@ const COMPONENT_STYLES = `
     font-weight: 600;
     padding: 0 0.1em;
     line-height: 1;
+  }
+
+  .separator.is-comma {
+    margin-inline-start: calc(var(--_gap) * -0.45);
+    margin-inline-end: calc(var(--_gap) * 0.15);
+    align-self: flex-end;
+    padding-bottom: 0.45em;
+  }
+
+  .item.is-fading,
+  .separator.is-fading {
+    opacity: 0 !important;
+    transform: translateY(2px);
+    transition: opacity var(--_hide-duration) ease, transform var(--_hide-duration) ease;
+  }
+
+  .item.is-exiting {
+    opacity: 0 !important;
+    margin-inline-start: var(--_exiting-margin, calc(-1 * (var(--_key-min-size) + var(--_gap))));
+    transform: translateX(-0.25em) scale(0.9);
+    pointer-events: none;
+    transition:
+      opacity var(--_hide-duration) ease,
+      margin-inline-start var(--_hide-duration) ease,
+      transform var(--_hide-duration) ease;
   }
 `;
 
@@ -547,6 +641,7 @@ export class ShowKeystrokes extends HTMLElement {
       'disabled',
       'target',
       'ignore',
+      'trail',
     ];
   }
 
@@ -556,8 +651,10 @@ export class ShowKeystrokes extends HTMLElement {
   #boundKeyDown = null;
   #boundKeyUp = null;
   #boundBlur = null;
-  #fadeTimer = null;
   #fallbackRafId = null;
+  #nextItemId = 0;
+  #exitingItem = null;
+  #sequence = [];
   #currentKeys = [];
   #currentLabel = '';
   #isPhysicalMac = false;
@@ -620,7 +717,7 @@ export class ShowKeystrokes extends HTMLElement {
 
   disconnectedCallback() {
     this.#detachListeners();
-    this.#clearTimer();
+    this.#clearAllItemTimers();
     this.#hidePopover();
   }
 
@@ -641,15 +738,19 @@ export class ShowKeystrokes extends HTMLElement {
 
     if (name === 'hide-duration') {
       this.#syncHideDurationStyle();
-      if (this.#currentKeys.length > 0) {
-        this.#scheduleAutoClear();
+      if (this.#sequence.length > 0) {
+        for (const item of this.#sequence) {
+          this.#scheduleItemAutoClear(item);
+        }
       }
       return;
     }
 
     if (name === 'hide-delay') {
-      if (this.#currentKeys.length > 0) {
-        this.#scheduleAutoClear();
+      if (this.#sequence.length > 0) {
+        for (const item of this.#sequence) {
+          this.#scheduleItemAutoClear(item);
+        }
       }
       return;
     }
@@ -657,7 +758,7 @@ export class ShowKeystrokes extends HTMLElement {
     if (name === 'disabled') {
       this.#detachListeners();
       if (this.disabled) {
-        this.#clearTimer();
+        this.#clearAllItemTimers();
         if (!this.hasAttribute('static') && this.#currentKeys.length > 0) {
           this.clear();
         }
@@ -696,8 +797,43 @@ export class ShowKeystrokes extends HTMLElement {
       return;
     }
 
-    if (name === 'notation' && this.#currentLabel) {
-      this.showKeys(this.#currentLabel);
+    if (name === 'trail') {
+      this.#clearExitingItem();
+      const maxKeys = this.trail;
+      let totalKeys = this.#sequence.reduce(
+        (sum, item) =>
+          sum + (Array.isArray(item.keys) && item.keys.length > 0 ? item.keys.length : 1),
+        0
+      );
+      if (totalKeys > maxKeys && this.#sequence.length > 1) {
+        while (totalKeys > maxKeys && this.#sequence.length > 1) {
+          const evicted = this.#sequence.shift();
+          const evictedKeys =
+            Array.isArray(evicted?.keys) && evicted.keys.length > 0 ? evicted.keys.length : 1;
+          totalKeys -= evictedKeys;
+          this.#clearItemTimer(evicted);
+        }
+        this.#currentKeys = this.#sequence.flatMap((item) => item.keys);
+        this.#currentLabel = formatSequenceLabel(this.#sequence);
+        this.#render();
+      }
+      return;
+    }
+
+    if (name === 'notation' && this.#sequence.length > 0) {
+      for (const item of this.#sequence) {
+        const reparsed = parseKeystrokeString(
+          item.keys.map((k) => k.label),
+          { platform: this.platform, notation: this.notation }
+        );
+        item.keys = reparsed.keys;
+        item.label = reparsed.label;
+        item.itemNode = null;
+        item.primaryKbd = null;
+      }
+      this.#currentKeys = this.#sequence.flatMap((item) => item.keys);
+      this.#currentLabel = formatSequenceLabel(this.#sequence);
+      this.#render();
     }
   }
 
@@ -1078,7 +1214,37 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   /**
-   * Gets or sets the currently displayed keystroke string (e.g. "SHIFT + TAB").
+   * Gets or sets the maximum number of recent keys to show in a sequence.
+   * Defaults to 0 (shows only the single most recent keystroke without animating evicted characters).
+   * @returns {number}
+   */
+  get trail() {
+    return parseTrail(this.getAttribute('trail'), DEFAULT_TRAIL);
+  }
+
+  set trail(val) {
+    if (val === null || val === undefined || val === '') {
+      this.removeAttribute('trail');
+    } else {
+      this.setAttribute('trail', String(parseTrail(val, DEFAULT_TRAIL)));
+    }
+  }
+
+  /**
+   * Returns a copy of the currently displayed keystroke sequence items.
+   * @returns {Array<{ keys: Array<{ label: string, type: 'modifier' | 'primary' }>, label: string, category: 'shortcut' | 'navigational' | 'keystroke', count: number }>}
+   */
+  get sequence() {
+    return this.#sequence.map((item) => ({
+      keys: item.keys.map((k) => ({ ...k })),
+      label: item.label,
+      category: item.category,
+      count: item.count,
+    }));
+  }
+
+  /**
+   * Gets or sets the currently displayed keystroke string (e.g. "SHIFT + TAB" or "⌘ + B, K").
    */
   get keys() {
     return this.#currentLabel;
@@ -1089,24 +1255,31 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   /**
-   * Programmatically displays a keystroke string or array of key labels.
+   * Programmatically displays a keystroke string, sequence string, or array of key labels.
    *
-   * @param {string | string[]} input - e.g. "CMD + A", "SHIFT + TAB", "→", or ['SHIFT', 'TAB']
+   * @param {string | string[]} input - e.g. "CMD + A", "SHIFT + TAB", "CMD + B, K", "H E L L O", "→", or ['SHIFT', 'TAB']
    */
   showKeys(input) {
     if (this.disabled && !this.hasAttribute('static')) {
       return;
     }
-    this.#clearTimer();
-    const parsed = parseKeystrokeString(input, {
+    this.#clearAllItemTimers();
+    const parsed = parseKeystrokeSequence(input, {
       platform: this.platform,
       notation: this.notation,
+      trail: this.hasAttribute('trail') ? this.trail : undefined,
     });
 
+    this.#sequence = parsed.sequence.map((item) => ({
+      ...item,
+      id: ++this.#nextItemId,
+    }));
     this.#currentKeys = parsed.keys;
     this.#currentLabel = parsed.label;
     this.#render();
-    this.#scheduleAutoClear();
+    for (const item of this.#sequence) {
+      this.#scheduleItemAutoClear(item);
+    }
   }
 
   /**
@@ -1142,12 +1315,90 @@ export class ShowKeystrokes extends HTMLElement {
       return false;
     }
 
-    this.#clearTimer();
+    this.#clearExitingItem();
     this.setAttribute('pressed', '');
-    this.#currentKeys = result.keys;
-    this.#currentLabel = result.label;
+
+    const prevById = new Map(this.#sequence.map((item) => [item.id, item]));
+    const nextSeq = appendKeystrokeToSequence(
+      this.#sequence,
+      {
+        id: ++this.#nextItemId,
+        keys: result.keys,
+        label: result.label,
+        category: result.category,
+        count: 1,
+      },
+      this.trail
+    );
+
+    const nextIds = new Set(nextSeq.map((item) => item.id));
+    const evictedItems = [];
+    for (const prevItem of prevById.values()) {
+      if (!nextIds.has(prevItem.id)) {
+        this.#clearItemTimer(prevItem);
+        evictedItems.push(prevItem);
+      }
+    }
+
+    this.#sequence = nextSeq.map((item) => {
+      if (item.id !== undefined && prevById.has(item.id)) {
+        const existing = prevById.get(item.id);
+        if (existing.count !== item.count) {
+          existing.count = item.count;
+          existing.itemNode = null;
+          existing.primaryKbd = null;
+        }
+        return existing;
+      }
+      return {
+        ...item,
+        id: item.id !== undefined ? item.id : ++this.#nextItemId,
+      };
+    });
+
+    const activeItem = this.#sequence[this.#sequence.length - 1];
+    if (activeItem) {
+      this.#clearItemTimer(activeItem);
+    }
+
+    this.#currentKeys = this.#sequence.flatMap((item) => item.keys);
+    this.#currentLabel = formatSequenceLabel(this.#sequence);
+
+    let newExitingItem = null;
+    if (
+      this.trail > 0 &&
+      evictedItems.length > 0 &&
+      !this.hasAttribute('static') &&
+      !this.disabled &&
+      this.hideDuration > 0
+    ) {
+      const candidate = evictedItems[evictedItems.length - 1];
+      const candidateKeyCount =
+        Array.isArray(candidate.keys) && candidate.keys.length > 0 ? candidate.keys.length : 1;
+      if (
+        candidate.itemNode &&
+        candidate.itemNode.isConnected &&
+        this.#currentKeys.length + candidateKeyCount <= this.trail + 1
+      ) {
+        const firstRemaining = this.#sequence[0];
+        if (firstRemaining && firstRemaining.commaNode) {
+          candidate.itemNode.appendChild(firstRemaining.commaNode);
+          firstRemaining.commaNode = null;
+        }
+        newExitingItem = candidate;
+        this.#exitingItem = candidate;
+      }
+    }
+
     this.#render();
-    this.#scheduleAutoClear();
+
+    if (newExitingItem) {
+      this.#startExitingItemAnimation(newExitingItem);
+    }
+
+    if (activeItem) {
+      this.#scheduleItemAutoClear(activeItem);
+    }
 
     this.dispatchEvent(
       new CustomEvent('keystroke', {
@@ -1156,6 +1407,8 @@ export class ShowKeystrokes extends HTMLElement {
         detail: {
           keys: result.keys.map((k) => k.label),
           label: result.label,
+          sequence: this.sequence,
+          sequenceLabel: this.#currentLabel,
           category: result.category,
           platform: effectivePlatform,
           originalEvent: event,
@@ -1167,14 +1420,15 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   /**
-   * Clears the currently displayed keystroke.
+   * Clears the currently displayed keystroke sequence.
    */
   clear() {
-    this.#clearTimer();
+    this.#clearAllItemTimers();
     if (this.#fallbackRafId && typeof cancelAnimationFrame === 'function') {
       cancelAnimationFrame(this.#fallbackRafId);
       this.#fallbackRafId = null;
     }
+    this.#sequence = [];
     this.#currentKeys = [];
     this.#currentLabel = '';
     this.removeAttribute('pressed');
@@ -1256,18 +1510,22 @@ export class ShowKeystrokes extends HTMLElement {
       return;
     }
     this.removeAttribute('pressed');
-    this.#scheduleAutoClear();
+    const lastItem = this.#sequence[this.#sequence.length - 1];
+    if (lastItem) {
+      this.#scheduleItemAutoClear(lastItem);
+    }
   }
 
   #onBlur() {
     this.removeAttribute('pressed');
   }
 
-  #scheduleAutoClear() {
+  #scheduleItemAutoClear(item) {
     if (
+      !item ||
       this.hasAttribute('static') ||
       this.hasAttribute('disabled') ||
-      this.#currentKeys.length === 0
+      this.#sequence.length === 0
     ) {
       return;
     }
@@ -1279,30 +1537,240 @@ export class ShowKeystrokes extends HTMLElement {
 
     const hideDurationMs = this.hideDuration;
     this.#syncHideDurationStyle();
-    this.#clearTimer();
+    this.#clearItemTimer(item);
 
-    this.#fadeTimer = setTimeout(() => {
-      if (hideDurationMs <= 0) {
-        this.clear();
+    item.fadeTimer = setTimeout(() => {
+      item.fadeTimer = null;
+      if (!this.#sequence.includes(item)) {
         return;
       }
 
-      this.setAttribute('fading', '');
-      this.#container.classList.add('is-fading');
-      this.#fadeTimer = setTimeout(() => {
-        this.clear();
+      if (hideDurationMs <= 0) {
+        this.#removeSequenceItem(item);
+        return;
+      }
+
+      item.fading = true;
+      this.#syncFadingState();
+
+      item.fadeTimer = setTimeout(() => {
+        item.fadeTimer = null;
+        this.#removeSequenceItem(item);
       }, hideDurationMs);
     }, hideDelayMs);
   }
 
-  #clearTimer() {
-    if (this.#fadeTimer) {
-      clearTimeout(this.#fadeTimer);
-      this.#fadeTimer = null;
+  #clearItemTimer(item) {
+    if (!item) {
+      return;
+    }
+    if (item.fadeTimer) {
+      clearTimeout(item.fadeTimer);
+      item.fadeTimer = null;
+    }
+    if (item.fading) {
+      item.fading = false;
+      item.itemNode?.classList.remove('is-fading');
+      this.#syncFadingState();
+    }
+  }
+
+  #clearExitingItem() {
+    if (!this.#exitingItem) {
+      return;
+    }
+    if (this.#exitingItem.exitTimer) {
+      clearTimeout(this.#exitingItem.exitTimer);
+      this.#exitingItem.exitTimer = null;
+    }
+    if (this.#exitingItem.itemNode) {
+      this.#exitingItem.itemNode.remove();
+    }
+    this.#exitingItem = null;
+  }
+
+  #startExitingItemAnimation(item) {
+    if (!item || !item.itemNode || !this.#container) {
+      return;
+    }
+    const hideDurationMs = this.hideDuration;
+    if (hideDurationMs <= 0) {
+      this.#clearExitingItem();
+      return;
+    }
+
+    this.#syncHideDurationStyle();
+
+    const exitingNode = item.itemNode;
+    const exitingRect = exitingNode.getBoundingClientRect();
+    const firstActiveNode = this.#sequence[0]?.itemNode;
+    const firstActiveRect = firstActiveNode ? firstActiveNode.getBoundingClientRect() : null;
+    const slideDistance =
+      firstActiveRect && firstActiveRect.left > exitingRect.left
+        ? firstActiveRect.left - exitingRect.left
+        : exitingRect.width;
+
+    if (slideDistance > 0) {
+      exitingNode.style.setProperty('--_exiting-margin', `-${slideDistance}px`);
+    }
+
+    void exitingNode.offsetWidth;
+    exitingNode.classList.add('is-exiting');
+
+    item.exitTimer = setTimeout(() => {
+      if (this.#exitingItem === item) {
+        this.#clearExitingItem();
+      }
+    }, hideDurationMs);
+  }
+
+  #clearAllItemTimers() {
+    this.#clearExitingItem();
+    for (const item of this.#sequence) {
+      if (item.fadeTimer) {
+        clearTimeout(item.fadeTimer);
+        item.fadeTimer = null;
+      }
+      item.fading = false;
     }
     this.removeAttribute('fading');
     if (this.#container) {
       this.#container.classList.remove('is-fading');
+    }
+  }
+
+  #removeSequenceItem(item) {
+    if (!item) {
+      return;
+    }
+    if (item.fadeTimer) {
+      clearTimeout(item.fadeTimer);
+      item.fadeTimer = null;
+    }
+    item.fading = false;
+
+    const idx = this.#sequence.indexOf(item);
+    if (idx === -1) {
+      return;
+    }
+
+    this.#sequence.splice(idx, 1);
+    if (this.#sequence.length === 0) {
+      this.clear();
+      return;
+    }
+
+    this.#currentKeys = this.#sequence.flatMap((entry) => entry.keys);
+    this.#currentLabel = formatSequenceLabel(this.#sequence);
+    this.#render();
+  }
+
+  #syncFadingState() {
+    if (!this.#container) {
+      return;
+    }
+
+    if (this.#sequence.length === 0) {
+      this.removeAttribute('fading');
+      this.#container.classList.remove('is-fading');
+      return;
+    }
+
+    const allFading = this.#sequence.every((entry) => Boolean(entry.fading));
+    if (allFading) {
+      this.setAttribute('fading', '');
+      this.#container.classList.add('is-fading');
+    } else {
+      this.removeAttribute('fading');
+      this.#container.classList.remove('is-fading');
+    }
+
+    for (let i = 0; i < this.#sequence.length; i++) {
+      const seqItem = this.#sequence[i];
+      const isItemFading = Boolean(seqItem.fading);
+      if (seqItem.itemNode) {
+        seqItem.itemNode.classList.toggle('is-fading', isItemFading);
+      }
+      if (seqItem.commaNode) {
+        const allPrecedingFading =
+          i > 0 && this.#sequence.slice(0, i).every((prev) => Boolean(prev.fading));
+        const shouldCommaFade = isItemFading || allPrecedingFading;
+        seqItem.commaNode.classList.toggle('is-fading', shouldCommaFade);
+      }
+    }
+  }
+
+  #ensureItemDomNodes(seqItem) {
+    if (!seqItem.itemNode) {
+      const itemNode = document.createElement('span');
+      itemNode.className = 'item';
+      let primaryKbd = null;
+
+      seqItem.keys.forEach((keyItem, keyIndex) => {
+        if (keyIndex > 0) {
+          const sep = document.createElement('span');
+          sep.className = 'separator';
+          sep.setAttribute('part', 'separator');
+          sep.setAttribute('aria-hidden', 'true');
+          sep.textContent = ' + ';
+          itemNode.appendChild(sep);
+        }
+
+        const kbd = document.createElement('kbd');
+        const isSingleChar = keyItem.label.length === 1;
+        const isArrow =
+          keyItem.label === '→' ||
+          keyItem.label === '←' ||
+          keyItem.label === '↑' ||
+          keyItem.label === '↓';
+
+        const classes = ['key'];
+        const parts = ['key'];
+
+        if (keyItem.type === 'modifier') {
+          classes.push('is-modifier');
+          parts.push('modifier');
+        } else {
+          parts.push('primary');
+        }
+
+        if (isSingleChar) {
+          classes.push('is-square');
+        }
+        if (isArrow) {
+          classes.push('is-arrow');
+        }
+
+        kbd.className = classes.join(' ');
+        kbd.setAttribute('part', parts.join(' '));
+        kbd.textContent = keyItem.label;
+
+        if (keyIndex === seqItem.keys.length - 1) {
+          primaryKbd = kbd;
+        }
+
+        itemNode.appendChild(kbd);
+      });
+
+      seqItem.itemNode = itemNode;
+      seqItem.primaryKbd = primaryKbd;
+    }
+
+    if (seqItem.primaryKbd) {
+      const hasRepeatCount = seqItem.count > 1;
+      seqItem.primaryKbd.classList.toggle('has-count', hasRepeatCount);
+      let countBadge = seqItem.primaryKbd.querySelector('.count');
+      if (hasRepeatCount) {
+        if (!countBadge) {
+          countBadge = document.createElement('span');
+          countBadge.className = 'count';
+          countBadge.setAttribute('part', 'count');
+          seqItem.primaryKbd.appendChild(countBadge);
+        }
+        countBadge.textContent = `×${seqItem.count}`;
+      } else if (countBadge) {
+        countBadge.remove();
+      }
     }
   }
 
@@ -1317,9 +1785,9 @@ export class ShowKeystrokes extends HTMLElement {
     }
 
     this.#syncPopoverAttribute();
-    this.#container.replaceChildren();
 
-    if (this.#currentKeys.length === 0) {
+    if (this.#sequence.length === 0 || this.#currentKeys.length === 0) {
+      this.#container.replaceChildren();
       this.#container.classList.add('is-empty');
       this.removeAttribute('active');
       this.#hidePopover();
@@ -1329,53 +1797,58 @@ export class ShowKeystrokes extends HTMLElement {
     }
 
     this.#container.classList.remove('is-empty');
-    this.#container.classList.remove('is-fading');
     this.setAttribute('active', '');
 
-    const fragment = document.createDocumentFragment();
+    const desiredNodes = [];
+    if (this.#exitingItem && this.#exitingItem.itemNode) {
+      this.#exitingItem.itemNode.classList.remove('is-current');
+      this.#exitingItem.itemNode.classList.add('is-old');
+      this.#exitingItem.itemNode.setAttribute('part', 'item old exiting');
+      this.#exitingItem.itemNode.setAttribute('aria-hidden', 'true');
+      desiredNodes.push(this.#exitingItem.itemNode);
+    }
 
-    this.#currentKeys.forEach((keyItem, index) => {
-      if (index > 0) {
-        const sep = document.createElement('span');
-        sep.className = 'separator';
-        sep.setAttribute('part', 'separator');
-        sep.setAttribute('aria-hidden', 'true');
-        sep.textContent = ' + ';
-        fragment.appendChild(sep);
-      }
+    const lastIndex = this.#sequence.length - 1;
 
-      const kbd = document.createElement('kbd');
-      const isSingleChar = keyItem.label.length === 1;
-      const isArrow =
-        keyItem.label === '→' ||
-        keyItem.label === '←' ||
-        keyItem.label === '↑' ||
-        keyItem.label === '↓';
-
-      const classes = ['key'];
-      const parts = ['key'];
-
-      if (keyItem.type === 'modifier') {
-        classes.push('is-modifier');
-        parts.push('modifier');
+    this.#sequence.forEach((seqItem, seqIndex) => {
+      if (seqIndex > 0 && needsCommaSeparator(this.#sequence[seqIndex - 1], seqItem)) {
+        if (!seqItem.commaNode) {
+          const commaSep = document.createElement('span');
+          commaSep.className = 'separator is-comma';
+          commaSep.setAttribute('part', 'separator comma');
+          commaSep.setAttribute('aria-hidden', 'true');
+          commaSep.textContent = ', ';
+          seqItem.commaNode = commaSep;
+        }
+        desiredNodes.push(seqItem.commaNode);
       } else {
-        parts.push('primary');
+        seqItem.commaNode = null;
       }
 
-      if (isSingleChar) {
-        classes.push('is-square');
-      }
-      if (isArrow) {
-        classes.push('is-arrow');
-      }
-
-      kbd.className = classes.join(' ');
-      kbd.setAttribute('part', parts.join(' '));
-      kbd.textContent = keyItem.label;
-      fragment.appendChild(kbd);
+      this.#ensureItemDomNodes(seqItem);
+      const isCurrent = seqIndex === lastIndex;
+      seqItem.itemNode.classList.toggle('is-current', isCurrent);
+      seqItem.itemNode.classList.toggle('is-old', !isCurrent);
+      seqItem.itemNode.setAttribute('part', isCurrent ? 'item current' : 'item old');
+      desiredNodes.push(seqItem.itemNode);
     });
 
-    this.#container.appendChild(fragment);
+    const desiredSet = new Set(desiredNodes);
+    for (const child of Array.from(this.#container.childNodes)) {
+      if (!desiredSet.has(child)) {
+        child.remove();
+      }
+    }
+
+    for (let i = 0; i < desiredNodes.length; i++) {
+      const node = desiredNodes[i];
+      const currentAtPos = this.#container.childNodes[i];
+      if (currentAtPos !== node) {
+        this.#container.insertBefore(node, currentAtPos || null);
+      }
+    }
+
+    this.#syncFadingState();
     this.#showPopover();
 
     // Reinstate position-anchor immediately and reinstate position-try-fallbacks after one rendered frame
