@@ -108,6 +108,20 @@
               <show-keystrokes id="playground-visualizer" theme="modern" color-scheme="light" position="normal"></show-keystrokes>
             </div>
 
+            <div class="test-inputs-section">
+              <div class="test-inputs-grid">
+                <div class="control-group">
+                  <label for="demo-text-input">Text Input (<code>&lt;input type="text"&gt;</code>)</label>
+                  <input type="text" id="demo-text-input" placeholder="Type here (ignored when ignore=&quot;editable&quot;)…" autocomplete="off" data-1p-ignore>
+                </div>
+
+                <div class="control-group">
+                  <label for="demo-password-input">Password Input (<code>&lt;input type="password"&gt;</code>)</label>
+                  <input type="password" id="demo-password-input" placeholder="Type here (ignored unless ignore=&quot;none&quot;)…" autocomplete="off" data-1p-ignore>
+                </div>
+              </div>
+            </div>
+
             <div class="controls-section">
               <h3 class="controls-title">Configuration</h3>
 
@@ -228,6 +242,16 @@
                   </div>
 
                   <div class="control-group">
+                    <label for="select-ignore">Ignored Elements (<code>ignore</code>)</label>
+                    <select id="select-ignore">
+                      <button><selectedcontent></selectedcontent></button>
+                      <option value="" selected>Sensitive Inputs Only (Default)</option>
+                      <option value="editable">All Editable Elements (editable)</option>
+                      <option value="none">Nothing (none)</option>
+                    </select>
+                  </div>
+
+                  <div class="control-group">
                     <label for="select-disabled">State (<code>disabled</code>)</label>
                     <select id="select-disabled">
                       <button><selectedcontent></selectedcontent></button>
@@ -315,6 +339,11 @@
                   <td><code>keystrokes</code></td>
                   <td><em>(no value)</em></td>
                   <td><em>(no value)</em> (Shortcuts &amp; Navigational), <code>"all"</code> (All keystrokes), <code>"shortcuts"</code> (Shortcuts only), <code>"navigational"</code> (Navigational Keys only), or <code>"none"</code> (Nothing)</td>
+                </tr>
+                <tr>
+                  <td><code>ignore</code></td>
+                  <td><em>(no value)</em></td>
+                  <td><em>(no value)</em> or <code>"sensitive"</code> (ignores keystrokes when <code>&lt;input type="password"&gt;</code> is focused), <code>"editable"</code> (ignores keystrokes when any text-editable element such as <code>&lt;input type="text|number|email|…"&gt;</code>, <code>&lt;textarea&gt;</code>, or <code>[contenteditable]</code> is focused), or <code>"none"</code> (ignores nothing, showing keystrokes even in password fields)</td>
                 </tr>
                 <tr>
                   <td><code>theme</code></td>

@@ -4,11 +4,25 @@
  */
 
 export const DEFAULT_KEYSTROKES = ['shortcuts', 'navigational'];
+export const DEFAULT_IGNORE = ['sensitive'];
 export const DEFAULT_HIDE_DELAY = 1250;
 export const DEFAULT_HIDE_DURATION = 200;
 export const DEFAULT_SIZE = 'large';
 export const DEFAULT_POSITION = 'viewport top right';
 export const DEFAULT_NOTATION = 'symbols';
+
+export const NON_TEXT_INPUT_TYPES = new Set([
+  'button',
+  'checkbox',
+  'color',
+  'file',
+  'hidden',
+  'image',
+  'radio',
+  'range',
+  'reset',
+  'submit',
+]);
 
 export const VALID_SIZES = new Set(['small', 'medium', 'large', 'x-large', 'xx-large']);
 export const VALID_VERTICAL_POSITIONS = new Set(['top', 'center', 'bottom']);
@@ -365,15 +379,221 @@ export function getModifierLabels(event, options = {}) {
 }
 
 /**
+ * Parses the `ignore` attribute/property value into a normalized Set of ignored target categories:
+ * - (no value / empty) or 'sensitive': Set(['sensitive']) (default — ignores `<input type="password">`)
+ * - 'editable': Set(['editable', 'sensitive']) (ignores text inputs, `<textarea>`, `[contenteditable]`, and `<input type="password">`)
+ * - 'none': Set() (empty set — ignores nothing, showing keystrokes even in `<input type="password">`)
+ *
+ * @param {string | string[] | Set<string> | null | undefined} value
+ * @returns {Set<'sensitive' | 'editable'>}
+ */
+export function parseIgnore(value) {
+  if (value instanceof Set) {
+    if (value.size === 0) {
+      return new Set();
+    }
+    return parseIgnore(Array.from(value).join(' '));
+  }
+
+  if (Array.isArray(value)) {
+    return parseIgnore(value.join(' '));
+  }
+
+  if (typeof value !== 'string' || !value.trim()) {
+    return new Set(DEFAULT_IGNORE);
+  }
+
+  const tokens = value
+    .toLowerCase()
+    .split(/[\s,|+/]+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const result = new Set();
+
+  for (const token of tokens) {
+    if (token === 'none' || token === 'off' || token === 'nothing') {
+      return new Set();
+    } else if (
+      token === 'editable' ||
+      token === 'editables' ||
+      token === 'text' ||
+      token === 'text-inputs' ||
+      token === 'inputs' ||
+      token === 'all'
+    ) {
+      result.add('editable');
+      result.add('sensitive');
+    } else if (token === 'sensitive' || token === 'password' || token === 'passwords') {
+      result.add('sensitive');
+    }
+  }
+
+  if (result.size === 0) {
+    return new Set(DEFAULT_IGNORE);
+  }
+
+  return result;
+}
+
+/**
+ * Checks whether a given DOM element (or event target mock) is a sensitive input (`<input type="password">`).
+ *
+ * @param {Element | object | null | undefined} el
+ * @returns {boolean}
+ */
+export function isSensitiveInputElement(el) {
+  if (!el || typeof el !== 'object') {
+    return false;
+  }
+  const tagName = typeof el.tagName === 'string' ? el.tagName.toUpperCase() : '';
+  if (tagName !== 'INPUT') {
+    return false;
+  }
+  const typeAttr =
+    typeof el.getAttribute === 'function' ? el.getAttribute('type') : undefined;
+  const typeProp = typeof el.type === 'string' ? el.type : '';
+  const effectiveType = (typeAttr || typeProp || '').trim().toLowerCase();
+  return effectiveType === 'password';
+}
+
+/**
+ * Checks whether a given DOM element (or event target mock) is an editable text element:
+ * - `<input>` whose `type` is a text/value entry type (e.g. `text`, `number`, `email`, `search`, `tel`, `url`, `password`, etc. — excluding non-text controls like `checkbox`, `radio`, `range`, `button`, `submit`, `reset`, `color`, `file`, `image`, `hidden`)
+ * - `<textarea>`
+ * - `[contenteditable]` element (or descendant of a `contenteditable` element)
+ *
+ * @param {Element | object | null | undefined} el
+ * @returns {boolean}
+ */
+export function isEditableElement(el) {
+  if (!el || typeof el !== 'object') {
+    return false;
+  }
+
+  const tagName = typeof el.tagName === 'string' ? el.tagName.toUpperCase() : '';
+  if (tagName === 'TEXTAREA') {
+    return true;
+  }
+
+  if (tagName === 'INPUT') {
+    const typeAttr =
+      typeof el.getAttribute === 'function' ? el.getAttribute('type') : undefined;
+    const typeProp = typeof el.type === 'string' ? el.type : '';
+    const effectiveType = (typeAttr || typeProp || 'text').trim().toLowerCase();
+    return !NON_TEXT_INPUT_TYPES.has(effectiveType);
+  }
+
+  if (typeof el.isContentEditable === 'boolean' && el.isContentEditable) {
+    return true;
+  }
+
+  const ceAttr =
+    typeof el.getAttribute === 'function' ? el.getAttribute('contenteditable') : undefined;
+  if (typeof ceAttr === 'string') {
+    const normalizedCe = ceAttr.trim().toLowerCase();
+    if (
+      normalizedCe === '' ||
+      normalizedCe === 'true' ||
+      normalizedCe === 'plaintext-only'
+    ) {
+      return true;
+    }
+  }
+
+  if (typeof el.contentEditable === 'string') {
+    const normalizedProp = el.contentEditable.trim().toLowerCase();
+    if (normalizedProp === 'true' || normalizedProp === 'plaintext-only') {
+      return true;
+    }
+  }
+
+  if (typeof el.closest === 'function') {
+    const editableAncestor = el.closest('[contenteditable]:not([contenteditable="false" i])');
+    if (editableAncestor) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Resolves the focused/targeted element from `event` (via `composedPath()[0]` or `event.target`)
+ * or `doc.activeElement` (traversing open Shadow Roots), and checks `predicate`.
+ *
+ * @param {(el: any) => boolean} predicate
+ * @param {KeyboardEvent | object | null | undefined} [event]
+ * @param {Document | object | null | undefined} [doc]
+ * @returns {boolean}
+ */
+function matchesFocusedOrTargetElement(
+  predicate,
+  event,
+  doc = typeof document !== 'undefined' ? document : null
+) {
+  if (event && typeof event === 'object') {
+    if (typeof event.composedPath === 'function') {
+      const path = event.composedPath();
+      if (Array.isArray(path) && path.length > 0 && predicate(path[0])) {
+        return true;
+      }
+    }
+    if (predicate(event.target)) {
+      return true;
+    }
+  }
+
+  if (doc && typeof doc === 'object' && doc.activeElement) {
+    let active = doc.activeElement;
+    while (active && active.shadowRoot && active.shadowRoot.activeElement) {
+      active = active.shadowRoot.activeElement;
+    }
+    if (predicate(active)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Checks whether a sensitive input (`<input type="password">`) is the target of `event` or is currently focused.
+ * Traverses `event.composedPath()` and `document.activeElement` (including open Shadow Roots).
+ *
+ * @param {KeyboardEvent | object | null | undefined} [event]
+ * @param {Document | object | null | undefined} [doc]
+ * @returns {boolean}
+ */
+export function isSensitiveInputFocused(event, doc = typeof document !== 'undefined' ? document : null) {
+  return matchesFocusedOrTargetElement(isSensitiveInputElement, event, doc);
+}
+
+/**
+ * Checks whether an editable element (`<input type="text|number|email|...">`, `<textarea>`, `[contenteditable]`, or `<input type="password">`)
+ * is the target of `event` or is currently focused.
+ * Traverses `event.composedPath()` and `document.activeElement` (including open Shadow Roots).
+ *
+ * @param {KeyboardEvent | object | null | undefined} [event]
+ * @param {Document | object | null | undefined} [doc]
+ * @returns {boolean}
+ */
+export function isEditableElementFocused(event, doc = typeof document !== 'undefined' ? document : null) {
+  return matchesFocusedOrTargetElement(isEditableElement, event, doc);
+}
+
+/**
  * Classifies a KeyboardEvent into its categories (`isShortcut`, `isNavigation`, `isModifierOnly`)
  * and determines whether it should be displayed under the given `keystrokes` Set.
  *
  * @param {KeyboardEvent | object} event
  * @param {{
  *   keystrokes?: Set<string> | string,
+ *   ignore?: Set<string> | string | string[],
  *   platform?: 'mac' | 'windows',
  *   notation?: 'text' | 'symbols',
- *   mapMetaToCtrlOnWindows?: boolean
+ *   mapMetaToCtrlOnWindows?: boolean,
+ *   document?: Document | object
  * }} [options={}]
  * @returns {{
  *   shouldShow: boolean,
@@ -388,6 +608,24 @@ export function getModifierLabels(event, options = {}) {
  * }}
  */
 export function formatKeystrokeEvent(event, options = {}) {
+  const ignoreSet = options.ignore instanceof Set ? options.ignore : parseIgnore(options.ignore);
+  if (
+    (ignoreSet.has('editable') && isEditableElementFocused(event, options.document)) ||
+    (ignoreSet.has('sensitive') && isSensitiveInputFocused(event, options.document))
+  ) {
+    return {
+      shouldShow: false,
+      category: 'ignored',
+      isShortcut: false,
+      isNavigation: false,
+      isModifierOnly: false,
+      modifiers: [],
+      primaryKey: '',
+      keys: [],
+      label: '',
+    };
+  }
+
   const keystrokesSet = options.keystrokes instanceof Set ? options.keystrokes : parseKeystrokes(options.keystrokes);
   const platform = detectPlatform(options.platform);
   const notation = options.notation === 'text' ? 'text' : DEFAULT_NOTATION;

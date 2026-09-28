@@ -6,16 +6,23 @@
 import { ShowKeystrokes } from './components/show-keystrokes.js';
 import {
   DEFAULT_KEYSTROKES,
+  DEFAULT_IGNORE,
   DEFAULT_HIDE_DELAY,
   DEFAULT_HIDE_DURATION,
   DEFAULT_SIZE,
   DEFAULT_POSITION,
   DEFAULT_NOTATION,
+  NON_TEXT_INPUT_TYPES,
   VALID_SIZES,
   VALID_VERTICAL_POSITIONS,
   VALID_HORIZONTAL_POSITIONS,
   detectPlatform,
   parseKeystrokes,
+  parseIgnore,
+  isSensitiveInputElement,
+  isSensitiveInputFocused,
+  isEditableElement,
+  isEditableElementFocused,
   parsePosition,
   parseDurationMs,
   parseSize,
@@ -33,6 +40,7 @@ if (typeof customElements !== 'undefined' && !customElements.get('show-keystroke
 
 const OPTION_TO_ATTR = {
   keystrokes: 'keystrokes',
+  ignore: 'ignore',
   theme: 'theme',
   colorScheme: 'color-scheme',
   platform: 'platform',
@@ -53,7 +61,7 @@ const BOOLEAN_ATTRIBUTES = new Set(['disabled', 'static']);
  * Dynamically creates and configures a `<show-keystrokes>` element,
  * appending it to `parentElement` (defaults to `document.body`).
  *
- * @param {object} [options={}] - CamelCase options to configure `keystrokes`, `theme`, `colorScheme`, `size`, `position`, `hideDelay`, `hideDuration`, `platform`, `disabled`, `static`, `keys`, etc.
+ * @param {object} [options={}] - CamelCase options to configure `keystrokes`, `ignore`, `theme`, `colorScheme`, `size`, `position`, `hideDelay`, `hideDuration`, `platform`, `disabled`, `static`, `keys`, etc.
  * @param {Element} [parentElement=document.body] - Element to append the newly created `<show-keystrokes>` element to.
  * @returns {ShowKeystrokes}
  */
@@ -94,8 +102,8 @@ function create(options = {}, parentElement = document.body) {
         continue;
       }
 
-      if (attrName === 'keystrokes' && Array.isArray(value)) {
-        el.setAttribute('keystrokes', value.join(' '));
+      if ((attrName === 'keystrokes' || attrName === 'ignore') && Array.isArray(value)) {
+        el.setAttribute(attrName, value.join(' '));
         continue;
       }
 
@@ -119,16 +127,23 @@ export {
   ShowKeystrokes,
   create,
   DEFAULT_KEYSTROKES,
+  DEFAULT_IGNORE,
   DEFAULT_HIDE_DELAY,
   DEFAULT_HIDE_DURATION,
   DEFAULT_SIZE,
   DEFAULT_POSITION,
   DEFAULT_NOTATION,
+  NON_TEXT_INPUT_TYPES,
   VALID_SIZES,
   VALID_VERTICAL_POSITIONS,
   VALID_HORIZONTAL_POSITIONS,
   detectPlatform,
   parseKeystrokes,
+  parseIgnore,
+  isSensitiveInputElement,
+  isSensitiveInputFocused,
+  isEditableElement,
+  isEditableElementFocused,
   parsePosition,
   parseDurationMs,
   parseSize,

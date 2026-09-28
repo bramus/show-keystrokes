@@ -76,6 +76,26 @@ import 'show-keystrokes';
 <show-keystrokes keystrokes="none"></show-keystrokes>
 ```
 
+### Ignored Elements (`ignore`)
+
+By default, `<show-keystrokes>` ignores any detected keystroke (including shortcuts and navigational keys) when a sensitive input (`<input type="password">`) is focused. Use the `ignore` attribute (or `el.ignore`) to customize which focused elements are ignored:
+
+- **Default (no value) or `ignore="sensitive"`**: Ignores keystrokes when `<input type="password">` is focused, while still showing keystrokes in standard text inputs (`<input type="text">`, `number`, `email`, etc.), `<textarea>`, and `[contenteditable]` elements.
+- **`ignore="editable"`**: Ignores keystrokes when any text-editable element (`<input type="text|number|email|...">`, `<textarea>`, `[contenteditable]`, or `<input type="password">`) is focused. Non-text controls like `<input type="checkbox">`, `<input type="radio">`, and `<button>` still show keystrokes.
+- **`ignore="none"`**: Ignores nothing—shows keystrokes everywhere, including when `<input type="password">` is focused.
+
+```html
+<!-- Default: ignores <input type="password"> -->
+<show-keystrokes></show-keystrokes>
+<show-keystrokes ignore="sensitive"></show-keystrokes>
+
+<!-- Ignore all editable text fields (<input>, <textarea>, [contenteditable], and <input type="password">) -->
+<show-keystrokes ignore="editable"></show-keystrokes>
+
+<!-- Ignore nothing (allow keystrokes to be shown even when <input type="password"> is focused) -->
+<show-keystrokes ignore="none"></show-keystrokes>
+```
+
 ### Themes & Light/Dark Variants
 
 ```html

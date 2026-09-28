@@ -17,6 +17,7 @@ const selectPositionAnchor = document.getElementById('select-position-anchor');
 const selectPositionArea = document.getElementById('select-position-area');
 const inputHideDelay = document.getElementById('input-hide-delay');
 const inputHideDuration = document.getElementById('input-hide-duration');
+const selectIgnore = document.getElementById('select-ignore');
 const selectDisabled = document.getElementById('select-disabled');
 
 function renderDefaultStagePromptMain() {
@@ -79,6 +80,7 @@ function updatePlaygroundAttributes() {
   const positionAreaVal = selectPositionArea ? selectPositionArea.value : 'top right';
   const hideDelayVal = inputHideDelay ? inputHideDelay.value.trim() : '1250';
   const hideDurationVal = inputHideDuration ? inputHideDuration.value.trim() : '200';
+  const ignoreVal = selectIgnore ? selectIgnore.value : '';
   const isDisabled = selectDisabled ? selectDisabled.value === 'true' : false;
 
   if (selectPositionArea) {
@@ -145,10 +147,17 @@ function updatePlaygroundAttributes() {
     visualizer.setAttribute('hide-duration', hideDurationVal);
   }
 
+  if (!ignoreVal) {
+    visualizer.removeAttribute('ignore');
+  } else {
+    visualizer.setAttribute('ignore', ignoreVal);
+  }
+
   visualizer.disabled = isDisabled;
 
   const attrs = [
     keystrokesVal ? `keystrokes="${keystrokesVal}"` : '',
+    ignoreVal ? `ignore="${ignoreVal}"` : '',
     positionVal ? `position="${positionVal}"` : '',
     `theme="${themeVal}"`,
     schemeVal !== 'auto' ? `color-scheme="${schemeVal}"` : '',
@@ -189,6 +198,7 @@ selectPositionAnchor?.addEventListener('change', updatePlaygroundAttributes);
 selectPositionArea?.addEventListener('change', updatePlaygroundAttributes);
 inputHideDelay?.addEventListener('input', updatePlaygroundAttributes);
 inputHideDuration?.addEventListener('input', updatePlaygroundAttributes);
+selectIgnore?.addEventListener('change', updatePlaygroundAttributes);
 selectDisabled?.addEventListener('change', updatePlaygroundAttributes);
 
 // Click-to-capture keystrokes on the playground stage:

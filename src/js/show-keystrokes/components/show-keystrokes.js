@@ -12,6 +12,9 @@ import {
   DEFAULT_NOTATION,
   detectPlatform,
   parseKeystrokes,
+  parseIgnore,
+  isSensitiveInputFocused,
+  isEditableElementFocused,
   parsePosition,
   parseDurationMs,
   parseSize,
@@ -543,6 +546,7 @@ export class ShowKeystrokes extends HTMLElement {
       'static',
       'disabled',
       'target',
+      'ignore',
     ];
   }
 
@@ -685,9 +689,27 @@ export class ShowKeystrokes extends HTMLElement {
       return;
     }
 
+    if (name === 'ignore') {
+      if (this.#shouldIgnoreFocusedElement() && this.#currentKeys.length > 0) {
+        this.clear();
+      }
+      return;
+    }
+
     if (name === 'notation' && this.#currentLabel) {
       this.showKeys(this.#currentLabel);
     }
+  }
+
+  #shouldIgnoreFocusedElement(event) {
+    const ignored = this.ignoredOptions;
+    if (ignored.has('editable') && isEditableElementFocused(event)) {
+      return true;
+    }
+    if (ignored.has('sensitive') && isSensitiveInputFocused(event)) {
+      return true;
+    }
+    return false;
   }
 
   #isTopLayerMode() {
@@ -945,6 +967,36 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   /**
+   * Returns the Set of ignored target categories ('sensitive', 'editable') parsed from the `ignore` attribute,
+   * or an empty Set when `ignore="none"`.
+   * @returns {Set<'sensitive' | 'editable'>}
+   */
+  get ignoredOptions() {
+    return parseIgnore(this.getAttribute('ignore'));
+  }
+
+  /**
+   * Gets or sets the `ignore` attribute:
+   * - '' (no value) or 'sensitive': Ignores keystrokes when `<input type="password">` is focused (default)
+   * - 'editable': Ignores keystrokes when any editable text element (`<input type="text|number|email|...">`, `<textarea>`, `[contenteditable]`, or `<input type="password">`) is focused
+   * - 'none': Ignores nothing (shows keystrokes even when `<input type="password">` is focused)
+   * @returns {string}
+   */
+  get ignore() {
+    return this.getAttribute('ignore') || '';
+  }
+
+  set ignore(val) {
+    if (val === null || val === undefined || val === '') {
+      this.removeAttribute('ignore');
+    } else if (Array.isArray(val)) {
+      this.setAttribute('ignore', val.join(' '));
+    } else {
+      this.setAttribute('ignore', String(val));
+    }
+  }
+
+  /**
    * Gets or sets the theme ('modern' or 'mechanical').
    */
   get theme() {
@@ -1068,6 +1120,10 @@ export class ShowKeystrokes extends HTMLElement {
       return false;
     }
 
+    if (this.#shouldIgnoreFocusedElement(event)) {
+      return false;
+    }
+
     const effectivePlatform = this.platform;
     const explicitWindowsOnMac =
       effectivePlatform === 'windows' &&
@@ -1076,6 +1132,7 @@ export class ShowKeystrokes extends HTMLElement {
 
     const result = formatKeystrokeEvent(event, {
       keystrokes: this.activeKeystrokes,
+      ignore: this.ignoredOptions,
       platform: effectivePlatform,
       notation: this.notation,
       mapMetaToCtrlOnWindows: explicitWindowsOnMac,

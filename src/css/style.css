@@ -709,6 +709,7 @@ micro-lighter::part(copy-button):hover {
   display: none;
 }
 
+.test-inputs-section,
 .controls-section,
 .code-section {
   display: flex;
@@ -716,6 +717,18 @@ micro-lighter::part(copy-button):hover {
   gap: 1.25rem;
   padding-top: 1.25rem;
   border-top: 1px solid var(--border-color);
+}
+
+.test-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 720px) {
+  .test-inputs-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .code-section {
@@ -769,7 +782,9 @@ micro-lighter::part(copy-button):hover {
 }
 
 .control-group select,
-.control-group input[type="number"] {
+.control-group input[type="number"],
+.control-group input[type="text"],
+.control-group input[type="password"] {
   padding: 0.5rem 0.65rem;
   border-radius: 8px;
   border: 1px solid var(--border-color);
@@ -781,14 +796,18 @@ micro-lighter::part(copy-button):hover {
 }
 
 .control-group select:hover,
-.control-group input[type="number"]:hover {
+.control-group input[type="number"]:hover,
+.control-group input[type="text"]:hover,
+.control-group input[type="password"]:hover {
   border-color: var(--primary-color);
   background: var(--bg-surface);
 }
 
 .control-group select:focus-visible,
 .control-group select:open,
-.control-group input[type="number"]:focus-visible {
+.control-group input[type="number"]:focus-visible,
+.control-group input[type="text"]:focus-visible,
+.control-group input[type="password"]:focus-visible {
   outline: none;
   border-color: var(--primary-color);
   background: var(--bg-surface);

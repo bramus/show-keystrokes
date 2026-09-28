@@ -2,11 +2,17 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   DEFAULT_KEYSTROKES,
+  DEFAULT_IGNORE,
   DEFAULT_HIDE_DELAY,
   DEFAULT_HIDE_DURATION,
   DEFAULT_SIZE,
   detectPlatform,
   parseKeystrokes,
+  parseIgnore,
+  isSensitiveInputElement,
+  isSensitiveInputFocused,
+  isEditableElement,
+  isEditableElementFocused,
   parsePosition,
   parseDurationMs,
   parseSize,
@@ -524,6 +530,161 @@ describe('keystroke utilities unit tests', () => {
         ],
         label: 'CMD + SHIFT + SPACE',
       });
+    });
+  });
+
+  describe('Ignored elements & ignore attribute (parseIgnore, isSensitiveInputElement, isEditableElement)', () => {
+    it('parses ignore values correctly via parseIgnore()', () => {
+      assert.deepEqual(Array.from(parseIgnore(undefined)), DEFAULT_IGNORE);
+      assert.deepEqual(Array.from(parseIgnore('')), ['sensitive']);
+      assert.deepEqual(Array.from(parseIgnore('sensitive')), ['sensitive']);
+      assert.deepEqual(Array.from(parseIgnore('passwords')), ['sensitive']);
+      assert.deepEqual(Array.from(parseIgnore('editable')), ['editable', 'sensitive']);
+      assert.deepEqual(Array.from(parseIgnore('EDITABLE')), ['editable', 'sensitive']);
+      assert.deepEqual(Array.from(parseIgnore(['editable'])), ['editable', 'sensitive']);
+      assert.deepEqual(Array.from(parseIgnore('none')), []);
+      assert.deepEqual(Array.from(parseIgnore(new Set())), []);
+    });
+
+    it('detects sensitive (<input type="password">) vs editable (<input type="text|number|email|...">, <textarea>, [contenteditable]) vs non-text controls (<input type="checkbox">)', () => {
+      const pwdInput = { tagName: 'INPUT', type: 'password' };
+      const textInput = { tagName: 'INPUT', type: 'text' };
+      const numberInput = { tagName: 'INPUT', type: 'number' };
+      const emailInput = { tagName: 'INPUT', type: 'email' };
+      const textarea = { tagName: 'TEXTAREA' };
+      const contentEditableDiv = { tagName: 'DIV', isContentEditable: true };
+      const contentEditableAttrDiv = {
+        tagName: 'DIV',
+        getAttribute: (attr) => (attr === 'contenteditable' ? '' : null),
+      };
+      const nonEditableDiv = {
+        tagName: 'DIV',
+        isContentEditable: false,
+        getAttribute: (attr) => (attr === 'contenteditable' ? 'false' : null),
+      };
+      const checkboxInput = { tagName: 'INPUT', type: 'checkbox' };
+      const radioInput = { tagName: 'INPUT', type: 'radio' };
+      const rangeInput = { tagName: 'INPUT', type: 'range' };
+      const buttonEl = { tagName: 'BUTTON' };
+
+      // Sensitive check
+      assert.equal(isSensitiveInputElement(pwdInput), true);
+      assert.equal(isSensitiveInputElement(textInput), false);
+      assert.equal(isSensitiveInputElement(textarea), false);
+      assert.equal(isSensitiveInputElement(contentEditableDiv), false);
+      assert.equal(isSensitiveInputFocused({ target: pwdInput }), true);
+      assert.equal(isSensitiveInputFocused({ target: textInput }), false);
+      assert.equal(isSensitiveInputFocused({}, { activeElement: pwdInput }), true);
+
+      // Editable check
+      assert.equal(isEditableElement(pwdInput), true);
+      assert.equal(isEditableElement(textInput), true);
+      assert.equal(isEditableElement(numberInput), true);
+      assert.equal(isEditableElement(emailInput), true);
+      assert.equal(isEditableElement(textarea), true);
+      assert.equal(isEditableElement(contentEditableDiv), true);
+      assert.equal(isEditableElement(contentEditableAttrDiv), true);
+      assert.equal(isEditableElement(nonEditableDiv), false);
+      assert.equal(isEditableElement(checkboxInput), false);
+      assert.equal(isEditableElement(radioInput), false);
+      assert.equal(isEditableElement(rangeInput), false);
+      assert.equal(isEditableElement(buttonEl), false);
+
+      assert.equal(isEditableElementFocused({ target: textInput }), true);
+      assert.equal(isEditableElementFocused({ target: textarea }), true);
+      assert.equal(isEditableElementFocused({ target: contentEditableDiv }), true);
+      assert.equal(isEditableElementFocused({ target: checkboxInput }), false);
+    });
+
+    it('ignores <input type="password"> by default, ignores all editable elements when ignore="editable" (while keeping checkboxes active), and ignores nothing when ignore="none"', () => {
+      const pwdTarget = { tagName: 'INPUT', type: 'password' };
+      const textTarget = { tagName: 'INPUT', type: 'text' };
+      const emailTarget = { tagName: 'INPUT', type: 'email' };
+      const textareaTarget = { tagName: 'TEXTAREA' };
+      const ceTarget = { tagName: 'DIV', isContentEditable: true };
+      const checkboxTarget = { tagName: 'INPUT', type: 'checkbox' };
+
+      // 1. Default (ignore="sensitive"): blocks password input, allows text/textarea/contenteditable/checkbox
+      assert.equal(
+        formatKeystrokeEvent({ key: 's', code: 'KeyS', target: pwdTarget }, { keystrokes: 'all', platform: 'mac' })
+          .shouldShow,
+        false
+      );
+      assert.equal(
+        formatKeystrokeEvent({ key: 'Tab', code: 'Tab', target: pwdTarget }, { keystrokes: 'all', platform: 'mac' })
+          .shouldShow,
+        false
+      );
+      assert.equal(
+        formatKeystrokeEvent(
+          { key: 'a', code: 'KeyA', metaKey: true, target: pwdTarget },
+          { keystrokes: 'all', platform: 'mac' }
+        ).shouldShow,
+        false
+      );
+      assert.equal(
+        formatKeystrokeEvent({ key: 's', code: 'KeyS', target: textTarget }, { keystrokes: 'all', platform: 'mac' })
+          .shouldShow,
+        true
+      );
+      assert.equal(
+        formatKeystrokeEvent({ key: 's', code: 'KeyS', target: textareaTarget }, { keystrokes: 'all', platform: 'mac' })
+          .shouldShow,
+        true
+      );
+      assert.equal(
+        formatKeystrokeEvent({ key: 's', code: 'KeyS', target: ceTarget }, { keystrokes: 'all', platform: 'mac' })
+          .shouldShow,
+        true
+      );
+
+      // 2. ignore="editable": blocks text input, email input, textarea, contenteditable, and password input,
+      //    but still shows SPACE on <input type="checkbox">
+      for (const target of [pwdTarget, textTarget, emailTarget, textareaTarget, ceTarget]) {
+        assert.equal(
+          formatKeystrokeEvent(
+            { key: 's', code: 'KeyS', target },
+            { keystrokes: 'all', ignore: 'editable', platform: 'mac' }
+          ).shouldShow,
+          false
+        );
+        assert.equal(
+          formatKeystrokeEvent(
+            { key: 'a', code: 'KeyA', metaKey: true, target },
+            { keystrokes: 'all', ignore: 'editable', platform: 'mac' }
+          ).shouldShow,
+          false
+        );
+      }
+
+      const checkboxSpace = formatKeystrokeEvent(
+        { key: ' ', code: 'Space', target: checkboxTarget },
+        { keystrokes: '', ignore: 'editable', platform: 'mac' }
+      );
+      assert.equal(checkboxSpace.shouldShow, true);
+      assert.equal(checkboxSpace.label, 'SPACE');
+
+      // 3. ignore="none": shows keystrokes even when <input type="password"> is focused
+      const allowedLetter = formatKeystrokeEvent(
+        { key: 's', code: 'KeyS', target: pwdTarget },
+        { keystrokes: 'all', ignore: 'none', platform: 'mac' }
+      );
+      assert.equal(allowedLetter.shouldShow, true);
+      assert.equal(allowedLetter.label, 'S');
+
+      const allowedNav = formatKeystrokeEvent(
+        { key: 'Tab', code: 'Tab', target: pwdTarget },
+        { keystrokes: '', ignore: 'none', platform: 'mac' }
+      );
+      assert.equal(allowedNav.shouldShow, true);
+      assert.equal(allowedNav.label, '⇥');
+
+      const allowedShortcut = formatKeystrokeEvent(
+        { key: 'a', code: 'KeyA', metaKey: true, target: pwdTarget },
+        { keystrokes: '', ignore: 'none', platform: 'mac' }
+      );
+      assert.equal(allowedShortcut.shouldShow, true);
+      assert.equal(allowedShortcut.label, '⌘ + A');
     });
   });
 });

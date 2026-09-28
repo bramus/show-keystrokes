@@ -688,4 +688,115 @@ describe('<show-keystrokes> End-to-End Browser Tests (Puppeteer + WebDriver BiDi
     assert.equal(lifecycle.afterTimeoutOpen, false);
     assert.equal(lifecycle.afterTimeoutActive, false);
   });
+
+  it('ignores <input type="password"> by default, ignores all editable elements (<input>, <textarea>, [contenteditable]) when ignore="editable" while keeping checkboxes active, and ignores nothing when ignore="none"', async () => {
+    const ignoreResult = await page.evaluate(() => {
+      const el = document.createElement('show-keystrokes');
+      el.setAttribute('keystrokes', 'all');
+      el.setAttribute('platform', 'mac');
+      document.body.appendChild(el);
+
+      const pwdInput = document.createElement('input');
+      pwdInput.type = 'password';
+      const textInput = document.createElement('input');
+      textInput.type = 'text';
+      const textarea = document.createElement('textarea');
+      const ceDiv = document.createElement('div');
+      ceDiv.setAttribute('contenteditable', 'true');
+      ceDiv.tabIndex = 0;
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+
+      document.body.append(pwdInput, textInput, textarea, ceDiv, checkbox);
+
+      // 1. Default (ignore not set -> ignores sensitive): password input blocked, text input allowed
+      pwdInput.focus();
+      pwdInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'x', code: 'KeyX', bubbles: true }));
+      const labelAfterPwdDefault = el.keys;
+
+      pwdInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', code: 'Tab', bubbles: true }));
+      const labelAfterPwdNavDefault = el.keys;
+
+      pwdInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', code: 'KeyA', metaKey: true, bubbles: true }));
+      const labelAfterPwdShortcutDefault = el.keys;
+
+      textInput.focus();
+      textInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'm', code: 'KeyM', bubbles: true }));
+      const labelAfterTextDefault = el.keys;
+
+      // 2. Set el.ignore = 'editable': clears active keystroke on focused textInput, blocks text/textarea/contenteditable/password, allows checkbox
+      el.ignore = 'editable';
+      const reflectedEditableAttr = el.getAttribute('ignore');
+      const labelAfterIgnoreEditableSetWhileTextFocused = el.keys;
+
+      textInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'm', code: 'KeyM', bubbles: true }));
+      const labelAfterTextWhenEditableIgnored = el.keys;
+
+      textarea.focus();
+      textarea.dispatchEvent(new KeyboardEvent('keydown', { key: 'n', code: 'KeyN', bubbles: true }));
+      const labelAfterTextareaWhenEditableIgnored = el.keys;
+
+      ceDiv.focus();
+      ceDiv.dispatchEvent(new KeyboardEvent('keydown', { key: 'o', code: 'KeyO', bubbles: true }));
+      const labelAfterCeWhenEditableIgnored = el.keys;
+
+      checkbox.focus();
+      checkbox.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true }));
+      const labelAfterCheckboxWhenEditableIgnored = el.keys;
+
+      // 3. Set el.ignore = 'none': keystrokes are displayed even when password input is focused
+      pwdInput.focus();
+      el.ignore = 'none';
+      const reflectedNoneAttr = el.getAttribute('ignore');
+
+      pwdInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'x', code: 'KeyX', bubbles: true }));
+      const labelAfterPwdWhenNoneIgnored = el.keys;
+
+      pwdInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', code: 'KeyA', metaKey: true, bubbles: true }));
+      const labelAfterPwdShortcutWhenNoneIgnored = el.keys;
+
+      // 4. Resetting ignore to default ('') while password input is still focused clears any currently displayed keystroke
+      el.ignore = '';
+      const labelAfterIgnoreResetWhilePwdFocused = el.keys;
+
+      pwdInput.remove();
+      textInput.remove();
+      textarea.remove();
+      ceDiv.remove();
+      checkbox.remove();
+      el.remove();
+
+      return {
+        labelAfterPwdDefault,
+        labelAfterPwdNavDefault,
+        labelAfterPwdShortcutDefault,
+        labelAfterTextDefault,
+        reflectedEditableAttr,
+        labelAfterIgnoreEditableSetWhileTextFocused,
+        labelAfterTextWhenEditableIgnored,
+        labelAfterTextareaWhenEditableIgnored,
+        labelAfterCeWhenEditableIgnored,
+        labelAfterCheckboxWhenEditableIgnored,
+        reflectedNoneAttr,
+        labelAfterPwdWhenNoneIgnored,
+        labelAfterPwdShortcutWhenNoneIgnored,
+        labelAfterIgnoreResetWhilePwdFocused,
+      };
+    });
+
+    assert.equal(ignoreResult.labelAfterPwdDefault, '');
+    assert.equal(ignoreResult.labelAfterPwdNavDefault, '');
+    assert.equal(ignoreResult.labelAfterPwdShortcutDefault, '');
+    assert.equal(ignoreResult.labelAfterTextDefault, 'M');
+    assert.equal(ignoreResult.reflectedEditableAttr, 'editable');
+    assert.equal(ignoreResult.labelAfterIgnoreEditableSetWhileTextFocused, '');
+    assert.equal(ignoreResult.labelAfterTextWhenEditableIgnored, '');
+    assert.equal(ignoreResult.labelAfterTextareaWhenEditableIgnored, '');
+    assert.equal(ignoreResult.labelAfterCeWhenEditableIgnored, '');
+    assert.equal(ignoreResult.labelAfterCheckboxWhenEditableIgnored, 'SPACE');
+    assert.equal(ignoreResult.reflectedNoneAttr, 'none');
+    assert.equal(ignoreResult.labelAfterPwdWhenNoneIgnored, 'X');
+    assert.equal(ignoreResult.labelAfterPwdShortcutWhenNoneIgnored, '⌘ + A');
+    assert.equal(ignoreResult.labelAfterIgnoreResetWhilePwdFocused, '');
+  });
 });
