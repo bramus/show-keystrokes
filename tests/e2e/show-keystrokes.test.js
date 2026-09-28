@@ -799,4 +799,52 @@ describe('<show-keystrokes> End-to-End Browser Tests (Puppeteer + WebDriver BiDi
     assert.equal(ignoreResult.labelAfterPwdShortcutWhenNoneIgnored, '⌘ + A');
     assert.equal(ignoreResult.labelAfterIgnoreResetWhilePwdFocused, '');
   });
+
+  it('does not reset the auto-hide timeout when typing into an ignored password input after pressing TAB', async () => {
+    const result = await page.evaluate(async () => {
+      const el = document.createElement('show-keystrokes');
+      el.setAttribute('platform', 'mac');
+      el.setAttribute('hide-delay', '80');
+      el.setAttribute('hide-duration', '30');
+      document.body.appendChild(el);
+
+      const textInput = document.createElement('input');
+      textInput.type = 'text';
+      const pwdInput = document.createElement('input');
+      pwdInput.type = 'password';
+      document.body.append(textInput, pwdInput);
+
+      // 1. Focus text input and press TAB to move to password input
+      textInput.focus();
+      textInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', code: 'Tab', bubbles: true }));
+      pwdInput.focus();
+      pwdInput.dispatchEvent(new KeyboardEvent('keyup', { key: 'Tab', code: 'Tab', bubbles: true }));
+
+      const labelAfterTab = el.keys;
+
+      // 2. Repeatedly type into the password input every 30ms (which previously reset #fadeTimer on keyup)
+      for (let i = 0; i < 4; i++) {
+        await new Promise((r) => setTimeout(r, 35));
+        pwdInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', code: 'KeyA', bubbles: true }));
+        pwdInput.dispatchEvent(new KeyboardEvent('keyup', { key: 'a', code: 'KeyA', bubbles: true }));
+      }
+
+      const labelAfterTypingInPassword = el.keys;
+      const isActiveAfterTypingInPassword = el.hasAttribute('active');
+
+      textInput.remove();
+      pwdInput.remove();
+      el.remove();
+
+      return {
+        labelAfterTab,
+        labelAfterTypingInPassword,
+        isActiveAfterTypingInPassword,
+      };
+    });
+
+    assert.equal(result.labelAfterTab, '⇥');
+    assert.equal(result.labelAfterTypingInPassword, '');
+    assert.equal(result.isActiveAfterTypingInPassword, false);
+  });
 });

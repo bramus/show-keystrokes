@@ -1252,6 +1252,9 @@ export class ShowKeystrokes extends HTMLElement {
   }
 
   #onKeyUp() {
+    if (!this.hasAttribute('pressed')) {
+      return;
+    }
     this.removeAttribute('pressed');
     this.#scheduleAutoClear();
   }
