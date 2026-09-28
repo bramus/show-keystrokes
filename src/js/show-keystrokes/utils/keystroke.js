@@ -696,11 +696,13 @@ export function formatKeystrokeEvent(event, options = {}) {
   // is pressed without CMD/CTRL/ALT (or with SHIFT, e.g. →, TAB, SHIFT + TAB, BACKSPACE, SPACE, DELETE, F1-F15).
   const isNavigation = (isNavKey || isFnKey) && !hasPrimaryModifier;
 
-  let modifiers = getModifierLabels(event, {
-    platform,
-    notation,
-    mapMetaToCtrlOnWindows: options.mapMetaToCtrlOnWindows,
-  });
+  const modifiers = isShortcut
+    ? getModifierLabels(event, {
+        platform,
+        notation,
+        mapMetaToCtrlOnWindows: options.mapMetaToCtrlOnWindows,
+      })
+    : [];
 
   const keys = [
     ...modifiers.map((label) => ({ label, type: 'modifier' })),

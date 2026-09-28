@@ -687,4 +687,150 @@ describe('keystroke utilities unit tests', () => {
       assert.equal(allowedShortcut.label, '⌘ + A');
     });
   });
+
+  describe('Keystroke sequence & limit utilities (parseLimit, appendKeystrokeToSequence, formatSequenceLabel, parseKeystrokeSequence)', () => {
+    it('parses limit values and defaults to DEFAULT_LIMIT (5)', () => {
+      assert.equal(DEFAULT_LIMIT, 5);
+      assert.equal(parseLimit(undefined), 5);
+      assert.equal(parseLimit(null), 5);
+      assert.equal(parseLimit(''), 5);
+      assert.equal(parseLimit('invalid'), 5);
+      assert.equal(parseLimit(0), 5);
+      assert.equal(parseLimit(-3), 5);
+      assert.equal(parseLimit(1), 1);
+      assert.equal(parseLimit('1'), 1);
+      assert.equal(parseLimit('8'), 8);
+    });
+
+    it('appends plain characters in "hello" without collapsing repeated letters ("L", "L") and without commas', () => {
+      let seq = [];
+      for (const ch of 'hello') {
+        const res = formatKeystrokeEvent(
+          { key: ch, code: `Key${ch.toUpperCase()}` },
+          { keystrokes: 'all', platform: 'mac' }
+        );
+        seq = appendKeystrokeToSequence(seq, res, 5);
+      }
+
+      assert.equal(seq.length, 5);
+      assert.deepEqual(
+        seq.map((s) => ({ label: s.label, count: s.count, category: s.category })),
+        [
+          { label: 'H', count: 1, category: 'keystroke' },
+          { label: 'E', count: 1, category: 'keystroke' },
+          { label: 'L', count: 1, category: 'keystroke' },
+          { label: 'L', count: 1, category: 'keystroke' },
+          { label: 'O', count: 1, category: 'keystroke' },
+        ]
+      );
+      assert.equal(needsCommaSeparator(seq[2], seq[3]), false);
+      assert.equal(formatSequenceLabel(seq), 'H E L L O');
+    });
+
+    it('retains only the last 5 characters when typing "supercalifragilisticexpialidocious"', () => {
+      let seq = [];
+      for (const ch of 'supercalifragilisticexpialidocious') {
+        const res = formatKeystrokeEvent(
+          { key: ch, code: `Key${ch.toUpperCase()}` },
+          { keystrokes: 'all', platform: 'mac' }
+        );
+        seq = appendKeystrokeToSequence(seq, res, 5);
+      }
+
+      assert.equal(seq.length, 5);
+      assert.deepEqual(
+        seq.map((s) => s.label),
+        ['C', 'I', 'O', 'U', 'S']
+      );
+      assert.equal(formatSequenceLabel(seq), 'C I O U S');
+    });
+
+    it('separates "CMD+B" followed by "K" with a comma', () => {
+      let seq = [];
+      const cmdB = formatKeystrokeEvent(
+        { key: 'b', code: 'KeyB', metaKey: true },
+        { keystrokes: 'all', platform: 'mac' }
+      );
+      const plainK = formatKeystrokeEvent(
+        { key: 'k', code: 'KeyK' },
+        { keystrokes: 'all', platform: 'mac' }
+      );
+
+      seq = appendKeystrokeToSequence(seq, cmdB, 5);
+      seq = appendKeystrokeToSequence(seq, plainK, 5);
+
+      assert.equal(seq.length, 2);
+      assert.equal(needsCommaSeparator(seq[0], seq[1]), true);
+      assert.equal(formatSequenceLabel(seq), '⌘ + B, K');
+    });
+
+    it('collapses consecutive identical navigational keys (TAB + TAB) or shortcuts into a single item with a repeat count', () => {
+      let seq = [];
+      const tabEvent = formatKeystrokeEvent(
+        { key: 'Tab', code: 'Tab' },
+        { keystrokes: '', platform: 'mac' }
+      );
+
+      seq = appendKeystrokeToSequence(seq, tabEvent, 5);
+      seq = appendKeystrokeToSequence(seq, tabEvent, 5);
+
+      assert.equal(seq.length, 1);
+      assert.equal(seq[0].label, '⇥');
+      assert.equal(seq[0].count, 2);
+      assert.equal(formatSequenceLabel(seq), '⇥×2');
+
+      const parsedSeq = parseKeystrokeSequence('TAB×2, K', { notation: 'text', platform: 'mac' });
+      assert.equal(parsedSeq.label, 'TAB×2, K');
+      assert.equal(parsedSeq.sequence.length, 2);
+      assert.equal(parsedSeq.sequence[0].count, 2);
+    });
+
+    it('ignores lone SHIFT on character keys (e.g. SHIFT+? -> "?" and SHIFT+> -> ">") while keeping SHIFT on special keys (e.g. SHIFT+DEL -> "⇧ + ⌦") and multi-modifier combos', () => {
+      const shiftQuestion = formatKeystrokeEvent(
+        { key: '?', code: 'Slash', shiftKey: true },
+        { keystrokes: 'all', platform: 'mac' }
+      );
+      assert.equal(shiftQuestion.shouldShow, true);
+      assert.equal(shiftQuestion.isShortcut, false);
+      assert.equal(shiftQuestion.category, 'keystroke');
+      assert.deepEqual(shiftQuestion.modifiers, []);
+      assert.equal(shiftQuestion.label, '?');
+      assert.deepEqual(shiftQuestion.keys, [{ label: '?', type: 'primary' }]);
+
+      const shiftGreater = formatKeystrokeEvent(
+        { key: '>', code: 'Period', shiftKey: true },
+        { keystrokes: 'all', platform: 'mac' }
+      );
+      assert.equal(shiftGreater.shouldShow, true);
+      assert.equal(shiftGreater.isShortcut, false);
+      assert.equal(shiftGreater.category, 'keystroke');
+      assert.deepEqual(shiftGreater.modifiers, []);
+      assert.equal(shiftGreater.label, '>');
+      assert.deepEqual(shiftGreater.keys, [{ label: '>', type: 'primary' }]);
+
+      let seq = appendKeystrokeToSequence([], shiftQuestion, 5);
+      seq = appendKeystrokeToSequence(seq, shiftGreater, 5);
+      assert.equal(formatSequenceLabel(seq), '? >');
+
+      const shiftDelete = formatKeystrokeEvent(
+        { key: 'Delete', code: 'Delete', shiftKey: true },
+        { keystrokes: 'all', platform: 'mac' }
+      );
+      assert.equal(shiftDelete.shouldShow, true);
+      assert.equal(shiftDelete.isShortcut, true);
+      assert.equal(shiftDelete.category, 'shortcut');
+      assert.deepEqual(shiftDelete.modifiers, ['⇧']);
+      assert.equal(shiftDelete.label, '⇧ + ⌦');
+
+      const shiftCmdQuestion = formatKeystrokeEvent(
+        { key: '?', code: 'Slash', shiftKey: true, metaKey: true },
+        { keystrokes: 'all', platform: 'mac' }
+      );
+      assert.equal(shiftCmdQuestion.shouldShow, true);
+      assert.equal(shiftCmdQuestion.isShortcut, true);
+      assert.equal(shiftCmdQuestion.category, 'shortcut');
+      assert.deepEqual(shiftCmdQuestion.modifiers, ['⇧', '⌘']);
+      assert.equal(shiftCmdQuestion.label, '⇧ + ⌘ + ?');
+    });
+  });
 });
