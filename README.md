@@ -298,11 +298,11 @@ show-keystrokes::part(old) {
 
 `<show-keystrokes>` is also available as a browser extension for when you want to inject it onto any webpage without modifying the page’s code—perfect for live demos, talks, and screen casting.
 
-The extension is available on the [**Chrome Web Store**](https://chromewebstore.google.com/detail/show-keystrokes/djfbngdmoohldepblnidecjhmgommdmh) and on the [**Firefox Add-ons website**](https://addons.mozilla.org/en-US/firefox/addon/show-keystrokes/) *(Pending Review)*.
+The extension is available on the [**Chrome Web Store**](https://chromewebstore.google.com/detail/show-keystrokes/djfbngdmoohldepblnidecjhmgommdmh) and on the [**Firefox Add-ons website**](https://addons.mozilla.org/en-US/firefox/addon/show-keystrokes/).
 
 <p>
   <a href="https://chromewebstore.google.com/detail/show-keystrokes/djfbngdmoohldepblnidecjhmgommdmh"><img src="https://raw.githubusercontent.com/bramus/show-keystrokes/main/src/images/chrome-webstore.svg" alt="Available in the Chrome Web Store" height="62"></a>
-  <a href="https://addons.mozilla.org/en-US/firefox/addon/show-keystrokes/"><img src="https://raw.githubusercontent.com/bramus/show-keystrokes/main/src/images/firefox-addons.svg" alt="Available on the Firefox Add-ons Website (Pending Review)" height="62"></a>
+  <a href="https://addons.mozilla.org/en-US/firefox/addon/show-keystrokes/"><img src="https://raw.githubusercontent.com/bramus/show-keystrokes/main/src/images/firefox-addons.svg" alt="Available on the Firefox Add-ons Website" height="62"></a>
 </p>
 
 - **Persists across navigations:** Automatically re-injects `<show-keystrokes>` as you navigate between pages on an enabled origin—no need to re-inject on every page load.
